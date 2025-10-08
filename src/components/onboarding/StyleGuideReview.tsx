@@ -33,7 +33,7 @@ export const StyleGuideReview = ({ styleGuide, onAccept, onRegenerate }: StyleGu
         <TabsContent value="preview" className="mt-4">
           <Card>
             <CardContent className="pt-6">
-              <div className="prose prose-sm max-w-none">
+              <div className="prose prose-sm max-w-none prose-p:mb-4 prose-headings:mt-6 prose-headings:mb-3 prose-ul:my-4 prose-li:my-2">
                 <ReactMarkdown>{editedGuide}</ReactMarkdown>
               </div>
             </CardContent>

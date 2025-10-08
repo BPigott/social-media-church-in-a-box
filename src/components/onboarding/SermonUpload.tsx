@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, X, FileText } from "lucide-react";
 
@@ -120,6 +121,27 @@ export const SermonUpload = ({
           Upload {minFiles}-{maxFiles} recent sermon transcripts to help us understand your church's voice
         </p>
       </div>
+
+      {/* Educational Note */}
+      <Card className="bg-primary/5 border-primary/20">
+        <CardContent className="pt-6">
+          <div className="flex gap-3">
+            <div className="flex-shrink-0">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="text-lg">💡</span>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Top Tips for Best Results</p>
+              <ul className="text-sm text-muted-foreground space-y-1">
+                <li>• More sermons = better style guide accuracy</li>
+                <li>• Choose sermons from different preaching series to showcase teaching variety</li>
+                <li>• Recommended: 3-6 sermons from different topics and speakers</li>
+              </ul>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Drag and Drop Zone */}
       <div

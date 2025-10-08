@@ -17,22 +17,19 @@ export const ChurchInfoForm = ({ onSubmit, initialData }: ChurchInfoFormProps) =
     email: initialData?.email || "",
     website_url: initialData?.website_url || "",
     location: initialData?.location || "",
-    denomination: initialData?.denomination || "",
     vision_statement: initialData?.vision_statement || "",
     contact_email: initialData?.contact_email || "",
     service_times: initialData?.service_times || [{ day: "", time: "", service_type: "" }],
     social_handles: initialData?.social_handles || { facebook: "", instagram: "", twitter: "", tiktok: "" },
-    key_ministries: initialData?.key_ministries || [""],
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Filter out empty service times and ministries
+    // Filter out empty service times
     const cleanedData = {
       ...formData,
       service_times: formData.service_times.filter(st => st.day && st.time),
-      key_ministries: formData.key_ministries.filter(m => m.trim() !== ""),
     };
     
     onSubmit(cleanedData);
@@ -58,25 +55,6 @@ export const ChurchInfoForm = ({ onSubmit, initialData }: ChurchInfoFormProps) =
     setFormData({ ...formData, service_times: updated });
   };
 
-  const addMinistry = () => {
-    setFormData({
-      ...formData,
-      key_ministries: [...formData.key_ministries, ""],
-    });
-  };
-
-  const removeMinistry = (index: number) => {
-    setFormData({
-      ...formData,
-      key_ministries: formData.key_ministries.filter((_, i) => i !== index),
-    });
-  };
-
-  const updateMinistry = (index: number, value: string) => {
-    const updated = [...formData.key_ministries];
-    updated[index] = value;
-    setFormData({ ...formData, key_ministries: updated });
-  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -103,27 +81,15 @@ export const ChurchInfoForm = ({ onSubmit, initialData }: ChurchInfoFormProps) =
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="location">Location *</Label>
-          <Input
-            id="location"
-            placeholder="City, State"
-            value={formData.location}
-            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="denomination">Denomination</Label>
-          <Input
-            id="denomination"
-            placeholder="e.g., Baptist, Methodist, Non-denominational"
-            value={formData.denomination}
-            onChange={(e) => setFormData({ ...formData, denomination: e.target.value })}
-          />
-        </div>
+      <div className="space-y-2">
+        <Label htmlFor="location">Location *</Label>
+        <Input
+          id="location"
+          placeholder="City, County/Region"
+          value={formData.location}
+          onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+          required
+        />
       </div>
 
       <div className="space-y-2">
@@ -246,35 +212,6 @@ export const ChurchInfoForm = ({ onSubmit, initialData }: ChurchInfoFormProps) =
             }
           />
         </div>
-      </div>
-
-      {/* Key Ministries */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <Label>Key Ministries</Label>
-          <Button type="button" onClick={addMinistry} size="sm" variant="outline">
-            <Plus className="w-4 h-4 mr-1" />
-            Add Ministry
-          </Button>
-        </div>
-        {formData.key_ministries.map((ministry, index) => (
-          <div key={index} className="flex gap-2">
-            <Input
-              placeholder="Ministry name (e.g., Youth Group, Worship Team)"
-              value={ministry}
-              onChange={(e) => updateMinistry(index, e.target.value)}
-              className="flex-1"
-            />
-            <Button
-              type="button"
-              onClick={() => removeMinistry(index)}
-              size="icon"
-              variant="ghost"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-        ))}
       </div>
 
       <Button type="submit" size="lg" className="w-full">

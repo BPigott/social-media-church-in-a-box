@@ -14,19 +14,20 @@ export const StyleGuideGeneration = ({ onComplete, onRetry }: StyleGuideGenerati
   const [message, setMessage] = useState("Analyzing sermon content...");
 
   useEffect(() => {
-    // Simulate progress for user experience
+    // Simulate progress with humorous messages
     const messages = [
-      "Analyzing sermon content...",
-      "Identifying communication patterns...",
-      "Extracting key themes...",
-      "Analyzing language preferences...",
-      "Building your unique style guide...",
+      "Reading between the sermon lines... 📖",
+      "Teaching our AI about your unique church vibe... ✨",
+      "Identifying if you're a 'thee/thou' or 'wassup' kind of church... 🎭",
+      "Counting how many times you say 'amen'... 🙏",
+      "Calibrating the theological vocabulary meter... 📊",
+      "Almost there! Just adding a pinch of Holy Ghost fire... 🔥",
     ];
 
     let messageIndex = 0;
     const interval = setInterval(() => {
       setProgress((prev) => {
-        const newProgress = Math.min(prev + 2, 95);
+        const newProgress = Math.min(prev + 1.5, 95);
         
         // Update message based on progress
         const newMessageIndex = Math.floor((newProgress / 100) * messages.length);
@@ -37,7 +38,7 @@ export const StyleGuideGeneration = ({ onComplete, onRetry }: StyleGuideGenerati
         
         return newProgress;
       });
-    }, 500);
+    }, 600);
 
     return () => clearInterval(interval);
   }, []);

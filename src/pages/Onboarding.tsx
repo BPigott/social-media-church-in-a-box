@@ -117,10 +117,8 @@ const Onboarding = () => {
           contact_email: churchData.contact_email!,
           owner_id: user!.id,
           website_url: churchData.website_url || null,
-          denomination: churchData.denomination || null,
           service_times: (churchData.service_times || []) as any,
           social_handles: (churchData.social_handles || {}) as any,
-          key_ministries: (churchData.key_ministries || []) as any,
         }])
         .select()
         .single();
@@ -128,26 +126,34 @@ const Onboarding = () => {
       if (churchError) throw churchError;
 
       // Create user role
-      await supabase.from('user_roles').insert({
+      const { error: roleError } = await supabase.from('user_roles').insert({
         user_id: user?.id,
         church_id: church.id,
         role: 'owner',
       });
 
+      if (roleError) throw roleError;
+
       // Create style guide
-      await supabase.from('style_guides').insert({
+      const { error: styleError } = await supabase.from('style_guides').insert({
         church_id: church.id,
         guide_content: finalGuide,
         sermon_documents: sermonFiles.map(f => ({ file_name: f.name })) as any,
       });
+
+      if (styleError) throw styleError;
 
       toast({
         title: "Setup complete!",
         description: "Your church has been set up successfully.",
       });
 
+      // Small delay to ensure database operations are complete
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       navigate("/dashboard");
     } catch (error) {
+      console.error('Setup error:', error);
       toast({
         variant: "destructive",
         title: "Setup failed",
