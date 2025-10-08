@@ -19,9 +19,12 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
 
+    console.log('🔐 Login: Starting sign in process...');
+
     const { data, error } = await signIn(email, password);
 
     if (error) {
+      console.error('❌ Login: Sign in failed:', error.message);
       toast({
         variant: "destructive",
         title: "Login failed",
@@ -31,6 +34,8 @@ const Login = () => {
       return;
     }
 
+    console.log('✅ Login: Sign in successful, user ID:', data?.user?.id);
+
     toast({
       title: "Welcome back!",
       description: "You've been successfully logged in.",
@@ -38,19 +43,34 @@ const Login = () => {
 
     // Check if user has a church profile
     if (data?.user) {
-      const { data: churchesData } = await supabase
+      console.log('🔍 Login: Checking for user churches...');
+      
+      const { data: churchesData, error: churchError } = await supabase
         .rpc('get_user_churches', { _user_id: data.user.id });
+
+      if (churchError) {
+        console.error('❌ Login: Error fetching churches:', churchError);
+      }
+
+      console.log('📊 Login: Found', churchesData?.length || 0, 'churches');
+
+      // Small delay to ensure auth state has propagated
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       if (churchesData && churchesData.length > 0) {
         // User has a church, redirect to dashboard
-        navigate("/dashboard");
+        console.log('🚀 Login: Redirecting to dashboard with replace...');
+        navigate("/dashboard", { replace: true });
       } else {
         // User doesn't have a church, redirect to onboarding
-        navigate("/onboarding");
+        console.log('🚀 Login: Redirecting to onboarding with replace...');
+        navigate("/onboarding", { replace: true });
       }
     } else {
       // Fallback to dashboard if user data is missing
-      navigate("/dashboard");
+      console.log('⚠️ Login: No user data, redirecting to dashboard...');
+      await new Promise(resolve => setTimeout(resolve, 100));
+      navigate("/dashboard", { replace: true });
     }
 
     setLoading(false);
