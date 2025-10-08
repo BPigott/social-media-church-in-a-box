@@ -68,8 +68,17 @@ const Onboarding = () => {
       const { data: church, error: churchError } = await supabase
         .from('churches')
         .insert([{
-          ...churchData,
-          owner_id: user?.id,
+          name: churchData.name!,
+          email: churchData.email!,
+          location: churchData.location!,
+          vision_statement: churchData.vision_statement!,
+          contact_email: churchData.contact_email!,
+          owner_id: user!.id,
+          website_url: churchData.website_url || null,
+          denomination: churchData.denomination || null,
+          service_times: (churchData.service_times || []) as any,
+          social_handles: (churchData.social_handles || {}) as any,
+          key_ministries: (churchData.key_ministries || []) as any,
         }])
         .select()
         .single();
@@ -87,7 +96,7 @@ const Onboarding = () => {
       await supabase.from('style_guides').insert({
         church_id: church.id,
         guide_content: finalGuide,
-        sermon_documents: sermonFiles.map(f => ({ file_name: f.name })),
+        sermon_documents: sermonFiles.map(f => ({ file_name: f.name })) as any,
       });
 
       toast({
