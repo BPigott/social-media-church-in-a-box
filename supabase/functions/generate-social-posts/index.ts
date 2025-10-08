@@ -77,7 +77,18 @@ serve(async (req) => {
 
     const { transcript, styleGuide, platforms, customCTA, churchId } = await req.json();
 
+    // Validate transcript
+    if (!transcript || transcript.trim().length < 100) {
+      return new Response(
+        JSON.stringify({ error: 'Transcript is missing or too short. Please provide a complete sermon transcript.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     console.log('Generating social posts for church:', churchId, 'platforms:', platforms);
+    console.log('Transcript length:', transcript?.length || 0);
+    console.log('Style guide length:', styleGuide?.length || 0);
+    console.log('Custom CTA:', customCTA || 'None');
 
     // Build platform-specific guidelines
     const selectedGuidelines = platforms
@@ -87,8 +98,8 @@ serve(async (req) => {
     const systemPrompt = `You are an expert social media content creator for churches. Create engaging, platform-specific social media posts that capture the essence of the sermon while maintaining the church's unique voice and style.`;
 
     const userPrompt = `
-# Church Style Guide
-${styleGuide}
+# Primary Task Context
+Your goal is to create social media posts that capture and communicate the key messages from the sermon transcript provided below. The sermon content must be the primary focus of all posts.
 
 ---
 
@@ -97,8 +108,8 @@ ${transcript}
 
 ---
 
-# Custom Instructions
-${customCTA || 'None provided'}
+# Church Style Guide
+${styleGuide}
 
 ---
 
@@ -107,15 +118,33 @@ ${selectedGuidelines}
 
 ---
 
+# Optional Additions to Include
+${customCTA || 'None - focus solely on sermon content'}
+
+Note: If optional additions are provided above, incorporate them as a secondary call-to-action AFTER presenting the sermon's main message. The sermon content should remain the primary focus.
+
+---
+
 # Task
+Create social media posts that capture and communicate the key messages from the SERMON TRANSCRIPT provided above.
+
+CRITICAL REQUIREMENTS:
+- Each post MUST be based on the sermon content - extract key themes, messages, and takeaways from the transcript
+- Reference specific scripture passages mentioned in the sermon (include book, chapter:verse)
+- If "Optional Additions" are provided, weave them naturally into sermon-based content as a call-to-action
+- DO NOT create posts solely about the optional additions - they should enhance, not replace, sermon content
+- The sermon message should be the primary focus; optional additions are supplementary
+
 Generate ONE post for EACH of the following platforms: ${platforms.join(', ')}
 
 Also create an executive summary (400-500 words) that retells the sermon content in a condensed format:
-- Write as a mini-sermon: present the core message, don't describe it
-- Include key scripture passages used (cite book, chapter:verse in context)
-- Flow naturally through the teaching progression as it was preached
-- End with "Key Takeaways:" followed by 3-5 bullet points summarizing main applications
+- Write as a mini-sermon: present the core message from the TRANSCRIPT, don't describe it
+- MUST include specific scripture passages directly quoted or referenced in the sermon (cite book, chapter:verse in context)
+- Flow naturally through the teaching progression as it was actually preached in the transcript
+- Quote or paraphrase key statements from the sermon
+- End with "Key Takeaways:" followed by 3-5 bullet points summarizing main applications FROM THE SERMON
 - Use engaging, accessible language that captures the sermon's essence
+- DO NOT create generic theological content - this must reflect the actual sermon provided
 
 Return your response as a JSON object with this exact structure:
 {
