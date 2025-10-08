@@ -219,7 +219,7 @@ const Library = () => {
                 <CardContent className="space-y-4">
                   {item.facebook_post && item.facebook_post.length > 0 && (() => {
                     const posts = Array.isArray(item.facebook_post) ? item.facebook_post : [item.facebook_post];
-                    const firstPost = posts[0];
+                    const firstPost = (posts.find(p => typeof p === "string" && (p as string).length > 0) as string) || "";
                     return (
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
@@ -245,7 +245,7 @@ const Library = () => {
 
                   {item.instagram_post && item.instagram_post.length > 0 && (() => {
                     const posts = Array.isArray(item.instagram_post) ? item.instagram_post : [item.instagram_post];
-                    const firstPost = posts[0];
+                    const firstPost = (posts.find(p => typeof p === "string" && (p as string).length > 0) as string) || "";
                     return (
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
