@@ -14,6 +14,10 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Copy, Download, Upload, CheckCircle2 } from "lucide-react";
 import type { Platform } from "@/types/database";
 import mammoth from "mammoth";
+import * as pdfjsLib from "pdfjs-dist";
+
+// Configure PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -69,18 +73,36 @@ const Dashboard = () => {
           description: "Text extracted successfully from Word document.",
         });
       } else if (fileExtension === 'pdf') {
-        // PDF files - not yet supported
+        // PDF files - extract text using PDF.js
         toast({
-          variant: "destructive",
-          title: "PDF not supported yet",
-          description: "Please convert your PDF to a Word document (.docx) or plain text (.txt) file.",
+          title: "Processing PDF...",
+          description: "Extracting text from PDF document.",
         });
-        setTranscriptFile(null);
+        
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        
+        let fullText = "";
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items
+            .map((item: any) => item.str)
+            .join(" ");
+          fullText += pageText + "\n\n";
+        }
+        
+        setTranscriptText(fullText.trim());
+        
+        toast({
+          title: "PDF processed",
+          description: `Text extracted successfully from ${pdf.numPages} page(s).`,
+        });
       } else {
         toast({
           variant: "destructive",
           title: "Unsupported file type",
-          description: "Please upload a .txt, .docx, or .doc file.",
+          description: "Please upload a .txt, .pdf, .docx, or .doc file.",
         });
         setTranscriptFile(null);
       }
@@ -309,12 +331,12 @@ const Dashboard = () => {
                     <p className="text-sm font-medium mb-1">
                       {transcriptFile ? transcriptFile.name : "Click to upload transcript"}
                     </p>
-                    <p className="text-xs text-muted-foreground">TXT, DOCX, or DOC</p>
+                    <p className="text-xs text-muted-foreground">TXT, PDF, DOCX, or DOC</p>
                   </div>
                   <input
                     id="transcript-upload"
                     type="file"
-                    accept=".txt,.docx,.doc,.md"
+                    accept=".txt,.pdf,.docx,.doc,.md"
                     onChange={handleFileUpload}
                     className="hidden"
                   />
