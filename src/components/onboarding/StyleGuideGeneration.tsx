@@ -1,0 +1,96 @@
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+
+interface StyleGuideGenerationProps {
+  onComplete: (styleGuide: string) => void;
+  onRetry: () => void;
+}
+
+export const StyleGuideGeneration = ({ onComplete, onRetry }: StyleGuideGenerationProps) => {
+  const [progress, setProgress] = useState(0);
+  const [status, setStatus] = useState<'generating' | 'success' | 'error'>('generating');
+  const [message, setMessage] = useState("Analyzing sermon content...");
+
+  useEffect(() => {
+    // Simulate progress for user experience
+    const messages = [
+      "Analyzing sermon content...",
+      "Identifying communication patterns...",
+      "Extracting key themes...",
+      "Analyzing language preferences...",
+      "Building your unique style guide...",
+    ];
+
+    let messageIndex = 0;
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        const newProgress = Math.min(prev + 2, 95);
+        
+        // Update message based on progress
+        const newMessageIndex = Math.floor((newProgress / 100) * messages.length);
+        if (newMessageIndex !== messageIndex && newMessageIndex < messages.length) {
+          messageIndex = newMessageIndex;
+          setMessage(messages[messageIndex]);
+        }
+        
+        return newProgress;
+      });
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  if (status === 'success') {
+    return (
+      <div className="text-center space-y-6 py-12">
+        <CheckCircle2 className="w-16 h-16 mx-auto text-green-500" />
+        <div className="space-y-2">
+          <h3 className="text-2xl font-playfair font-semibold">Style Guide Generated!</h3>
+          <p className="text-muted-foreground">
+            Your church's unique communication style guide has been created
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === 'error') {
+    return (
+      <div className="text-center space-y-6 py-12">
+        <AlertCircle className="w-16 h-16 mx-auto text-destructive" />
+        <div className="space-y-2">
+          <h3 className="text-2xl font-playfair font-semibold">Generation Failed</h3>
+          <p className="text-muted-foreground">
+            {message}
+          </p>
+        </div>
+        <Button onClick={onRetry} size="lg">
+          Try Again
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="text-center space-y-8 py-12">
+      <div className="space-y-4">
+        <Loader2 className="w-16 h-16 mx-auto animate-spin text-primary" />
+        <div className="space-y-2">
+          <h3 className="text-2xl font-playfair font-semibold">Creating Your Style Guide</h3>
+          <p className="text-muted-foreground">{message}</p>
+        </div>
+      </div>
+
+      <div className="max-w-md mx-auto space-y-2">
+        <Progress value={progress} className="h-2" />
+        <p className="text-sm text-muted-foreground">{progress}% complete</p>
+      </div>
+
+      <p className="text-sm text-muted-foreground max-w-md mx-auto">
+        This usually takes 30-60 seconds. We're analyzing your content to capture your church's unique voice and tone.
+      </p>
+    </div>
+  );
+};
