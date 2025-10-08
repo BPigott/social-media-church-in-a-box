@@ -95,7 +95,9 @@ serve(async (req) => {
       .map((platform: string) => PLATFORM_GUIDELINES[platform as keyof typeof PLATFORM_GUIDELINES])
       .join('\n\n');
 
-    const systemPrompt = `You are an expert social media content creator for churches. Create engaging, platform-specific social media posts that capture the essence of the sermon while maintaining the church's unique voice and style.`;
+    const systemPrompt = `You are an expert social media content creator for churches. Create engaging, platform-specific social media posts that capture the essence of the sermon while maintaining the church's unique voice and style.
+
+CRITICAL: Your response must be ONLY valid JSON with no preamble, explanation, or additional text. Do not write "Here is the JSON:" or any other introduction. Start directly with the opening brace {`;
 
     const userPrompt = `
 # Primary Task Context
@@ -223,15 +225,46 @@ Important:
     }
 
     const aiData = await aiResponse.json();
-    let content = aiData.content[0].text;
+    const textContent = aiData.content[0].text;
+    console.log("Raw AI response preview:", textContent.substring(0, 200));
 
-    // Try to extract JSON from markdown code blocks if present
-    const jsonMatch = content.match(/```json\n([\s\S]*?)\n```/);
-    if (jsonMatch) {
-      content = jsonMatch[1];
+    // Try to extract and parse JSON from the response
+    let generatedContent;
+    try {
+      // First try direct parsing
+      generatedContent = JSON.parse(textContent);
+    } catch (directError) {
+      console.log("Direct JSON parse failed, attempting extraction...");
+      
+      // Try to extract JSON from markdown code blocks
+      let jsonMatch = textContent.match(/```json\n([\s\S]*?)\n```/);
+      if (jsonMatch) {
+        try {
+          generatedContent = JSON.parse(jsonMatch[1]);
+          console.log("Successfully extracted JSON from markdown code block");
+        } catch (mdError) {
+          console.error("Markdown JSON extraction failed:", mdError);
+        }
+      }
+      
+      // If markdown extraction failed, try to find any JSON object in the text
+      if (!generatedContent) {
+        jsonMatch = textContent.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            generatedContent = JSON.parse(jsonMatch[0]);
+            console.log("Successfully extracted JSON object from response");
+          } catch (extractError) {
+            console.error("JSON extraction failed:", extractError);
+            console.error("Matched text:", jsonMatch[0].substring(0, 500));
+            throw new Error(`Failed to parse AI response as JSON: ${(extractError as Error).message}`);
+          }
+        } else {
+          console.error("No JSON found in response:", textContent.substring(0, 500));
+          throw new Error("AI response did not contain valid JSON");
+        }
+      }
     }
-
-    const generatedContent = JSON.parse(content);
 
     console.log('Social posts generated successfully');
 
