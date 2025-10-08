@@ -228,9 +228,16 @@ const Dashboard = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="custom-cta">Custom CTA/Themes (Optional)</Label>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Add specific themes, announcements, or calls-to-action to include in your posts. Examples:
+                  <span className="block mt-1 italic">• Birthday celebrations, baptisms, or special events</span>
+                  <span className="block italic">• New Alpha course or small group starting</span>
+                  <span className="block italic">• Visit our website, register for an event, or volunteer</span>
+                  <span className="block italic">• Christmas services, Easter celebrations, prayer nights</span>
+                </p>
                 <Textarea
                   id="custom-cta"
-                  placeholder="Add any custom calls-to-action, announcements, or themes..."
+                  placeholder="E.g., 'Join us for our new Alpha course starting next Sunday' or 'Celebrating 50 years of ministry this month!'"
                   value={customCTA}
                   onChange={(e) => setCustomCTA(e.target.value)}
                   rows={4}

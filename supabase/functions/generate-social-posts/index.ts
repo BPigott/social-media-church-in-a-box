@@ -11,6 +11,9 @@ const PLATFORM_GUIDELINES = {
 Facebook Guidelines:
 - Length: 40-80 words ideal (can go longer for compelling content)
 - Tone: Conversational and engaging
+- Structure: Hook → Body → CTA with clear spacing
+- Formatting: Use paragraph breaks (double line breaks) for readability
+- AVOID: Walls of text - break into 2-3 short paragraphs
 - Include: Questions, CTAs, or thought-provoking statements
 - Hashtags: 1-3 relevant hashtags
 - Emojis: Use sparingly for emphasis
@@ -19,14 +22,19 @@ Facebook Guidelines:
 Instagram Guidelines:
 - Length: 125-150 characters for captions (first 2 lines are key)
 - Tone: Inspirational and visual
-- Include: Strong opening line, line breaks for readability
-- Hashtags: 5-10 relevant hashtags (can go up to 30)
-- Emojis: Use to break up text and add personality
+- Structure: Attention-grabbing opening line → Main content (with breaks) → Hashtags on separate lines
+- Formatting: Line breaks are ESSENTIAL - use them liberally between thoughts
+- AVOID: Solid blocks of text - use whitespace strategically
+- Include: Strong opening line, generous line breaks for readability
+- Hashtags: 5-10 relevant hashtags (can go up to 30) on separate lines
+- Emojis: Use to break up text and add personality, use as visual breaks between sections
 `,
   tiktok: `
 TikTok Guidelines:
 - Length: Very short and punchy (under 150 characters)
 - Tone: Authentic, relatable, conversational
+- Structure: Each line should feel like a separate 'beat'
+- Formatting: Use line breaks between thoughts for visual rhythm
 - Include: Trending phrases or challenges when relevant
 - Hashtags: 3-5 trending + niche hashtags
 - Emojis: Use generously for engagement
@@ -35,6 +43,8 @@ TikTok Guidelines:
 Twitter/X Guidelines:
 - Length: 280 characters max (aim for 240-260 for retweets)
 - Tone: Concise and impactful
+- Structure: Hook first line → Supporting point → CTA/Hashtag
+- Formatting: Use line breaks to create visual rhythm if longer content
 - Include: Strong hook, clear message
 - Hashtags: 1-2 hashtags maximum
 - Emojis: Use 1-2 for emphasis
@@ -100,11 +110,12 @@ ${selectedGuidelines}
 # Task
 Generate ONE post for EACH of the following platforms: ${platforms.join(', ')}
 
-Also create an executive summary (under 500 words) that includes:
-- Key takeaways from the sermon
-- Main teaching points
-- Scripture references used
-- Practical applications
+Also create an executive summary (400-500 words) that retells the sermon content in a condensed format:
+- Write as a mini-sermon: present the core message, don't describe it
+- Include key scripture passages used (cite book, chapter:verse in context)
+- Flow naturally through the teaching progression as it was preached
+- End with "Key Takeaways:" followed by 3-5 bullet points summarizing main applications
+- Use engaging, accessible language that captures the sermon's essence
 
 Return your response as a JSON object with this exact structure:
 {
@@ -121,6 +132,11 @@ Important:
 - Maintain the church's voice from the style guide
 - Include relevant hashtags for each platform
 - Make each post unique and optimized for its platform
+- Use proper formatting: line breaks, paragraph spacing, and structure
+- DO NOT create solid blocks of text - use whitespace strategically
+- For Instagram: use line breaks generously (Instagram best practice)
+- For Facebook: break into 2-3 paragraphs with spacing
+- Each platform post should be visually scannable, not a text wall
 `;
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
