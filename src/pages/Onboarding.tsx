@@ -5,10 +5,13 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 import { ChurchInfoForm } from "@/components/onboarding/ChurchInfoForm";
 import { SermonUpload } from "@/components/onboarding/SermonUpload";
 import { StyleGuideGeneration } from "@/components/onboarding/StyleGuideGeneration";
 import { StyleGuideReview } from "@/components/onboarding/StyleGuideReview";
+import { LogOut } from "lucide-react";
+import { signOut } from "@/lib/auth";
 import type { Church } from "@/types/database";
 
 const Onboarding = () => {
@@ -45,6 +48,19 @@ const Onboarding = () => {
 
     checkUserStatus();
   }, [user, loading, navigate]);
+
+  const handleSignOut = async () => {
+    const { error } = await signOut();
+    if (error) {
+      toast({
+        title: "Error signing out",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      navigate("/login");
+    }
+  };
 
   const handleChurchInfoSubmit = async (data: Partial<Church>) => {
     setChurchData(data);
@@ -275,7 +291,17 @@ const Onboarding = () => {
 
   return (
     <div className="min-h-screen bg-background py-12 px-4">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto relative">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleSignOut}
+          className="absolute top-0 right-0 gap-2"
+        >
+          <LogOut className="w-4 h-4" />
+          Logout
+        </Button>
+        
         <div className="mb-8">
           <h1 className="text-4xl font-playfair font-bold text-center mb-2">
             Welcome to Church Social Media Generator
