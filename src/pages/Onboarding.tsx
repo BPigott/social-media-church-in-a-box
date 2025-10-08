@@ -236,8 +236,8 @@ const Onboarding = () => {
       // Small delay to ensure database operations are complete
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Force a hard navigation to ensure fresh data load
-      window.location.href = "/dashboard";
+      // Navigate to dashboard with replace to prevent back navigation to onboarding
+      navigate("/dashboard", { replace: true });
     } catch (error) {
       console.error('Setup error:', error);
       toast({

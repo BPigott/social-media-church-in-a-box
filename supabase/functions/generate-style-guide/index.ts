@@ -89,23 +89,25 @@ Based on the above information, create a comprehensive style guide in markdown f
 Format the output as a well-structured markdown document with clear sections and headers.
 `;
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY not configured');
+    const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
+    if (!ANTHROPIC_API_KEY) {
+      throw new Error('ANTHROPIC_API_KEY not configured');
     }
 
-    console.log('Calling Lovable AI Gateway...');
+    console.log('Calling Anthropic API with Claude 4.5 Sonnet...');
 
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const aiResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 8192,
+        system: systemPrompt,
         messages: [
-          { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
         temperature: 0.7,
@@ -114,27 +116,27 @@ Format the output as a well-structured markdown document with clear sections and
 
     if (!aiResponse.ok) {
       const errorText = await aiResponse.text();
-      console.error('AI Gateway error:', aiResponse.status, errorText);
-      
+      console.error('Anthropic API error:', aiResponse.status, errorText);
+
       if (aiResponse.status === 429) {
         return new Response(
           JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }),
           { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
-      
-      if (aiResponse.status === 402) {
+
+      if (aiResponse.status === 402 || aiResponse.status === 403) {
         return new Response(
-          JSON.stringify({ error: 'AI usage limit reached. Please contact support.' }),
-          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          JSON.stringify({ error: 'API key issue or credit limit reached. Please check your Anthropic account.' }),
+          { status: aiResponse.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
-      throw new Error(`AI Gateway error: ${aiResponse.status}`);
+      throw new Error(`Anthropic API error: ${aiResponse.status}`);
     }
 
     const aiData = await aiResponse.json();
-    const styleGuide = aiData.choices[0].message.content;
+    const styleGuide = aiData.content[0].text;
 
     console.log('Style guide generated successfully');
 

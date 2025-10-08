@@ -16,10 +16,7 @@ export function useAuth() {
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        
-        if (event === 'SIGNED_OUT') {
-          setLoading(false);
-        }
+        setLoading(false);
       }
     );
 

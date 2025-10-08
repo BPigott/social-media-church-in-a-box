@@ -52,6 +52,16 @@ const Dashboard = () => {
   };
 
   const handleGenerate = async () => {
+    if (!primaryChurch) {
+      toast({
+        variant: "destructive",
+        title: "No church profile",
+        description: "Please complete your church onboarding first.",
+      });
+      navigate("/onboarding");
+      return;
+    }
+
     if (!transcriptText.trim()) {
       toast({
         variant: "destructive",
@@ -92,11 +102,11 @@ const Dashboard = () => {
       // Step 2: Save transcript to database
       // Remove null bytes that PostgreSQL can't handle
       const cleanedTranscript = transcriptText.replace(/\0/g, '');
-      
+
       const { data: transcriptData, error: transcriptError } = await supabase
         .from('sermon_transcripts')
         .insert({
-          church_id: primaryChurch?.id,
+          church_id: primaryChurch.id,
           uploaded_by: user?.id,
           file_name: transcriptFile?.name || 'transcript.txt',
           file_path: filePath,
@@ -114,7 +124,7 @@ const Dashboard = () => {
       const { data: styleGuideData, error: styleGuideError } = await supabase
         .from('style_guides')
         .select('guide_content')
-        .eq('church_id', primaryChurch?.id)
+        .eq('church_id', primaryChurch.id)
         .single();
 
       if (styleGuideError) {
@@ -129,7 +139,7 @@ const Dashboard = () => {
           styleGuide: styleGuideData.guide_content,
           platforms,
           customCTA,
-          churchId: primaryChurch?.id,
+          churchId: primaryChurch.id,
         }
       });
 
@@ -140,7 +150,7 @@ const Dashboard = () => {
 
       // Step 5: Save generated content to database with transcript reference
       const { error: insertError } = await supabase.from('generated_content').insert({
-        church_id: primaryChurch?.id,
+        church_id: primaryChurch.id,
         sermon_transcript_id: transcriptData.id,
         platforms,
         custom_cta: customCTA || null,
@@ -157,7 +167,7 @@ const Dashboard = () => {
       }
 
       setGeneratedContent(data);
-      
+
       toast({
         title: "Content generated!",
         description: "Your social media posts are ready.",

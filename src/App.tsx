@@ -17,6 +17,24 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+};
+
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   const { hasChurch, loading: churchLoading } = useChurch(user?.id);
@@ -52,7 +70,14 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/onboarding" element={<Onboarding />} />
+          <Route
+            path="/onboarding"
+            element={
+              <AuthenticatedRoute>
+                <Onboarding />
+              </AuthenticatedRoute>
+            }
+          />
           <Route
             path="/dashboard"
             element={

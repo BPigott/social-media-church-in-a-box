@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { signIn } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await signIn(email, password);
+    const { data, error } = await signIn(email, password);
 
     if (error) {
       toast({
@@ -35,7 +36,24 @@ const Login = () => {
       description: "You've been successfully logged in.",
     });
 
-    // Navigation will be handled by auth state change
+    // Check if user has a church profile
+    if (data?.user) {
+      const { data: churchesData } = await supabase
+        .rpc('get_user_churches', { _user_id: data.user.id });
+
+      if (churchesData && churchesData.length > 0) {
+        // User has a church, redirect to dashboard
+        navigate("/dashboard");
+      } else {
+        // User doesn't have a church, redirect to onboarding
+        navigate("/onboarding");
+      }
+    } else {
+      // Fallback to dashboard if user data is missing
+      navigate("/dashboard");
+    }
+
+    setLoading(false);
   };
 
   return (
