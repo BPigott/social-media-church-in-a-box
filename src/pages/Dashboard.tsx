@@ -13,6 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Loader2, Copy, Download, Upload, CheckCircle2 } from "lucide-react";
 import type { Platform } from "@/types/database";
+import mammoth from "mammoth";
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -39,8 +40,60 @@ const Dashboard = () => {
     if (!file) return;
 
     setTranscriptFile(file);
-    const text = await file.text();
-    setTranscriptText(text);
+    
+    // Detect file type
+    const fileExtension = file.name.toLowerCase().split('.').pop();
+    
+    try {
+      if (fileExtension === 'txt' || fileExtension === 'md') {
+        // Plain text files - read directly
+        const text = await file.text();
+        setTranscriptText(text);
+        toast({
+          title: "File uploaded",
+          description: "Transcript loaded successfully.",
+        });
+      } else if (fileExtension === 'docx' || fileExtension === 'doc') {
+        // Word documents - use mammoth to extract text
+        toast({
+          title: "Processing document...",
+          description: "Extracting text from Word document.",
+        });
+        
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        setTranscriptText(result.value);
+        
+        toast({
+          title: "Document processed",
+          description: "Text extracted successfully from Word document.",
+        });
+      } else if (fileExtension === 'pdf') {
+        // PDF files - not yet supported
+        toast({
+          variant: "destructive",
+          title: "PDF not supported yet",
+          description: "Please convert your PDF to a Word document (.docx) or plain text (.txt) file.",
+        });
+        setTranscriptFile(null);
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Unsupported file type",
+          description: "Please upload a .txt, .docx, or .doc file.",
+        });
+        setTranscriptFile(null);
+      }
+    } catch (error) {
+      console.error('Error processing file:', error);
+      toast({
+        variant: "destructive",
+        title: "Error processing file",
+        description: error instanceof Error ? error.message : "Failed to read file content.",
+      });
+      setTranscriptFile(null);
+      setTranscriptText("");
+    }
   };
 
   const handlePlatformToggle = (platform: Platform) => {
@@ -256,12 +309,12 @@ const Dashboard = () => {
                     <p className="text-sm font-medium mb-1">
                       {transcriptFile ? transcriptFile.name : "Click to upload transcript"}
                     </p>
-                    <p className="text-xs text-muted-foreground">PDF, TXT, or DOCX</p>
+                    <p className="text-xs text-muted-foreground">TXT, DOCX, or DOC</p>
                   </div>
                   <input
                     id="transcript-upload"
                     type="file"
-                    accept=".pdf,.txt,.docx"
+                    accept=".txt,.docx,.doc,.md"
                     onChange={handleFileUpload}
                     className="hidden"
                   />
