@@ -8,8 +8,12 @@ import type { Church, UserChurch } from "@/types/database";
 export function useChurch(userId: string | undefined) {
   const [userChurches, setUserChurches] = useState<UserChurch[]>([]);
   const [primaryChurch, setPrimaryChurch] = useState<Church | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [fetchLoading, setFetchLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastFetchedUserId, setLastFetchedUserId] = useState<string | undefined>(undefined);
+
+  // Effective loading: true if we're fetching OR if userId changed but we haven't fetched yet
+  const loading = fetchLoading || (!!userId && lastFetchedUserId !== userId);
 
   useEffect(() => {
     if (!userId) {
@@ -17,7 +21,8 @@ export function useChurch(userId: string | undefined) {
       setUserChurches([]);
       setPrimaryChurch(null);
       setError(null);
-      setLoading(false);
+      setFetchLoading(false);
+      setLastFetchedUserId(undefined);
       return;
     }
 
@@ -26,7 +31,7 @@ export function useChurch(userId: string | undefined) {
         console.log('🔄 useChurch [' + new Date().toISOString() + ']: Starting fetch for user:', userId);
         
         // CRITICAL: Set loading to true at the start of fetch
-        setLoading(true);
+        setFetchLoading(true);
         setError(null);
 
         // Get user's churches using security definer function
@@ -64,7 +69,8 @@ export function useChurch(userId: string | undefined) {
         setError(err instanceof Error ? err.message : 'Failed to fetch churches');
       } finally {
         console.log('🏁 useChurch [' + new Date().toISOString() + ']: Fetch complete, setting loading to false');
-        setLoading(false);
+        setFetchLoading(false);
+        setLastFetchedUserId(userId);
       }
     }
 

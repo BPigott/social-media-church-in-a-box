@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useChurch } from "@/hooks/useChurch";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +15,7 @@ import type { Church } from "@/types/database";
 
 const Onboarding = () => {
   const { user, loading } = useAuth();
+  const { hasChurch, loading: churchLoading } = useChurch(user?.id);
   const navigate = useNavigate();
   const { toast } = useToast();
   const [step, setStep] = useState(1);
@@ -24,11 +26,20 @@ const Onboarding = () => {
   const [generating, setGenerating] = useState(false);
   const [scrapingWebsite, setScrapingWebsite] = useState(false);
 
+  // Redirect to login if not authenticated
   useEffect(() => {
     if (!loading && !user) {
       navigate("/login");
     }
   }, [user, loading, navigate]);
+
+  // Safety guard: If user already has a church, redirect to dashboard
+  useEffect(() => {
+    if (!loading && !churchLoading && hasChurch) {
+      console.log('🔄 Onboarding: User already has a church, redirecting to dashboard');
+      navigate("/dashboard", { replace: true });
+    }
+  }, [loading, churchLoading, hasChurch, navigate]);
 
   const handleChurchInfoSubmit = async (data: Partial<Church>) => {
     setChurchData(data);
