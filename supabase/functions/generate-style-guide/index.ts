@@ -30,7 +30,7 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    const { churchData, sermonTexts } = await req.json();
+    const { churchData, sermonTexts, websiteContent } = await req.json();
 
     console.log('Generating style guide for church:', churchData.name);
 
@@ -59,6 +59,18 @@ ${JSON.stringify(churchData.key_ministries || [], null, 2)}
 
 ## Sermon Content Sample
 ${sermonTexts.join('\n\n---SERMON BREAK---\n\n')}
+
+${websiteContent ? `
+## Website Content Analysis
+Scraped ${websiteContent.pagesScraped} pages from the church website:
+
+${websiteContent.content.slice(0, 10).map((page: any) => `
+### ${page.title || 'Untitled Page'}
+URL: ${page.url}
+
+${page.markdown.substring(0, 2000)}
+`).join('\n\n---PAGE BREAK---\n\n')}
+` : ''}
 
 ---
 

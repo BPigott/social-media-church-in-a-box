@@ -18,8 +18,10 @@ const Onboarding = () => {
   const [step, setStep] = useState(1);
   const [churchData, setChurchData] = useState<Partial<Church>>({});
   const [sermonFiles, setSermonFiles] = useState<File[]>([]);
+  const [websiteContent, setWebsiteContent] = useState<any>(null);
   const [styleGuide, setStyleGuide] = useState("");
   const [generating, setGenerating] = useState(false);
+  const [scrapingWebsite, setScrapingWebsite] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -27,8 +29,44 @@ const Onboarding = () => {
     }
   }, [user, loading, navigate]);
 
-  const handleChurchInfoSubmit = (data: Partial<Church>) => {
+  const handleChurchInfoSubmit = async (data: Partial<Church>) => {
     setChurchData(data);
+    
+    // If website URL provided, scrape it
+    if (data.website_url) {
+      setScrapingWebsite(true);
+      try {
+        const { data: scrapeData, error: scrapeError } = await supabase.functions.invoke(
+          'scrape-church-website',
+          { body: { websiteUrl: data.website_url } }
+        );
+
+        if (scrapeError) {
+          console.error('Website scraping error:', scrapeError);
+          toast({
+            title: "Website scraping failed",
+            description: "We'll continue with sermon-based analysis only.",
+            variant: "destructive",
+          });
+        } else if (scrapeData?.success) {
+          setWebsiteContent(scrapeData.data);
+          toast({
+            title: "Website scraped successfully",
+            description: `Analyzed ${scrapeData.data.pagesScraped} pages from your website.`,
+          });
+        }
+      } catch (error) {
+        console.error('Error scraping website:', error);
+        toast({
+          title: "Website scraping failed",
+          description: "We'll continue with sermon-based analysis only.",
+          variant: "destructive",
+        });
+      } finally {
+        setScrapingWebsite(false);
+      }
+    }
+    
     setStep(2);
   };
 
@@ -43,7 +81,11 @@ const Onboarding = () => {
       );
 
       const { data, error } = await supabase.functions.invoke('generate-style-guide', {
-        body: { churchData, sermonTexts }
+        body: { 
+          churchData, 
+          sermonTexts,
+          websiteContent 
+        }
       });
 
       if (error) throw error;
@@ -114,10 +156,10 @@ const Onboarding = () => {
     }
   };
 
-  if (loading) {
+  if (loading || scrapingWebsite) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <p>Loading...</p>
+        <p>{loading ? "Loading..." : "Analyzing your website..."}</p>
       </div>
     );
   }

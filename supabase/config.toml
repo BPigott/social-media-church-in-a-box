@@ -5,3 +5,6 @@ verify_jwt = true
 
 [functions.generate-social-posts]
 verify_jwt = true
+
+[functions.scrape-church-website]
+verify_jwt = true
