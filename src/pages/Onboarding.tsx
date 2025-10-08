@@ -233,10 +233,43 @@ const Onboarding = () => {
         description: "Your church has been set up successfully.",
       });
 
-      // Small delay to ensure database operations are complete
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Verify church creation by checking if user now has churches
+      console.log('Verifying church creation...');
+      let verified = false;
+      let attempts = 0;
+      const maxAttempts = 10;
+
+      while (!verified && attempts < maxAttempts) {
+        attempts++;
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const { data: churchesData, error: verifyError } = await supabase
+          .rpc('get_user_churches', { _user_id: user!.id });
+
+        if (verifyError) {
+          console.error('Verification error:', verifyError);
+        }
+
+        if (churchesData && churchesData.length > 0) {
+          console.log('✅ Church verified! Found', churchesData.length, 'church(es)');
+          verified = true;
+          break;
+        }
+
+        console.log(`⏳ Verification attempt ${attempts}/${maxAttempts}...`);
+      }
+
+      if (!verified) {
+        console.warn('⚠️ Church creation could not be verified after', maxAttempts, 'attempts');
+        toast({
+          title: "Warning",
+          description: "Church creation is taking longer than expected. If you're redirected back, please try again.",
+          variant: "destructive",
+        });
+      }
 
       // Navigate to dashboard with replace to prevent back navigation to onboarding
+      console.log('🚀 Navigating to dashboard...');
       navigate("/dashboard", { replace: true });
     } catch (error) {
       console.error('Setup error:', error);

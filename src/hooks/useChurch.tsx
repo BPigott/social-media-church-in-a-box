@@ -19,12 +19,15 @@ export function useChurch(userId: string | undefined) {
 
     async function fetchChurches() {
       try {
+        console.log('🔄 useChurch: Fetching churches for user:', userId);
+
         // Get user's churches using security definer function
         const { data: churchesData, error: churchesError } = await supabase
           .rpc('get_user_churches', { _user_id: userId });
 
         if (churchesError) throw churchesError;
 
+        console.log('📊 useChurch: Found', churchesData?.length || 0, 'churches');
         setUserChurches(churchesData || []);
 
         // If user has at least one church, fetch the primary one
@@ -36,10 +39,14 @@ export function useChurch(userId: string | undefined) {
             .single();
 
           if (churchError) throw churchError;
+          console.log('✅ useChurch: Primary church loaded:', churchData.name);
           setPrimaryChurch(churchData as unknown as Church);
+        } else {
+          console.log('ℹ️ useChurch: No churches found for user');
+          setPrimaryChurch(null);
         }
       } catch (err) {
-        console.error('Error fetching churches:', err);
+        console.error('❌ useChurch: Error fetching churches:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch churches');
       } finally {
         setLoading(false);
