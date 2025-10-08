@@ -24,9 +24,26 @@ const Onboarding = () => {
   const [scrapingWebsite, setScrapingWebsite] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) {
-      navigate("/login");
-    }
+    const checkUserStatus = async () => {
+      if (!loading && !user) {
+        navigate("/login");
+        return;
+      }
+
+      if (user) {
+        // Check if user already has a church
+        const { data: userChurches } = await supabase.rpc('get_user_churches', { 
+          _user_id: user.id 
+        });
+
+        if (userChurches && userChurches.length > 0) {
+          // User already has a church, redirect to dashboard
+          navigate("/dashboard");
+        }
+      }
+    };
+
+    checkUserStatus();
   }, [user, loading, navigate]);
 
   const handleChurchInfoSubmit = async (data: Partial<Church>) => {
@@ -106,42 +123,126 @@ const Onboarding = () => {
 
   const handleStyleGuideAccept = async (finalGuide: string) => {
     try {
-      // Create church record
-      const { data: church, error: churchError } = await supabase
+      // Check if user already has a church with this email
+      const { data: existingChurch } = await supabase
         .from('churches')
-        .insert([{
-          name: churchData.name!,
-          email: churchData.email!,
-          location: churchData.location!,
-          vision_statement: churchData.vision_statement!,
-          contact_email: churchData.contact_email!,
-          owner_id: user!.id,
-          website_url: churchData.website_url || null,
-          service_times: (churchData.service_times || []) as any,
-          social_handles: (churchData.social_handles || {}) as any,
-        }])
-        .select()
-        .single();
+        .select('id')
+        .eq('owner_id', user!.id)
+        .eq('email', churchData.email!)
+        .maybeSingle();
 
-      if (churchError) throw churchError;
+      let churchId: string;
 
-      // Create user role
-      const { error: roleError } = await supabase.from('user_roles').insert({
-        user_id: user?.id,
-        church_id: church.id,
-        role: 'owner',
-      });
+      if (existingChurch) {
+        // Update existing church
+        toast({
+          title: "Updating church information...",
+          description: "We found an existing profile and are updating it.",
+        });
 
-      if (roleError) throw roleError;
+        const { error: updateError } = await supabase
+          .from('churches')
+          .update({
+            name: churchData.name!,
+            location: churchData.location!,
+            vision_statement: churchData.vision_statement!,
+            contact_email: churchData.contact_email!,
+            website_url: churchData.website_url || null,
+            service_times: (churchData.service_times || []) as any,
+            social_handles: (churchData.social_handles || {}) as any,
+          })
+          .eq('id', existingChurch.id);
 
-      // Create style guide
-      const { error: styleError } = await supabase.from('style_guides').insert({
-        church_id: church.id,
-        guide_content: finalGuide,
-        sermon_documents: sermonFiles.map(f => ({ file_name: f.name })) as any,
-      });
+        if (updateError) throw updateError;
 
-      if (styleError) throw styleError;
+        churchId = existingChurch.id;
+
+        // Ensure user role exists
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .upsert({
+            user_id: user!.id,
+            church_id: churchId,
+            role: 'owner',
+          }, {
+            onConflict: 'user_id,church_id'
+          });
+
+        if (roleError) throw roleError;
+
+        // Update or create style guide
+        const { data: existingGuide } = await supabase
+          .from('style_guides')
+          .select('id')
+          .eq('church_id', churchId)
+          .maybeSingle();
+
+        if (existingGuide) {
+          const { error: styleError } = await supabase
+            .from('style_guides')
+            .update({
+              guide_content: finalGuide,
+              sermon_documents: sermonFiles.map(f => ({ file_name: f.name })) as any,
+            })
+            .eq('id', existingGuide.id);
+
+          if (styleError) throw styleError;
+        } else {
+          const { error: styleError } = await supabase
+            .from('style_guides')
+            .insert({
+              church_id: churchId,
+              guide_content: finalGuide,
+              sermon_documents: sermonFiles.map(f => ({ file_name: f.name })) as any,
+            });
+
+          if (styleError) throw styleError;
+        }
+      } else {
+        // Create new church
+        toast({
+          title: "Creating church profile...",
+          description: "Setting up your church on the platform.",
+        });
+
+        const { data: church, error: churchError } = await supabase
+          .from('churches')
+          .insert([{
+            name: churchData.name!,
+            email: churchData.email!,
+            location: churchData.location!,
+            vision_statement: churchData.vision_statement!,
+            contact_email: churchData.contact_email!,
+            owner_id: user!.id,
+            website_url: churchData.website_url || null,
+            service_times: (churchData.service_times || []) as any,
+            social_handles: (churchData.social_handles || {}) as any,
+          }])
+          .select()
+          .single();
+
+        if (churchError) throw churchError;
+
+        churchId = church.id;
+
+        // Create user role
+        const { error: roleError } = await supabase.from('user_roles').insert({
+          user_id: user!.id,
+          church_id: churchId,
+          role: 'owner',
+        });
+
+        if (roleError) throw roleError;
+
+        // Create style guide
+        const { error: styleError } = await supabase.from('style_guides').insert({
+          church_id: churchId,
+          guide_content: finalGuide,
+          sermon_documents: sermonFiles.map(f => ({ file_name: f.name })) as any,
+        });
+
+        if (styleError) throw styleError;
+      }
 
       toast({
         title: "Setup complete!",
