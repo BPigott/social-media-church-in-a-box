@@ -90,6 +90,9 @@ const Dashboard = () => {
       }
 
       // Step 2: Save transcript to database
+      // Remove null bytes that PostgreSQL can't handle
+      const cleanedTranscript = transcriptText.replace(/\0/g, '');
+      
       const { data: transcriptData, error: transcriptError } = await supabase
         .from('sermon_transcripts')
         .insert({
@@ -97,7 +100,7 @@ const Dashboard = () => {
           uploaded_by: user?.id,
           file_name: transcriptFile?.name || 'transcript.txt',
           file_path: filePath,
-          transcript_text: transcriptText,
+          transcript_text: cleanedTranscript,
         })
         .select()
         .single();
