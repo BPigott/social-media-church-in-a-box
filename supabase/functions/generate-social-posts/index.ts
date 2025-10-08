@@ -138,8 +138,12 @@ CRITICAL REQUIREMENTS:
 Generate ONE post for EACH of the following platforms: ${platforms.join(', ')}
 
 Also create an executive summary (400-500 words) that retells the sermon content in a condensed format:
+- **PRIMARY REQUIREMENT**: Extract and cite specific scripture passages from the sermon transcript
+  - Format: "As [book] [chapter]:[verse] states, '[quote or paraphrase]...'"
+  - Example: "As Romans 8:28 reminds us, 'God works all things together for good...'"
+  - If the sermon mentions scripture without explicit citations, identify and cite them properly
+  - If no scripture is explicitly mentioned in the sermon, state: "While no specific passages were cited, this message explores..."
 - Write as a mini-sermon: present the core message from the TRANSCRIPT, don't describe it
-- MUST include specific scripture passages directly quoted or referenced in the sermon (cite book, chapter:verse in context)
 - Flow naturally through the teaching progression as it was actually preached in the transcript
 - Quote or paraphrase key statements from the sermon
 - End with "Key Takeaways:" followed by 3-5 bullet points summarizing main applications FROM THE SERMON

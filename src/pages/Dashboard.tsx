@@ -73,15 +73,53 @@ const Dashboard = () => {
     setGenerating(true);
 
     try {
-      // Fetch style guide
+      // Step 1: Upload transcript file to storage (if file exists)
+      let filePath = '';
+      if (transcriptFile) {
+        const fileExt = transcriptFile.name.split('.').pop();
+        const fileName = `${crypto.randomUUID()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from('transcripts')
+          .upload(fileName, transcriptFile);
+
+        if (uploadError) {
+          console.error('Storage upload error:', uploadError);
+          throw new Error('Failed to upload transcript file');
+        }
+        filePath = fileName;
+      }
+
+      // Step 2: Save transcript to database
+      const { data: transcriptData, error: transcriptError } = await supabase
+        .from('sermon_transcripts')
+        .insert({
+          church_id: primaryChurch?.id,
+          uploaded_by: user?.id,
+          file_name: transcriptFile?.name || 'transcript.txt',
+          file_path: filePath,
+          transcript_text: transcriptText,
+        })
+        .select()
+        .single();
+
+      if (transcriptError) {
+        console.error('Transcript save error:', transcriptError);
+        throw new Error('Failed to save transcript');
+      }
+
+      // Step 3: Fetch style guide
       const { data: styleGuideData, error: styleGuideError } = await supabase
         .from('style_guides')
         .select('guide_content')
         .eq('church_id', primaryChurch?.id)
         .single();
 
-      if (styleGuideError) throw styleGuideError;
+      if (styleGuideError) {
+        console.error('Style guide fetch error:', styleGuideError);
+        throw new Error('Failed to fetch style guide');
+      }
 
+      // Step 4: Generate social posts
       const { data, error } = await supabase.functions.invoke('generate-social-posts', {
         body: {
           transcript: transcriptText,
@@ -92,12 +130,15 @@ const Dashboard = () => {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Generation error:', error);
+        throw error;
+      }
 
-      // Save to database
-      await supabase.from('generated_content').insert({
+      // Step 5: Save generated content to database with transcript reference
+      const { error: insertError } = await supabase.from('generated_content').insert({
         church_id: primaryChurch?.id,
-        sermon_transcript_id: null, // We'd need to create a transcript record first
+        sermon_transcript_id: transcriptData.id,
         platforms,
         custom_cta: customCTA || null,
         facebook_post: data.facebook || null,
@@ -107,6 +148,11 @@ const Dashboard = () => {
         executive_summary: data.executiveSummary,
       });
 
+      if (insertError) {
+        console.error('Content save error:', insertError);
+        throw new Error('Failed to save generated content');
+      }
+
       setGeneratedContent(data);
       
       toast({
@@ -114,6 +160,7 @@ const Dashboard = () => {
         description: "Your social media posts are ready.",
       });
     } catch (error) {
+      console.error('Error in handleGenerate:', error);
       toast({
         variant: "destructive",
         title: "Generation failed",
