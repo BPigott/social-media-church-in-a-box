@@ -137,18 +137,22 @@ CRITICAL REQUIREMENTS:
 
 Generate ONE post for EACH of the following platforms: ${platforms.join(', ')}
 
-Also create an executive summary (400-500 words) that retells the sermon content in a condensed format:
-- **PRIMARY REQUIREMENT**: Extract and cite specific scripture passages from the sermon transcript
-  - Format: "As [book] [chapter]:[verse] states, '[quote or paraphrase]...'"
-  - Example: "As Romans 8:28 reminds us, 'God works all things together for good...'"
-  - If the sermon mentions scripture without explicit citations, identify and cite them properly
-  - If no scripture is explicitly mentioned in the sermon, state: "While no specific passages were cited, this message explores..."
-- Write as a mini-sermon: present the core message from the TRANSCRIPT, don't describe it
-- Flow naturally through the teaching progression as it was actually preached in the transcript
-- Quote or paraphrase key statements from the sermon
-- End with "Key Takeaways:" followed by 3-5 bullet points summarizing main applications FROM THE SERMON
-- Use engaging, accessible language that captures the sermon's essence
-- DO NOT create generic theological content - this must reflect the actual sermon provided
+Also create an executive summary (400-500 words) that SUMMARIZES the sermon content:
+- **THIS IS A SUMMARY, NOT A RETELLING**: Condense the key points, don't narrate through the sermon
+- **Structure**: 
+  - Opening: One sentence capturing the central theme/message
+  - Body: 2-3 paragraphs summarizing the main arguments and insights
+  - Closing: Practical application or takeaway
+- **Scripture References**: 
+  - ONLY cite scripture if it appears explicitly in the transcript
+  - If scripture is mentioned, format as: "The sermon referenced [book] [chapter]:[verse]..."
+  - If NO scripture is mentioned in the transcript, DO NOT invent or assume any
+- **Writing Style**: 
+  - Write in third person about what the sermon covered ("The sermon explored...", "The message emphasized...")
+  - Be concise and specific - extract the essence, not the details
+  - Focus on WHAT was taught, not HOW it was preached
+- **End with "Key Takeaways:"** followed by 3-5 bullet points summarizing main applications FROM THE SERMON
+- **DO NOT**: Write in a sermon style, retell the progression, or create generic theological content
 
 Return your response as a JSON object with this exact structure:
 {
