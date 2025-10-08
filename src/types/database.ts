@@ -72,12 +72,13 @@ export interface GeneratedContent {
   sermon_transcript_id: string;
   platforms: Platform[];
   custom_cta: string | null;
-  facebook_post: string | null;
-  instagram_post: string | null;
-  tiktok_post: string | null;
-  twitter_post: string | null;
+  facebook_post: string[] | null;
+  instagram_post: string[] | null;
+  tiktok_post: string[] | null;
+  twitter_post: string[] | null;
   executive_summary: string;
   generated_at: string;
+  posts_per_platform?: number | null;
 }
 
 export type Platform = 'facebook' | 'instagram' | 'tiktok' | 'twitter';
