@@ -13,14 +13,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Download, LogOut } from "lucide-react";
 import { signOut } from "@/lib/auth";
 import type { Church } from "@/types/database";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { ChurchInfoForm } from "@/components/onboarding/ChurchInfoForm";
-import { Textarea } from "@/components/ui/textarea";
-import { Download, LogOut } from "lucide-react";
-import { signOut } from "@/lib/auth";
-import type { Church } from "@/types/database";
 
 const Settings = () => {
   const { user, loading } = useAuth();
@@ -215,6 +207,7 @@ const Settings = () => {
             </Card>
           </TabsContent>
         </Tabs>
+      </div>
       </div>
     </>
   );

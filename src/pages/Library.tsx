@@ -11,12 +11,6 @@ import { Badge } from "@/components/ui/badge";
 import { Copy, Download, Trash2, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { GeneratedContent } from "@/types/database";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Copy, Download, Trash2, Search, Calendar } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import type { GeneratedContent } from "@/types/database";
 
 const Library = () => {
   const { user, loading } = useAuth();
@@ -262,7 +256,8 @@ const Library = () => {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
