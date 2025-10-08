@@ -103,6 +103,14 @@ CRITICAL: Your response must be ONLY valid JSON with no preamble, explanation, o
 # Primary Task Context
 Your goal is to create social media posts that capture and communicate the key messages from the sermon transcript provided below. The sermon content must be the primary focus of all posts.
 
+# CRITICAL GROUNDING RULES
+- You MUST extract content directly from the sermon transcript below
+- DO NOT create generic theological content that "sounds right" or is spiritually appropriate
+- DO NOT invent examples, stories, or illustrations that are not in the transcript
+- DO NOT cite scripture unless it is explicitly mentioned in the transcript text
+- If you reference a point from the sermon, it must be directly traceable to the transcript
+- Every claim you make must be found in the actual transcript above
+
 ---
 
 # Sermon Transcript
@@ -131,11 +139,13 @@ Note: If optional additions are provided above, incorporate them as a secondary 
 Create social media posts that capture and communicate the key messages from the SERMON TRANSCRIPT provided above.
 
 CRITICAL REQUIREMENTS:
-- Each post MUST be based on the sermon content - extract key themes, messages, and takeaways from the transcript
-- Reference specific scripture passages mentioned in the sermon (include book, chapter:verse)
-- If "Optional Additions" are provided, weave them naturally into sermon-based content as a call-to-action
+- Each post MUST quote or closely paraphrase actual content from the sermon transcript above
+- Reference ONLY scripture passages that are explicitly mentioned in the transcript
+- If the sermon tells a story or illustration, you may reference it - but ONLY if it actually appears in the transcript
+- DO NOT create "spiritually appropriate" content - use ONLY what the preacher actually said
+- Verify every claim you make can be found in the transcript above
+- If "Optional Additions" are provided, weave them naturally AFTER presenting actual sermon content
 - DO NOT create posts solely about the optional additions - they should enhance, not replace, sermon content
-- The sermon message should be the primary focus; optional additions are supplementary
 
 Generate ONE post for EACH of the following platforms: ${platforms.join(', ')}
 
@@ -153,8 +163,17 @@ Also create an executive summary (400-500 words) that SUMMARIZES the sermon cont
   - Write in third person about what the sermon covered ("The sermon explored...", "The message emphasized...")
   - Be concise and specific - extract the essence, not the details
   - Focus on WHAT was taught, not HOW it was preached
+  - Every statement must be traceable to the transcript - no invented theology
 - **End with "Key Takeaways:"** followed by 3-5 bullet points summarizing main applications FROM THE SERMON
-- **DO NOT**: Write in a sermon style, retell the progression, or create generic theological content
+- **DO NOT**: Write in a sermon style, retell the progression, or create generic theological content that wasn't in the sermon
+
+FINAL VALIDATION:
+Before returning your response, verify that:
+1. Every social post references actual content from the transcript
+2. No scripture is cited unless it appears in the transcript
+3. No stories or illustrations are mentioned unless they're in the transcript
+4. The executive summary accurately reflects what was actually preached
+5. You have not invented any theological points that weren't in the sermon
 
 Return your response as a JSON object with this exact structure:
 {
