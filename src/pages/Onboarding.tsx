@@ -10,8 +10,6 @@ import { ChurchInfoForm } from "@/components/onboarding/ChurchInfoForm";
 import { SermonUpload } from "@/components/onboarding/SermonUpload";
 import { StyleGuideGeneration } from "@/components/onboarding/StyleGuideGeneration";
 import { StyleGuideReview } from "@/components/onboarding/StyleGuideReview";
-import { LogOut } from "lucide-react";
-import { signOut } from "@/lib/auth";
 import type { Church } from "@/types/database";
 
 const Onboarding = () => {
@@ -27,40 +25,10 @@ const Onboarding = () => {
   const [scrapingWebsite, setScrapingWebsite] = useState(false);
 
   useEffect(() => {
-    const checkUserStatus = async () => {
-      if (!loading && !user) {
-        navigate("/login");
-        return;
-      }
-
-      if (user) {
-        // Check if user already has a church
-        const { data: userChurches } = await supabase.rpc('get_user_churches', { 
-          _user_id: user.id 
-        });
-
-        if (userChurches && userChurches.length > 0) {
-          // User already has a church, redirect to dashboard
-          navigate("/dashboard");
-        }
-      }
-    };
-
-    checkUserStatus();
-  }, [user, loading, navigate]);
-
-  const handleSignOut = async () => {
-    const { error } = await signOut();
-    if (error) {
-      toast({
-        title: "Error signing out",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
+    if (!loading && !user) {
       navigate("/login");
     }
-  };
+  }, [user, loading, navigate]);
 
   const handleChurchInfoSubmit = async (data: Partial<Church>) => {
     setChurchData(data);
@@ -293,16 +261,6 @@ const Onboarding = () => {
   return (
     <div className="min-h-screen bg-background py-12 px-4">
       <div className="max-w-4xl mx-auto relative">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleSignOut}
-          className="absolute top-4 right-4 gap-2"
-        >
-          <LogOut className="w-4 h-4" />
-          Logout
-        </Button>
-        
         <div className="mb-8">
           <h1 className="text-4xl font-playfair font-bold text-center mb-2">
             Welcome to Church Social Media Generator
