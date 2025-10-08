@@ -268,7 +268,8 @@ const Onboarding = () => {
       // Small delay to ensure database operations are complete
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      navigate("/dashboard");
+      // Force a hard navigation to ensure fresh data load
+      window.location.href = "/dashboard";
     } catch (error) {
       console.error('Setup error:', error);
       toast({
@@ -296,7 +297,7 @@ const Onboarding = () => {
           variant="ghost"
           size="sm"
           onClick={handleSignOut}
-          className="absolute top-0 right-0 gap-2"
+          className="absolute top-4 right-4 gap-2"
         >
           <LogOut className="w-4 h-4" />
           Logout
