@@ -90,17 +90,29 @@ const Library = () => {
   const downloadContent = (item: GeneratedContent) => {
     const content = [];
     
-    if (item.facebook_post) {
-      content.push(`=== FACEBOOK ===\n${item.facebook_post}\n`);
+    if (item.facebook_post && item.facebook_post.length > 0) {
+      const posts = Array.isArray(item.facebook_post) ? item.facebook_post : [item.facebook_post];
+      posts.forEach((post, idx) => {
+        content.push(`=== FACEBOOK ${posts.length > 1 ? `(Variation ${idx + 1})` : ''} ===\n${post}\n`);
+      });
     }
-    if (item.instagram_post) {
-      content.push(`=== INSTAGRAM ===\n${item.instagram_post}\n`);
+    if (item.instagram_post && item.instagram_post.length > 0) {
+      const posts = Array.isArray(item.instagram_post) ? item.instagram_post : [item.instagram_post];
+      posts.forEach((post, idx) => {
+        content.push(`=== INSTAGRAM ${posts.length > 1 ? `(Variation ${idx + 1})` : ''} ===\n${post}\n`);
+      });
     }
-    if (item.tiktok_post) {
-      content.push(`=== TIKTOK ===\n${item.tiktok_post}\n`);
+    if (item.tiktok_post && item.tiktok_post.length > 0) {
+      const posts = Array.isArray(item.tiktok_post) ? item.tiktok_post : [item.tiktok_post];
+      posts.forEach((post, idx) => {
+        content.push(`=== TIKTOK ${posts.length > 1 ? `(Variation ${idx + 1})` : ''} ===\n${post}\n`);
+      });
     }
-    if (item.twitter_post) {
-      content.push(`=== TWITTER/X ===\n${item.twitter_post}\n`);
+    if (item.twitter_post && item.twitter_post.length > 0) {
+      const posts = Array.isArray(item.twitter_post) ? item.twitter_post : [item.twitter_post];
+      posts.forEach((post, idx) => {
+        content.push(`=== TWITTER/X ${posts.length > 1 ? `(Variation ${idx + 1})` : ''} ===\n${post}\n`);
+      });
     }
     if (item.executive_summary) {
       content.push(`=== EXECUTIVE SUMMARY ===\n${item.executive_summary}\n`);
@@ -115,11 +127,15 @@ const Library = () => {
     URL.revokeObjectURL(url);
   };
 
-  const filteredContent = content.filter(item =>
-    item.executive_summary?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.facebook_post?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.instagram_post?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredContent = content.filter(item => {
+    const query = searchQuery.toLowerCase();
+    const fbPosts = Array.isArray(item.facebook_post) ? item.facebook_post : [item.facebook_post];
+    const igPosts = Array.isArray(item.instagram_post) ? item.instagram_post : [item.instagram_post];
+    
+    return item.executive_summary?.toLowerCase().includes(query) ||
+      fbPosts.some(post => post?.toLowerCase().includes(query)) ||
+      igPosts.some(post => post?.toLowerCase().includes(query));
+  });
 
   if (loading || churchLoading || isLoading) {
     return (
@@ -201,45 +217,57 @@ const Library = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {item.facebook_post && (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium">Facebook</p>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => copyToClipboard(item.facebook_post!, "Facebook post")}
-                        >
-                          <Copy className="w-4 h-4 mr-2" />
-                          Copy
-                        </Button>
+                  {item.facebook_post && item.facebook_post.length > 0 && (() => {
+                    const posts = Array.isArray(item.facebook_post) ? item.facebook_post : [item.facebook_post];
+                    const firstPost = posts[0];
+                    return (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium">
+                            Facebook {posts.length > 1 && `(${posts.length} variations)`}
+                          </p>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => copyToClipboard(firstPost, "Facebook post")}
+                          >
+                            <Copy className="w-4 h-4 mr-2" />
+                            Copy First
+                          </Button>
+                        </div>
+                        <p className="text-sm text-muted-foreground bg-muted p-3 rounded-lg">
+                          {firstPost.substring(0, 200)}
+                          {firstPost.length > 200 && "..."}
+                        </p>
                       </div>
-                      <p className="text-sm text-muted-foreground bg-muted p-3 rounded-lg">
-                        {item.facebook_post.substring(0, 200)}
-                        {item.facebook_post.length > 200 && "..."}
-                      </p>
-                    </div>
-                  )}
+                    );
+                  })()}
 
-                  {item.instagram_post && (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium">Instagram</p>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => copyToClipboard(item.instagram_post!, "Instagram post")}
-                        >
-                          <Copy className="w-4 h-4 mr-2" />
-                          Copy
-                        </Button>
+                  {item.instagram_post && item.instagram_post.length > 0 && (() => {
+                    const posts = Array.isArray(item.instagram_post) ? item.instagram_post : [item.instagram_post];
+                    const firstPost = posts[0];
+                    return (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium">
+                            Instagram {posts.length > 1 && `(${posts.length} variations)`}
+                          </p>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => copyToClipboard(firstPost, "Instagram post")}
+                          >
+                            <Copy className="w-4 h-4 mr-2" />
+                            Copy First
+                          </Button>
+                        </div>
+                        <p className="text-sm text-muted-foreground bg-muted p-3 rounded-lg">
+                          {firstPost.substring(0, 200)}
+                          {firstPost.length > 200 && "..."}
+                        </p>
                       </div>
-                      <p className="text-sm text-muted-foreground bg-muted p-3 rounded-lg">
-                        {item.instagram_post.substring(0, 200)}
-                        {item.instagram_post.length > 200 && "..."}
-                      </p>
-                    </div>
-                  )}
+                    );
+                  })()}
 
                   {item.executive_summary && (
                     <div className="space-y-2">
