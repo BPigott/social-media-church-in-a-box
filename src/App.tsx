@@ -39,7 +39,16 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   const { hasChurch, loading: churchLoading } = useChurch(user?.id);
 
+  console.log('🛡️ ProtectedRoute check:', {
+    user: !!user,
+    loading,
+    churchLoading,
+    hasChurch,
+    userId: user?.id
+  });
+
   if (loading || churchLoading) {
+    console.log('⏳ ProtectedRoute: Loading auth or church data...');
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <p>Loading...</p>
@@ -48,14 +57,17 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!user) {
+    console.log('🚫 ProtectedRoute: No user, redirecting to login');
     return <Navigate to="/login" replace />;
   }
 
   // If user doesn't have a church, redirect to onboarding
   if (!hasChurch) {
+    console.log('⚠️ ProtectedRoute: No church found, redirecting to onboarding');
     return <Navigate to="/onboarding" replace />;
   }
 
+  console.log('✅ ProtectedRoute: Access granted');
   return <>{children}</>;
 };
 
