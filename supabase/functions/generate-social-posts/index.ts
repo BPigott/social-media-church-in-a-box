@@ -75,7 +75,7 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    const { transcript, styleGuide, platforms, customCTA, churchId } = await req.json();
+    const { transcript, styleGuide, platforms, customCTA, churchId, postsPerPlatform = 1 } = await req.json();
 
     // Validate transcript
     if (!transcript || transcript.trim().length < 100) {
@@ -86,6 +86,7 @@ serve(async (req) => {
     }
 
     console.log('Generating social posts for church:', churchId, 'platforms:', platforms);
+    console.log('Posts per platform:', postsPerPlatform);
     console.log('Transcript length:', transcript?.length || 0);
     console.log('Style guide length:', styleGuide?.length || 0);
     console.log('Custom CTA:', customCTA || 'None');
@@ -147,7 +148,17 @@ CRITICAL REQUIREMENTS:
 - If "Optional Additions" are provided, weave them naturally AFTER presenting actual sermon content
 - DO NOT create posts solely about the optional additions - they should enhance, not replace, sermon content
 
-Generate ONE post for EACH of the following platforms: ${platforms.join(', ')}
+Generate ${postsPerPlatform} ${postsPerPlatform === 1 ? 'post' : 'different variations'} for EACH of the following platforms: ${platforms.join(', ')}
+
+${postsPerPlatform > 1 ? `
+VARIATION REQUIREMENTS:
+- Each variation must present the same core message differently
+- Use different hooks, structures, or emphasis points
+- Vary the opening lines and calls-to-action
+- Maintain the church's voice and style across all variations
+- Each variation should feel distinct, not just minor word changes
+- All variations must follow platform-specific guidelines
+` : ''}
 
 Also create an executive summary (400-500 words) that SUMMARIZES the sermon content:
 - **THIS IS A SUMMARY, NOT A RETELLING**: Condense the key points, don't narrate through the sermon
@@ -177,12 +188,14 @@ Before returning your response, verify that:
 
 Return your response as a JSON object with this exact structure:
 {
-  "facebook": "post content for Facebook (only if Facebook is in the platforms list)",
-  "instagram": "post content for Instagram (only if Instagram is in the platforms list)",
-  "tiktok": "post content for TikTok (only if TikTok is in the platforms list)",
-  "twitter": "post content for Twitter (only if Twitter is in the platforms list)",
-  "executiveSummary": "summary content here"
+  "facebook": ${postsPerPlatform === 1 ? '"post content for Facebook"' : '["variation 1", "variation 2", ...]'},
+  "instagram": ${postsPerPlatform === 1 ? '"post content for Instagram"' : '["variation 1", "variation 2", ...]'},
+  "tiktok": ${postsPerPlatform === 1 ? '"post content for TikTok"' : '["variation 1", "variation 2", ...]'},
+  "twitter": ${postsPerPlatform === 1 ? '"post content for Twitter"' : '["variation 1", "variation 2", ...]'},
+  "executiveSummary": "summary content here (always a single string)"
 }
+
+${postsPerPlatform > 1 ? 'IMPORTANT: Return an array of exactly ' + postsPerPlatform + ' variations for each platform.' : 'IMPORTANT: Only include keys for the platforms that were requested.'}
 
 Important:
 - Only include keys for the platforms that were requested

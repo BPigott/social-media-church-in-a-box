@@ -70,40 +70,43 @@ export type Database = {
           church_id: string
           custom_cta: string | null
           executive_summary: string
-          facebook_post: string | null
+          facebook_post: string[] | null
           generated_at: string
           id: string
-          instagram_post: string | null
+          instagram_post: string[] | null
           platforms: Json
+          posts_per_platform: number | null
           sermon_transcript_id: string
-          tiktok_post: string | null
-          twitter_post: string | null
+          tiktok_post: string[] | null
+          twitter_post: string[] | null
         }
         Insert: {
           church_id: string
           custom_cta?: string | null
           executive_summary: string
-          facebook_post?: string | null
+          facebook_post?: string[] | null
           generated_at?: string
           id?: string
-          instagram_post?: string | null
+          instagram_post?: string[] | null
           platforms?: Json
+          posts_per_platform?: number | null
           sermon_transcript_id: string
-          tiktok_post?: string | null
-          twitter_post?: string | null
+          tiktok_post?: string[] | null
+          twitter_post?: string[] | null
         }
         Update: {
           church_id?: string
           custom_cta?: string | null
           executive_summary?: string
-          facebook_post?: string | null
+          facebook_post?: string[] | null
           generated_at?: string
           id?: string
-          instagram_post?: string | null
+          instagram_post?: string[] | null
           platforms?: Json
+          posts_per_platform?: number | null
           sermon_transcript_id?: string
-          tiktok_post?: string | null
-          twitter_post?: string | null
+          tiktok_post?: string[] | null
+          twitter_post?: string[] | null
         }
         Relationships: [
           {

@@ -29,9 +29,11 @@ const Dashboard = () => {
   const [transcriptText, setTranscriptText] = useState("");
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [customCTA, setCustomCTA] = useState("");
+  const [postsPerPlatform, setPostsPerPlatform] = useState(1);
   const [generating, setGenerating] = useState(false);
   const [generatedContent, setGeneratedContent] = useState<any>(null);
   const [copiedItem, setCopiedItem] = useState<string | null>(null);
+  const [activeVariations, setActiveVariations] = useState<Record<string, number>>({});
 
   useEffect(() => {
     if (!loading && !user) {
@@ -215,6 +217,7 @@ const Dashboard = () => {
           platforms,
           customCTA,
           churchId: primaryChurch.id,
+          postsPerPlatform,
         }
       });
 
@@ -224,15 +227,22 @@ const Dashboard = () => {
       }
 
       // Step 5: Save generated content to database with transcript reference
+      // Convert single posts to arrays for consistency
+      const normalizeToArray = (post: string | string[] | null) => {
+        if (!post) return null;
+        return Array.isArray(post) ? post : [post];
+      };
+
       const { error: insertError } = await supabase.from('generated_content').insert({
         church_id: primaryChurch.id,
         sermon_transcript_id: transcriptData.id,
         platforms,
         custom_cta: customCTA || null,
-        facebook_post: data.facebook || null,
-        instagram_post: data.instagram || null,
-        tiktok_post: data.tiktok || null,
-        twitter_post: data.twitter || null,
+        posts_per_platform: postsPerPlatform,
+        facebook_post: normalizeToArray(data.facebook),
+        instagram_post: normalizeToArray(data.instagram),
+        tiktok_post: normalizeToArray(data.tiktok),
+        twitter_post: normalizeToArray(data.twitter),
         executive_summary: data.executiveSummary,
       });
 
@@ -272,17 +282,28 @@ const Dashboard = () => {
   const downloadAll = () => {
     const content = [];
     
+    const formatPosts = (posts: string | string[], platformName: string) => {
+      const postsArray = Array.isArray(posts) ? posts : [posts];
+      if (postsArray.length === 1) {
+        return `=== ${platformName} ===\n${postsArray[0]}\n\nCharacters: ${postsArray[0].length}\n`;
+      } else {
+        return postsArray.map((post, idx) => 
+          `=== ${platformName} (Variation ${idx + 1}) ===\n${post}\n\nCharacters: ${post.length}\n`
+        ).join('\n\n');
+      }
+    };
+    
     if (generatedContent.facebook) {
-      content.push(`=== FACEBOOK ===\n${generatedContent.facebook}\n\nCharacters: ${generatedContent.facebook.length}\n`);
+      content.push(formatPosts(generatedContent.facebook, 'FACEBOOK'));
     }
     if (generatedContent.instagram) {
-      content.push(`=== INSTAGRAM ===\n${generatedContent.instagram}\n\nCharacters: ${generatedContent.instagram.length}\n`);
+      content.push(formatPosts(generatedContent.instagram, 'INSTAGRAM'));
     }
     if (generatedContent.tiktok) {
-      content.push(`=== TIKTOK ===\n${generatedContent.tiktok}\n\nCharacters: ${generatedContent.tiktok.length}\n`);
+      content.push(formatPosts(generatedContent.tiktok, 'TIKTOK'));
     }
     if (generatedContent.twitter) {
-      content.push(`=== TWITTER/X ===\n${generatedContent.twitter}\n\nCharacters: ${generatedContent.twitter.length}\n`);
+      content.push(formatPosts(generatedContent.twitter, 'TWITTER/X'));
     }
     if (generatedContent.executiveSummary) {
       content.push(`=== EXECUTIVE SUMMARY ===\n${generatedContent.executiveSummary}\n`);
@@ -362,6 +383,27 @@ const Dashboard = () => {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="posts-per-platform">Posts per Platform</Label>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Generate multiple variations to choose from or schedule throughout the week
+                </p>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4, 5].map((num) => (
+                    <Button
+                      key={num}
+                      type="button"
+                      variant={postsPerPlatform === num ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setPostsPerPlatform(num)}
+                      className="flex-1"
+                    >
+                      {num}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="custom-cta">Custom CTA/Themes (Optional)</Label>
                 <p className="text-sm text-muted-foreground mb-2">
                   Add specific themes, announcements, or calls-to-action to include in your posts. Examples:
@@ -425,105 +467,245 @@ const Dashboard = () => {
                     <TabsTrigger value="summary">Summary</TabsTrigger>
                   </TabsList>
 
-                  {generatedContent.facebook && (
-                    <TabsContent value="facebook" className="space-y-3">
-                      <div className="bg-muted p-4 rounded-lg">
-                        <p className="whitespace-pre-wrap">{generatedContent.facebook}</p>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm text-muted-foreground">
-                          {generatedContent.facebook.length} characters
-                        </p>
-                        <Button
-                          onClick={() => copyToClipboard(generatedContent.facebook, "Facebook post")}
-                          variant="outline"
-                          size="sm"
-                        >
-                          {copiedItem === "Facebook post" ? (
-                            <CheckCircle2 className="w-4 h-4 mr-2" />
-                          ) : (
-                            <Copy className="w-4 h-4 mr-2" />
-                          )}
-                          Copy
-                        </Button>
-                      </div>
-                    </TabsContent>
-                  )}
+                  {generatedContent.facebook && (() => {
+                    const posts = Array.isArray(generatedContent.facebook) ? generatedContent.facebook : [generatedContent.facebook];
+                    const activeIdx = activeVariations['facebook'] || 0;
+                    const currentPost = posts[activeIdx];
+                    
+                    return (
+                      <TabsContent value="facebook" className="space-y-3">
+                        {posts.length > 1 && (
+                          <div className="flex items-center justify-between text-sm text-muted-foreground">
+                            <span>Variation {activeIdx + 1} of {posts.length}</span>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setActiveVariations(prev => ({
+                                  ...prev,
+                                  facebook: Math.max(0, activeIdx - 1)
+                                }))}
+                                disabled={activeIdx === 0}
+                              >
+                                ← Previous
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setActiveVariations(prev => ({
+                                  ...prev,
+                                  facebook: Math.min(posts.length - 1, activeIdx + 1)
+                                }))}
+                                disabled={activeIdx === posts.length - 1}
+                              >
+                                Next →
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                        <div className="bg-muted p-4 rounded-lg">
+                          <p className="whitespace-pre-wrap">{currentPost}</p>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm text-muted-foreground">
+                            {currentPost.length} characters
+                          </p>
+                          <Button
+                            onClick={() => copyToClipboard(currentPost, "Facebook post")}
+                            variant="outline"
+                            size="sm"
+                          >
+                            {copiedItem === "Facebook post" ? (
+                              <CheckCircle2 className="w-4 h-4 mr-2" />
+                            ) : (
+                              <Copy className="w-4 h-4 mr-2" />
+                            )}
+                            Copy
+                          </Button>
+                        </div>
+                      </TabsContent>
+                    );
+                  })()}
 
-                  {generatedContent.instagram && (
-                    <TabsContent value="instagram" className="space-y-3">
-                      <div className="bg-muted p-4 rounded-lg">
-                        <p className="whitespace-pre-wrap">{generatedContent.instagram}</p>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm text-muted-foreground">
-                          {generatedContent.instagram.length} characters
-                        </p>
-                        <Button
-                          onClick={() => copyToClipboard(generatedContent.instagram, "Instagram post")}
-                          variant="outline"
-                          size="sm"
-                        >
-                          {copiedItem === "Instagram post" ? (
-                            <CheckCircle2 className="w-4 h-4 mr-2" />
-                          ) : (
-                            <Copy className="w-4 h-4 mr-2" />
-                          )}
-                          Copy
-                        </Button>
-                      </div>
-                    </TabsContent>
-                  )}
+                  {generatedContent.instagram && (() => {
+                    const posts = Array.isArray(generatedContent.instagram) ? generatedContent.instagram : [generatedContent.instagram];
+                    const activeIdx = activeVariations['instagram'] || 0;
+                    const currentPost = posts[activeIdx];
+                    
+                    return (
+                      <TabsContent value="instagram" className="space-y-3">
+                        {posts.length > 1 && (
+                          <div className="flex items-center justify-between text-sm text-muted-foreground">
+                            <span>Variation {activeIdx + 1} of {posts.length}</span>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setActiveVariations(prev => ({
+                                  ...prev,
+                                  instagram: Math.max(0, activeIdx - 1)
+                                }))}
+                                disabled={activeIdx === 0}
+                              >
+                                ← Previous
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setActiveVariations(prev => ({
+                                  ...prev,
+                                  instagram: Math.min(posts.length - 1, activeIdx + 1)
+                                }))}
+                                disabled={activeIdx === posts.length - 1}
+                              >
+                                Next →
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                        <div className="bg-muted p-4 rounded-lg">
+                          <p className="whitespace-pre-wrap">{currentPost}</p>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm text-muted-foreground">
+                            {currentPost.length} characters
+                          </p>
+                          <Button
+                            onClick={() => copyToClipboard(currentPost, "Instagram post")}
+                            variant="outline"
+                            size="sm"
+                          >
+                            {copiedItem === "Instagram post" ? (
+                              <CheckCircle2 className="w-4 h-4 mr-2" />
+                            ) : (
+                              <Copy className="w-4 h-4 mr-2" />
+                            )}
+                            Copy
+                          </Button>
+                        </div>
+                      </TabsContent>
+                    );
+                  })()}
 
-                  {generatedContent.tiktok && (
-                    <TabsContent value="tiktok" className="space-y-3">
-                      <div className="bg-muted p-4 rounded-lg">
-                        <p className="whitespace-pre-wrap">{generatedContent.tiktok}</p>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm text-muted-foreground">
-                          {generatedContent.tiktok.length} characters
-                        </p>
-                        <Button
-                          onClick={() => copyToClipboard(generatedContent.tiktok, "TikTok post")}
-                          variant="outline"
-                          size="sm"
-                        >
-                          {copiedItem === "TikTok post" ? (
-                            <CheckCircle2 className="w-4 h-4 mr-2" />
-                          ) : (
-                            <Copy className="w-4 h-4 mr-2" />
-                          )}
-                          Copy
-                        </Button>
-                      </div>
-                    </TabsContent>
-                  )}
+                  {generatedContent.tiktok && (() => {
+                    const posts = Array.isArray(generatedContent.tiktok) ? generatedContent.tiktok : [generatedContent.tiktok];
+                    const activeIdx = activeVariations['tiktok'] || 0;
+                    const currentPost = posts[activeIdx];
+                    
+                    return (
+                      <TabsContent value="tiktok" className="space-y-3">
+                        {posts.length > 1 && (
+                          <div className="flex items-center justify-between text-sm text-muted-foreground">
+                            <span>Variation {activeIdx + 1} of {posts.length}</span>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setActiveVariations(prev => ({
+                                  ...prev,
+                                  tiktok: Math.max(0, activeIdx - 1)
+                                }))}
+                                disabled={activeIdx === 0}
+                              >
+                                ← Previous
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setActiveVariations(prev => ({
+                                  ...prev,
+                                  tiktok: Math.min(posts.length - 1, activeIdx + 1)
+                                }))}
+                                disabled={activeIdx === posts.length - 1}
+                              >
+                                Next →
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                        <div className="bg-muted p-4 rounded-lg">
+                          <p className="whitespace-pre-wrap">{currentPost}</p>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm text-muted-foreground">
+                            {currentPost.length} characters
+                          </p>
+                          <Button
+                            onClick={() => copyToClipboard(currentPost, "TikTok post")}
+                            variant="outline"
+                            size="sm"
+                          >
+                            {copiedItem === "TikTok post" ? (
+                              <CheckCircle2 className="w-4 h-4 mr-2" />
+                            ) : (
+                              <Copy className="w-4 h-4 mr-2" />
+                            )}
+                            Copy
+                          </Button>
+                        </div>
+                      </TabsContent>
+                    );
+                  })()}
 
-                  {generatedContent.twitter && (
-                    <TabsContent value="twitter" className="space-y-3">
-                      <div className="bg-muted p-4 rounded-lg">
-                        <p className="whitespace-pre-wrap">{generatedContent.twitter}</p>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm text-muted-foreground">
-                          {generatedContent.twitter.length} characters
-                        </p>
-                        <Button
-                          onClick={() => copyToClipboard(generatedContent.twitter, "Twitter post")}
-                          variant="outline"
-                          size="sm"
-                        >
-                          {copiedItem === "Twitter post" ? (
-                            <CheckCircle2 className="w-4 h-4 mr-2" />
-                          ) : (
-                            <Copy className="w-4 h-4 mr-2" />
-                          )}
-                          Copy
-                        </Button>
-                      </div>
-                    </TabsContent>
-                  )}
+                  {generatedContent.twitter && (() => {
+                    const posts = Array.isArray(generatedContent.twitter) ? generatedContent.twitter : [generatedContent.twitter];
+                    const activeIdx = activeVariations['twitter'] || 0;
+                    const currentPost = posts[activeIdx];
+                    
+                    return (
+                      <TabsContent value="twitter" className="space-y-3">
+                        {posts.length > 1 && (
+                          <div className="flex items-center justify-between text-sm text-muted-foreground">
+                            <span>Variation {activeIdx + 1} of {posts.length}</span>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setActiveVariations(prev => ({
+                                  ...prev,
+                                  twitter: Math.max(0, activeIdx - 1)
+                                }))}
+                                disabled={activeIdx === 0}
+                              >
+                                ← Previous
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setActiveVariations(prev => ({
+                                  ...prev,
+                                  twitter: Math.min(posts.length - 1, activeIdx + 1)
+                                }))}
+                                disabled={activeIdx === posts.length - 1}
+                              >
+                                Next →
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                        <div className="bg-muted p-4 rounded-lg">
+                          <p className="whitespace-pre-wrap">{currentPost}</p>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm text-muted-foreground">
+                            {currentPost.length} characters
+                          </p>
+                          <Button
+                            onClick={() => copyToClipboard(currentPost, "Twitter post")}
+                            variant="outline"
+                            size="sm"
+                          >
+                            {copiedItem === "Twitter post" ? (
+                              <CheckCircle2 className="w-4 h-4 mr-2" />
+                            ) : (
+                              <Copy className="w-4 h-4 mr-2" />
+                            )}
+                            Copy
+                          </Button>
+                        </div>
+                      </TabsContent>
+                    );
+                  })()}
 
                   <TabsContent value="summary" className="space-y-3">
                     <div className="bg-muted p-4 rounded-lg">
