@@ -77,7 +77,7 @@ const Dashboard = () => {
       let filePath = '';
       if (transcriptFile) {
         const fileExt = transcriptFile.name.split('.').pop();
-        const fileName = `${crypto.randomUUID()}.${fileExt}`;
+        const fileName = `${primaryChurch.id}/${crypto.randomUUID()}.${fileExt}`;
         const { error: uploadError } = await supabase.storage
           .from('transcripts')
           .upload(fileName, transcriptFile);
