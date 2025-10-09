@@ -90,6 +90,7 @@ const Dashboard = () => {
   const [generatedContent, setGeneratedContent] = useState<any>(null);
   const [copiedItem, setCopiedItem] = useState<string | null>(null);
   const [activeVariations, setActiveVariations] = useState<Record<string, number>>({});
+  const [dragActive, setDragActive] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -173,6 +174,34 @@ const Dashboard = () => {
       });
       setTranscriptFile(null);
       setTranscriptText("");
+    }
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    const files = e.dataTransfer.files;
+    if (files && files[0]) {
+      const input = document.getElementById('transcript-upload') as HTMLInputElement;
+      if (input) {
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(files[0]);
+        input.files = dataTransfer.files;
+        
+        handleFileUpload({ target: input } as any);
+      }
     }
   };
 
@@ -405,10 +434,26 @@ const Dashboard = () => {
             <CardContent className="space-y-6">
               <div>
                 <Label htmlFor="transcript-upload" className="cursor-pointer">
-                  <div className="border-2 border-dashed rounded-lg p-8 text-center hover:border-primary transition-colors">
-                    <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                  <div 
+                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-all ${
+                      dragActive 
+                        ? "border-primary bg-primary/5 scale-[1.02]" 
+                        : "border-muted-foreground hover:border-primary"
+                    }`}
+                    onDragEnter={handleDrag}
+                    onDragLeave={handleDrag}
+                    onDragOver={handleDrag}
+                    onDrop={handleDrop}
+                  >
+                    <Upload className={`w-10 h-10 mx-auto mb-2 transition-all ${
+                      dragActive ? "text-primary scale-110" : "text-muted-foreground"
+                    }`} />
                     <p className="text-sm font-medium mb-1">
-                      {transcriptFile ? transcriptFile.name : "Click to upload transcript"}
+                      {transcriptFile ? transcriptFile.name : (
+                        <>
+                          <span className="font-semibold">Drop sermon file here</span> or click to upload
+                        </>
+                      )}
                     </p>
                     <p className="text-xs text-muted-foreground">TXT, PDF, DOCX, or DOC</p>
                   </div>
