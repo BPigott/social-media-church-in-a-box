@@ -3,8 +3,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, X } from "lucide-react";
 import type { Church } from "@/types/database";
+
+const DAYS_OF_WEEK = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+const TIME_OPTIONS = Array.from({ length: 53 }, (_, i) => {
+  const hour = Math.floor(i / 4) + 8; // Start at 8 AM
+  const minute = (i % 4) * 15;
+  const period = hour >= 12 ? "PM" : "AM";
+  const displayHour = hour > 12 ? hour - 12 : hour;
+  return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
+});
 
 interface ChurchInfoFormProps {
   onSubmit: (data: Partial<Church>) => void;
@@ -137,24 +148,35 @@ export const ChurchInfoForm = ({ onSubmit, initialData }: ChurchInfoFormProps) =
         </div>
         {formData.service_times.map((st, index) => (
           <div key={index} className="flex gap-2 items-start">
-            <Input
-              placeholder="Day (e.g., Sunday)"
-              value={st.day}
-              onChange={(e) => updateServiceTime(index, 'day', e.target.value)}
-              className="flex-1"
-            />
-            <Input
-              placeholder="Time (e.g., 10:00 AM)"
-              value={st.time}
-              onChange={(e) => updateServiceTime(index, 'time', e.target.value)}
-              className="flex-1"
-            />
+            <Select value={st.day} onValueChange={(value) => updateServiceTime(index, 'day', value)}>
+              <SelectTrigger className="flex-1">
+                <SelectValue placeholder="Select day" />
+              </SelectTrigger>
+              <SelectContent>
+                {DAYS_OF_WEEK.map((day) => (
+                  <SelectItem key={day} value={day}>{day}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            <Select value={st.time} onValueChange={(value) => updateServiceTime(index, 'time', value)}>
+              <SelectTrigger className="flex-1">
+                <SelectValue placeholder="Select time" />
+              </SelectTrigger>
+              <SelectContent>
+                {TIME_OPTIONS.map((time) => (
+                  <SelectItem key={time} value={time}>{time}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
             <Input
               placeholder="Type (optional)"
               value={st.service_type || ""}
               onChange={(e) => updateServiceTime(index, 'service_type', e.target.value)}
               className="flex-1"
             />
+            
             <Button
               type="button"
               onClick={() => removeServiceTime(index)}

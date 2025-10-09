@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Loader2, Copy, Download, Upload, CheckCircle2 } from "lucide-react";
@@ -27,6 +28,7 @@ const Dashboard = () => {
 
   const [transcriptFile, setTranscriptFile] = useState<File | null>(null);
   const [transcriptText, setTranscriptText] = useState("");
+  const [speakerName, setSpeakerName] = useState("");
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [customCTA, setCustomCTA] = useState("");
   const [postsPerPlatform, setPostsPerPlatform] = useState(1);
@@ -188,6 +190,7 @@ const Dashboard = () => {
           file_name: transcriptFile?.name || 'transcript.txt',
           file_path: filePath,
           transcript_text: cleanedTranscript,
+          speaker_name: speakerName.trim() || null,
         })
         .select()
         .single();
@@ -218,6 +221,7 @@ const Dashboard = () => {
           customCTA,
           churchId: primaryChurch.id,
           postsPerPlatform,
+          speakerName: speakerName.trim() || null,
         }
       });
 
@@ -362,6 +366,19 @@ const Dashboard = () => {
                     className="hidden"
                   />
                 </Label>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="speaker-name">Who was preaching? (Optional)</Label>
+                <Input
+                  id="speaker-name"
+                  placeholder="e.g., Pastor John, Rob Smith, Sarah Johnson"
+                  value={speakerName}
+                  onChange={(e) => setSpeakerName(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Adding the speaker's name helps personalize the content
+                </p>
               </div>
 
               <div className="space-y-3">

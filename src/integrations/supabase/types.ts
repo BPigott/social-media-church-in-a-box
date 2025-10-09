@@ -131,6 +131,7 @@ export type Database = {
           file_name: string
           file_path: string
           id: string
+          speaker_name: string | null
           transcript_text: string
           uploaded_at: string
           uploaded_by: string | null
@@ -140,6 +141,7 @@ export type Database = {
           file_name: string
           file_path: string
           id?: string
+          speaker_name?: string | null
           transcript_text: string
           uploaded_at?: string
           uploaded_by?: string | null
@@ -149,6 +151,7 @@ export type Database = {
           file_name?: string
           file_path?: string
           id?: string
+          speaker_name?: string | null
           transcript_text?: string
           uploaded_at?: string
           uploaded_by?: string | null

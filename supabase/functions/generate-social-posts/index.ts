@@ -75,7 +75,7 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    const { transcript, styleGuide, platforms, customCTA, churchId, postsPerPlatform = 1 } = await req.json();
+    const { transcript, styleGuide, platforms, customCTA, churchId, postsPerPlatform = 1, speakerName } = await req.json();
 
     // Validate transcript
     if (!transcript || transcript.trim().length < 100) {
@@ -90,6 +90,7 @@ serve(async (req) => {
     console.log('Transcript length:', transcript?.length || 0);
     console.log('Style guide length:', styleGuide?.length || 0);
     console.log('Custom CTA:', customCTA || 'None');
+    console.log('Speaker name:', speakerName || 'Not provided');
 
     // Build platform-specific guidelines
     const selectedGuidelines = platforms
@@ -116,6 +117,17 @@ Your goal is to create social media posts that capture and communicate the key m
 
 # Sermon Transcript
 ${transcript}
+
+---
+
+# Sermon Speaker
+${speakerName ? `This sermon was delivered by ${speakerName}.` : 'Speaker not specified.'}
+
+# Speaker Reference Guidelines
+- If speaker name is provided, use it naturally in posts when relevant (e.g., "${speakerName} shared...", "${speakerName} reminded us...")
+- If no speaker provided, use generic references ("The speaker...", "We heard...", "This message...")
+- Keep speaker references natural and not forced - only mention when it flows well
+- In the executive summary, you can mention the speaker once in the opening
 
 ---
 
