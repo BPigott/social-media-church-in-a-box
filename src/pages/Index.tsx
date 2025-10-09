@@ -41,9 +41,7 @@ const Index = () => {
                 <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">1</span>
               </div>
               <h3 className="text-xl font-playfair font-semibold">Simple Setup</h3>
-              <p className="text-muted-foreground text-sm">
-                Tell us about your church, upload a sermon, and optionally share your website
-              </p>
+              <p className="text-muted-foreground text-sm">Tell us about your church, upload previously delivered sermons, and optionally share your website</p>
             </div>
 
             <div className="text-center space-y-4">
