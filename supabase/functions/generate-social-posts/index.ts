@@ -9,7 +9,7 @@ const corsHeaders = {
 const PLATFORM_GUIDELINES = {
   facebook: `
 Facebook Guidelines:
-- Length: 40-80 words ideal (can go longer for compelling content)
+- Length: 40-80 words MAXIMUM (count your words before returning - if over 80 words, trim it down)
 - Tone: Conversational and engaging
 - Structure: Hook → Body → CTA with clear spacing
 - Formatting: Use paragraph breaks (double line breaks) for readability
@@ -20,12 +20,12 @@ Facebook Guidelines:
 `,
   instagram: `
 Instagram Guidelines:
-- Length: 125-150 characters for captions (first 2 lines are key)
+- Length: Keep the FIRST LINE under 125 characters (what appears before '...more' button), total caption can be longer (aim for 150-200 characters total)
 - Tone: Inspirational and visual
 - Structure: Attention-grabbing opening line → Main content (with breaks) → Hashtags on separate lines
 - Formatting: Line breaks are ESSENTIAL - use them liberally between thoughts
 - AVOID: Solid blocks of text - use whitespace strategically
-- Include: Strong opening line, generous line breaks for readability
+- Include: Strong opening line (under 125 characters), generous line breaks for readability
 - Hashtags: 5-10 relevant hashtags (can go up to 30) on separate lines
 - Emojis: Use to break up text and add personality, use as visual breaks between sections
 `,
@@ -220,6 +220,13 @@ Important:
 - For Instagram: use line breaks generously (Instagram best practice)
 - For Facebook: break into 2-3 paragraphs with spacing
 - Each platform post should be visually scannable, not a text wall
+
+FINAL LENGTH CHECK (VALIDATE BEFORE RETURNING):
+- Facebook: Count words - must be 40-80 words maximum. If over 80, trim it down.
+- Instagram: First line (up to first line break) must be under 125 characters. Total caption aim for 150-200 characters.
+- Twitter: Must be under 280 characters total.
+- TikTok: Must be under 150 characters total.
+Review each post you generated and revise if any exceed these limits.
 `;
 
     const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');

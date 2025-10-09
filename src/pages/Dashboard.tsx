@@ -26,6 +26,60 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Helper function to count words
+  const countWords = (text: string): number => {
+    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+  };
+
+  // Helper function to get length indicator
+  const getLengthIndicator = (text: string, platform: string) => {
+    const charCount = text.length;
+    const wordCount = countWords(text);
+    
+    switch(platform) {
+      case 'facebook':
+        if (wordCount >= 40 && wordCount <= 80) {
+          return { status: '✅', color: 'text-green-600', message: `${wordCount} words (Ideal: 40-80)` };
+        } else if (wordCount > 80 && wordCount <= 100) {
+          return { status: '⚠️', color: 'text-yellow-600', message: `${wordCount} words (Recommended: 40-80)` };
+        } else {
+          return { status: '❌', color: 'text-red-600', message: `${wordCount} words (Target: 40-80)` };
+        }
+      
+      case 'instagram':
+        const firstLine = text.split('\n')[0];
+        const firstLineLength = firstLine.length;
+        if (firstLineLength <= 125 && charCount <= 200) {
+          return { status: '✅', color: 'text-green-600', message: `First line: ${firstLineLength} chars (Ideal)` };
+        } else if (firstLineLength <= 125) {
+          return { status: '⚠️', color: 'text-yellow-600', message: `First line: ${firstLineLength} chars (caption longer than ideal)` };
+        } else {
+          return { status: '❌', color: 'text-red-600', message: `First line: ${firstLineLength} chars (Target: <125)` };
+        }
+      
+      case 'tiktok':
+        if (charCount <= 150) {
+          return { status: '✅', color: 'text-green-600', message: `${charCount} chars (Perfect)` };
+        } else if (charCount <= 180) {
+          return { status: '⚠️', color: 'text-yellow-600', message: `${charCount} chars (Target: <150)` };
+        } else {
+          return { status: '❌', color: 'text-red-600', message: `${charCount} chars (Too long)` };
+        }
+      
+      case 'twitter':
+        if (charCount <= 260) {
+          return { status: '✅', color: 'text-green-600', message: `${charCount} chars (Good for retweets)` };
+        } else if (charCount <= 280) {
+          return { status: '⚠️', color: 'text-yellow-600', message: `${charCount} chars (At limit)` };
+        } else {
+          return { status: '❌', color: 'text-red-600', message: `${charCount} chars (Over 280 limit!)` };
+        }
+      
+      default:
+        return { status: '', color: '', message: `${charCount} characters` };
+    }
+  };
+
   const [transcriptFile, setTranscriptFile] = useState<File | null>(null);
   const [transcriptText, setTranscriptText] = useState("");
   const [speakerName, setSpeakerName] = useState("");
@@ -488,9 +542,13 @@ const Dashboard = () => {
                     const posts = Array.isArray(generatedContent.facebook) ? generatedContent.facebook : [generatedContent.facebook];
                     const activeIdx = activeVariations['facebook'] || 0;
                     const currentPost = posts[activeIdx];
+                    const lengthInfo = getLengthIndicator(currentPost, 'facebook');
                     
                     return (
                       <TabsContent value="facebook" className="space-y-3">
+                        <div className="text-xs text-muted-foreground mb-2">
+                          📘 Facebook works best with 40-80 words and clear paragraph breaks
+                        </div>
                         {posts.length > 1 && (
                           <div className="flex items-center justify-between text-sm text-muted-foreground">
                             <span>Variation {activeIdx + 1} of {posts.length}</span>
@@ -524,8 +582,8 @@ const Dashboard = () => {
                           <p className="whitespace-pre-wrap">{currentPost}</p>
                         </div>
                         <div className="flex items-center justify-between">
-                          <p className="text-sm text-muted-foreground">
-                            {currentPost.length} characters
+                          <p className={`text-sm font-medium ${lengthInfo.color}`}>
+                            {lengthInfo.status} {lengthInfo.message} • {currentPost.length} chars
                           </p>
                           <Button
                             onClick={() => copyToClipboard(currentPost, "Facebook post")}
@@ -548,9 +606,13 @@ const Dashboard = () => {
                     const posts = Array.isArray(generatedContent.instagram) ? generatedContent.instagram : [generatedContent.instagram];
                     const activeIdx = activeVariations['instagram'] || 0;
                     const currentPost = posts[activeIdx];
+                    const lengthInfo = getLengthIndicator(currentPost, 'instagram');
                     
                     return (
                       <TabsContent value="instagram" className="space-y-3">
+                        <div className="text-xs text-muted-foreground mb-2">
+                          📸 Instagram: Keep first line under 125 characters (what shows before "...more")
+                        </div>
                         {posts.length > 1 && (
                           <div className="flex items-center justify-between text-sm text-muted-foreground">
                             <span>Variation {activeIdx + 1} of {posts.length}</span>
@@ -584,8 +646,8 @@ const Dashboard = () => {
                           <p className="whitespace-pre-wrap">{currentPost}</p>
                         </div>
                         <div className="flex items-center justify-between">
-                          <p className="text-sm text-muted-foreground">
-                            {currentPost.length} characters
+                          <p className={`text-sm font-medium ${lengthInfo.color}`}>
+                            {lengthInfo.status} {lengthInfo.message} • Total: {currentPost.length} chars
                           </p>
                           <Button
                             onClick={() => copyToClipboard(currentPost, "Instagram post")}
@@ -608,9 +670,13 @@ const Dashboard = () => {
                     const posts = Array.isArray(generatedContent.tiktok) ? generatedContent.tiktok : [generatedContent.tiktok];
                     const activeIdx = activeVariations['tiktok'] || 0;
                     const currentPost = posts[activeIdx];
+                    const lengthInfo = getLengthIndicator(currentPost, 'tiktok');
                     
                     return (
                       <TabsContent value="tiktok" className="space-y-3">
+                        <div className="text-xs text-muted-foreground mb-2">
+                          🎵 TikTok: Keep it short and punchy - under 150 characters
+                        </div>
                         {posts.length > 1 && (
                           <div className="flex items-center justify-between text-sm text-muted-foreground">
                             <span>Variation {activeIdx + 1} of {posts.length}</span>
@@ -644,8 +710,8 @@ const Dashboard = () => {
                           <p className="whitespace-pre-wrap">{currentPost}</p>
                         </div>
                         <div className="flex items-center justify-between">
-                          <p className="text-sm text-muted-foreground">
-                            {currentPost.length} characters
+                          <p className={`text-sm font-medium ${lengthInfo.color}`}>
+                            {lengthInfo.status} {lengthInfo.message}
                           </p>
                           <Button
                             onClick={() => copyToClipboard(currentPost, "TikTok post")}
@@ -668,9 +734,13 @@ const Dashboard = () => {
                     const posts = Array.isArray(generatedContent.twitter) ? generatedContent.twitter : [generatedContent.twitter];
                     const activeIdx = activeVariations['twitter'] || 0;
                     const currentPost = posts[activeIdx];
+                    const lengthInfo = getLengthIndicator(currentPost, 'twitter');
                     
                     return (
                       <TabsContent value="twitter" className="space-y-3">
+                        <div className="text-xs text-muted-foreground mb-2">
+                          🐦 Twitter/X: Aim for 240-260 characters (leaves room for retweets with comments)
+                        </div>
                         {posts.length > 1 && (
                           <div className="flex items-center justify-between text-sm text-muted-foreground">
                             <span>Variation {activeIdx + 1} of {posts.length}</span>
@@ -704,8 +774,8 @@ const Dashboard = () => {
                           <p className="whitespace-pre-wrap">{currentPost}</p>
                         </div>
                         <div className="flex items-center justify-between">
-                          <p className="text-sm text-muted-foreground">
-                            {currentPost.length} characters
+                          <p className={`text-sm font-medium ${lengthInfo.color}`}>
+                            {lengthInfo.status} {lengthInfo.message}
                           </p>
                           <Button
                             onClick={() => copyToClipboard(currentPost, "Twitter post")}
