@@ -11,6 +11,7 @@ import { ChurchInfoForm } from "@/components/onboarding/ChurchInfoForm";
 import { SermonUpload } from "@/components/onboarding/SermonUpload";
 import { StyleGuideGeneration } from "@/components/onboarding/StyleGuideGeneration";
 import { StyleGuideReview } from "@/components/onboarding/StyleGuideReview";
+import { WebsiteScraping } from "@/components/onboarding/WebsiteScraping";
 import type { Church } from "@/types/database";
 
 const Onboarding = () => {
@@ -292,10 +293,24 @@ const Onboarding = () => {
     }
   };
 
-  if (loading || scrapingWebsite) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <p>{loading ? "Loading..." : "Analyzing your website..."}</p>
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (scrapingWebsite) {
+    return (
+      <div className="min-h-screen bg-background py-12 px-4">
+        <div className="max-w-4xl mx-auto">
+          <Card>
+            <CardContent>
+              <WebsiteScraping />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
