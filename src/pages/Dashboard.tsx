@@ -305,6 +305,7 @@ const Dashboard = () => {
           churchId: primaryChurch.id,
           postsPerPlatform,
           speakerName: speakerName.trim() || null,
+          socialHandles: primaryChurch.social_handles || {},
         }
       });
 
@@ -465,6 +466,20 @@ const Dashboard = () => {
                     className="hidden"
                   />
                 </Label>
+                {primaryChurch?.social_handles && Object.keys(primaryChurch.social_handles).some(k => primaryChurch.social_handles[k as keyof typeof primaryChurch.social_handles]) && (
+                  <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md mt-4">
+                    <p className="font-medium mb-1">Your social handles will be naturally integrated:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(primaryChurch.social_handles)
+                        .filter(([_, handle]) => handle)
+                        .map(([platform, handle]) => (
+                          <span key={platform} className="text-xs">
+                            {platform}: @{handle}
+                          </span>
+                        ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">

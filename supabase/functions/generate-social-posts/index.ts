@@ -15,6 +15,7 @@ Facebook Guidelines:
 - Formatting: Use paragraph breaks (double line breaks) for readability
 - AVOID: Walls of text - break into 2-3 short paragraphs
 - Include: Questions, CTAs, or thought-provoking statements
+- Social Handle: If provided, can mention "Find us at facebook.com/[handle]" naturally in content
 - Hashtags: 1-3 relevant hashtags
 - Emojis: Use sparingly for emphasis
 `,
@@ -26,6 +27,7 @@ Instagram Guidelines:
 - Formatting: Line breaks are ESSENTIAL - use them liberally between thoughts
 - AVOID: Solid blocks of text - use whitespace strategically
 - Include: Strong opening line (under 125 characters), generous line breaks for readability
+- Social Handle: Use @[handle] naturally in captions when relevant (e.g., "Follow @churchhandle for more")
 - Hashtags: 5-10 relevant hashtags (can go up to 30) on separate lines
 - Emojis: Use to break up text and add personality, use as visual breaks between sections
 `,
@@ -36,6 +38,7 @@ TikTok Guidelines:
 - Structure: Each line should feel like a separate 'beat'
 - Formatting: Use line breaks between thoughts for visual rhythm
 - Include: Trending phrases or challenges when relevant
+- Social Handle: Can reference @[handle] in caption or suggest "Follow for more content like this"
 - Hashtags: 3-5 trending + niche hashtags
 - Emojis: Use generously for engagement
 `,
@@ -46,6 +49,7 @@ Twitter/X Guidelines:
 - Structure: Hook first line → Supporting point → CTA/Hashtag
 - Formatting: Use line breaks to create visual rhythm if longer content
 - Include: Strong hook, clear message
+- Social Handle: Can tag @[handle] when relevant, keeps posts more personal
 - Hashtags: 1-2 hashtags maximum
 - Emojis: Use 1-2 for emphasis
 `,
@@ -75,7 +79,7 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    const { transcript, styleGuide, platforms, customCTA, churchId, postsPerPlatform = 1, speakerName } = await req.json();
+    const { transcript, styleGuide, platforms, customCTA, churchId, postsPerPlatform = 1, speakerName, socialHandles } = await req.json();
 
     // Validate transcript
     if (!transcript || transcript.trim().length < 100) {
@@ -145,6 +149,27 @@ ${selectedGuidelines}
 ${customCTA || 'None - focus solely on sermon content'}
 
 Note: If optional additions are provided above, incorporate them as a secondary call-to-action AFTER presenting the sermon's main message. The sermon content should remain the primary focus.
+
+---
+
+# Church Social Media Handles
+${socialHandles && Object.keys(socialHandles).length > 0 ? 
+  Object.entries(socialHandles)
+    .filter(([_, handle]) => handle && String(handle).trim())
+    .map(([platform, handle]) => `${platform}: @${handle}`)
+    .join('\n') || 'None provided'
+  : 'None provided'}
+
+# Social Handle Usage Guidelines
+- Use handles NATURALLY and SPARINGLY - they should enhance, not dominate the content
+- Best practices per platform:
+  * Facebook: Can mention page URL in a natural way (e.g., "Learn more at facebook.com/[handle]")
+  * Instagram: Use @handle in caption for discoverability, especially in CTAs
+  * Twitter: Can tag @handle when relevant, keeps posts more personal
+  * TikTok: Reference @handle in video caption for follows
+- DO NOT force handle mentions - only use when it flows naturally
+- Primary focus should remain on sermon content
+- Handles work best in CTAs: "Follow @handle for weekly messages" or "Connect with us @handle"
 
 ---
 
@@ -223,9 +248,10 @@ Important:
 
 FINAL LENGTH CHECK (VALIDATE BEFORE RETURNING):
 - Facebook: Count words - must be 40-80 words maximum. If over 80, trim it down.
-- Instagram: First line (up to first line break) must be under 125 characters. Total caption aim for 150-200 characters.
-- Twitter: Must be under 280 characters total.
-- TikTok: Must be under 150 characters total.
+- Instagram: First line (up to first line break) must be under 125 characters (including any @handles). Total caption aim for 150-200 characters.
+- Twitter: Must be under 280 characters total (including @handles).
+- TikTok: Must be under 150 characters total (including @handles).
+- Social handles count toward character limits - adjust accordingly.
 Review each post you generated and revise if any exceed these limits.
 `;
 
