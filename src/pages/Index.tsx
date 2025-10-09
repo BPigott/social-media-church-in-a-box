@@ -117,7 +117,7 @@ const Index = () => {
               <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
                 <Sparkles className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="text-xl font-playfair font-semibold">Platform-Optimized</h3>
+              <h3 className="text-xl font-playfair font-semibold">Platform-Optimised</h3>
               <p className="text-muted-foreground">
                 Content tailored to each platform's best practices and character limits
               </p>
@@ -163,7 +163,7 @@ const Index = () => {
             </div>
             <h3 className="text-xl font-playfair font-semibold">AI-Powered Content</h3>
             <p className="text-muted-foreground">
-              Generate multiple post variations for Facebook, Instagram, TikTok, and Twitter—each optimized for that platform's audience
+              Generate multiple post variations for Facebook, Instagram, TikTok, and Twitter—each optimised for that platform's audience
             </p>
           </div>
 
