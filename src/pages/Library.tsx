@@ -8,7 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Download, Trash2, Search } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Copy, Download, Trash2, Search, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { GeneratedContent } from "@/types/database";
 
@@ -20,6 +22,8 @@ const Library = () => {
   const [content, setContent] = useState<GeneratedContent[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+  const [currentVariations, setCurrentVariations] = useState<Record<string, number>>({});
 
   useEffect(() => {
     if (!loading && !user) {
@@ -85,6 +89,89 @@ const Library = () => {
       title: "Copied!",
       description: `${label} copied to clipboard.`,
     });
+  };
+
+  const toggleSection = (key: string) => {
+    setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const changeVariation = (key: string, direction: 'prev' | 'next', maxIndex: number) => {
+    setCurrentVariations(prev => {
+      const current = prev[key] || 0;
+      let newIndex = direction === 'next' ? current + 1 : current - 1;
+      if (newIndex < 0) newIndex = maxIndex;
+      if (newIndex > maxIndex) newIndex = 0;
+      return { ...prev, [key]: newIndex };
+    });
+  };
+
+  const renderPlatformSection = (
+    itemId: string,
+    platform: string,
+    posts: string[],
+    icon: string
+  ) => {
+    const sectionKey = `${itemId}-${platform}`;
+    const currentIndex = currentVariations[sectionKey] || 0;
+    const currentPost = posts[currentIndex] || "";
+    const isExpanded = expandedSections[sectionKey];
+
+    return (
+      <Collapsible key={platform} open={isExpanded} onOpenChange={() => toggleSection(sectionKey)}>
+        <div className="border rounded-lg">
+          <CollapsibleTrigger className="w-full">
+            <div className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+              <div className="flex items-center gap-2">
+                <ChevronDown className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                <p className="text-sm font-medium">
+                  {icon} {platform} {posts.length > 1 && `(${posts.length} variations)`}
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  copyToClipboard(currentPost, `${platform} post`);
+                }}
+              >
+                <Copy className="w-4 h-4" />
+              </Button>
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="px-4 pb-4 space-y-3">
+              {posts.length > 1 && (
+                <div className="flex items-center justify-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => changeVariation(sectionKey, 'prev', posts.length - 1)}
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+                  <span className="text-sm text-muted-foreground min-w-[80px] text-center">
+                    {currentIndex + 1} of {posts.length}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => changeVariation(sectionKey, 'next', posts.length - 1)}
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
+              <ScrollArea className="max-h-[400px]">
+                <div className="bg-muted p-4 rounded-lg">
+                  <p className="text-sm whitespace-pre-wrap">{currentPost}</p>
+                </div>
+              </ScrollArea>
+            </div>
+          </CollapsibleContent>
+        </div>
+      </Collapsible>
+    );
   };
 
   const downloadContent = (item: GeneratedContent) => {
@@ -216,68 +303,75 @@ const Library = () => {
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {item.facebook_post && item.facebook_post.length > 0 && (() => {
-                    const posts = Array.isArray(item.facebook_post) ? item.facebook_post : [item.facebook_post];
-                    const firstPost = (posts.find(p => typeof p === "string" && (p as string).length > 0) as string) || "";
-                    return (
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm font-medium">
-                            Facebook {posts.length > 1 && `(${posts.length} variations)`}
-                          </p>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => copyToClipboard(firstPost, "Facebook post")}
-                          >
-                            <Copy className="w-4 h-4 mr-2" />
-                            Copy First
-                          </Button>
-                        </div>
-                        <p className="text-sm text-muted-foreground bg-muted p-3 rounded-lg">
-                          {firstPost.substring(0, 200)}
-                          {firstPost.length > 200 && "..."}
-                        </p>
+                <CardContent className="space-y-3">
+                  {item.executive_summary && (
+                    <Collapsible
+                      open={expandedSections[`${item.id}-summary`]}
+                      onOpenChange={() => toggleSection(`${item.id}-summary`)}
+                    >
+                      <div className="border rounded-lg">
+                        <CollapsibleTrigger className="w-full">
+                          <div className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                            <div className="flex items-center gap-2">
+                              <ChevronDown 
+                                className={`w-4 h-4 transition-transform ${
+                                  expandedSections[`${item.id}-summary`] ? 'rotate-180' : ''
+                                }`} 
+                              />
+                              <p className="text-sm font-medium">📋 Executive Summary</p>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                copyToClipboard(item.executive_summary!, "Executive summary");
+                              }}
+                            >
+                              <Copy className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <div className="px-4 pb-4">
+                            <ScrollArea className="max-h-[400px]">
+                              <div className="bg-muted p-4 rounded-lg">
+                                <p className="text-sm whitespace-pre-wrap">{item.executive_summary}</p>
+                              </div>
+                            </ScrollArea>
+                          </div>
+                        </CollapsibleContent>
                       </div>
-                    );
+                    </Collapsible>
+                  )}
+
+                  {item.facebook_post && item.facebook_post.length > 0 && (() => {
+                    const postsArray = Array.isArray(item.facebook_post) ? item.facebook_post : [item.facebook_post];
+                    const posts = postsArray.filter((p): p is string => typeof p === "string" && p.length > 0);
+                    if (posts.length === 0) return null;
+                    return renderPlatformSection(item.id, "Facebook", posts, "📘");
                   })()}
 
                   {item.instagram_post && item.instagram_post.length > 0 && (() => {
-                    const posts = Array.isArray(item.instagram_post) ? item.instagram_post : [item.instagram_post];
-                    const firstPost = (posts.find(p => typeof p === "string" && (p as string).length > 0) as string) || "";
-                    return (
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm font-medium">
-                            Instagram {posts.length > 1 && `(${posts.length} variations)`}
-                          </p>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => copyToClipboard(firstPost, "Instagram post")}
-                          >
-                            <Copy className="w-4 h-4 mr-2" />
-                            Copy First
-                          </Button>
-                        </div>
-                        <p className="text-sm text-muted-foreground bg-muted p-3 rounded-lg">
-                          {firstPost.substring(0, 200)}
-                          {firstPost.length > 200 && "..."}
-                        </p>
-                      </div>
-                    );
+                    const postsArray = Array.isArray(item.instagram_post) ? item.instagram_post : [item.instagram_post];
+                    const posts = postsArray.filter((p): p is string => typeof p === "string" && p.length > 0);
+                    if (posts.length === 0) return null;
+                    return renderPlatformSection(item.id, "Instagram", posts, "📸");
                   })()}
 
-                  {item.executive_summary && (
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium">Executive Summary</p>
-                      <p className="text-sm text-muted-foreground">
-                        {item.executive_summary.substring(0, 150)}
-                        {item.executive_summary.length > 150 && "..."}
-                      </p>
-                    </div>
-                  )}
+                  {item.tiktok_post && item.tiktok_post.length > 0 && (() => {
+                    const postsArray = Array.isArray(item.tiktok_post) ? item.tiktok_post : [item.tiktok_post];
+                    const posts = postsArray.filter((p): p is string => typeof p === "string" && p.length > 0);
+                    if (posts.length === 0) return null;
+                    return renderPlatformSection(item.id, "TikTok", posts, "🎵");
+                  })()}
+
+                  {item.twitter_post && item.twitter_post.length > 0 && (() => {
+                    const postsArray = Array.isArray(item.twitter_post) ? item.twitter_post : [item.twitter_post];
+                    const posts = postsArray.filter((p): p is string => typeof p === "string" && p.length > 0);
+                    if (posts.length === 0) return null;
+                    return renderPlatformSection(item.id, "Twitter/X", posts, "🐦");
+                  })()}
                 </CardContent>
               </Card>
             ))}
