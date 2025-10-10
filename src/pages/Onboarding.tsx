@@ -58,7 +58,7 @@ const Onboarding = () => {
           console.error('Website scraping error:', scrapeError);
           toast({
             title: "Website scraping failed",
-            description: "We'll continue with sermon-based analysis only.",
+            description: "Your website may be large or complex. We'll continue with sermon-based analysis to create your style guide.",
             variant: "destructive",
           });
         } else if (scrapeData?.success) {
@@ -72,7 +72,7 @@ const Onboarding = () => {
         console.error('Error scraping website:', error);
         toast({
           title: "Website scraping failed",
-          description: "We'll continue with sermon-based analysis only.",
+          description: "Your website may be large or complex. We'll continue with sermon-based analysis to create your style guide.",
           variant: "destructive",
         });
       } finally {
