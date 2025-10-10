@@ -22,45 +22,12 @@ const Index = () => {
                 <Link to="/dashboard">Go to Dashboard</Link>
               </Button> : <>
                 <Button asChild size="lg" className="text-lg px-8">
-                  <Link to="/signup">Get Started Free</Link>
+                  <Link to="/signup">Get Started</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="text-lg px-8">
                   <Link to="/login">Sign In</Link>
                 </Button>
               </>}
-          </div>
-        </div>
-
-        {/* Features */}
-        <div className="grid md:grid-cols-3 gap-8 mt-32 max-w-5xl mx-auto">
-          <div className="text-center space-y-4 p-6">
-            <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-              <FileText className="w-8 h-8 text-primary" />
-            </div>
-            <h3 className="text-xl font-playfair font-semibold">Upload Sermons</h3>
-            <p className="text-muted-foreground">
-              Drag and drop sermon transcripts in PDF, DOCX, or TXT format—our AI extracts and analyzes the content
-            </p>
-          </div>
-
-          <div className="text-center space-y-4 p-6">
-            <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-              <Sparkles className="w-8 h-8 text-primary" />
-            </div>
-            <h3 className="text-xl font-playfair font-semibold">AI-Powered Content</h3>
-            <p className="text-muted-foreground">
-              Generate multiple post variations for Facebook, Instagram, TikTok, and Twitter, plus sermon summaries for small group or church ministry use—each optimised for its intended audience
-            </p>
-          </div>
-
-          <div className="text-center space-y-4 p-6">
-            <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-              <Palette className="w-8 h-8 text-primary" />
-            </div>
-            <h3 className="text-xl font-playfair font-semibold">Your Church's Voice</h3>
-            <p className="text-muted-foreground">
-              Content reflects your church's unique style, values, and communication preferences—not generic templates
-            </p>
           </div>
         </div>
 
@@ -175,6 +142,39 @@ const Index = () => {
                 Keep the heart of your sermon intact while making it social-friendly
               </p>
             </div>
+          </div>
+        </div>
+
+        {/* Features */}
+        <div className="grid md:grid-cols-3 gap-8 mt-32 max-w-5xl mx-auto">
+          <div className="text-center space-y-4 p-6">
+            <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+              <FileText className="w-8 h-8 text-primary" />
+            </div>
+            <h3 className="text-xl font-playfair font-semibold">Upload Sermons</h3>
+            <p className="text-muted-foreground">
+              Drag and drop sermon transcripts in PDF, DOCX, or TXT format—our AI extracts and analyzes the content
+            </p>
+          </div>
+
+          <div className="text-center space-y-4 p-6">
+            <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+              <Sparkles className="w-8 h-8 text-primary" />
+            </div>
+            <h3 className="text-xl font-playfair font-semibold">AI-Powered Content</h3>
+            <p className="text-muted-foreground">
+              Generate multiple post variations for Facebook, Instagram, TikTok, and Twitter—each optimised for that platform's audience
+            </p>
+          </div>
+
+          <div className="text-center space-y-4 p-6">
+            <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+              <Palette className="w-8 h-8 text-primary" />
+            </div>
+            <h3 className="text-xl font-playfair font-semibold">Your Church's Voice</h3>
+            <p className="text-muted-foreground">
+              Content reflects your church's unique style, values, and communication preferences—not generic templates
+            </p>
           </div>
         </div>
       </div>
