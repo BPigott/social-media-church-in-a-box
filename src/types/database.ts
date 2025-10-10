@@ -69,7 +69,7 @@ export interface SermonTranscript {
 export interface GeneratedContent {
   id: string;
   church_id: string;
-  sermon_transcript_id: string;
+  sermon_transcript_id: string | null;
   platforms: Platform[];
   custom_cta: string | null;
   facebook_post: string[] | null;

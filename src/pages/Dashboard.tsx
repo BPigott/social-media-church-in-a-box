@@ -245,45 +245,7 @@ const Dashboard = () => {
     setGenerating(true);
 
     try {
-      // Step 1: Upload transcript file to storage (if file exists)
-      let filePath = '';
-      if (transcriptFile) {
-        const fileExt = transcriptFile.name.split('.').pop();
-        const fileName = `${primaryChurch.id}/${crypto.randomUUID()}.${fileExt}`;
-        const { error: uploadError } = await supabase.storage
-          .from('transcripts')
-          .upload(fileName, transcriptFile);
-
-        if (uploadError) {
-          console.error('Storage upload error:', uploadError);
-          throw new Error('Failed to upload transcript file');
-        }
-        filePath = fileName;
-      }
-
-      // Step 2: Save transcript to database
-      // Remove null bytes that PostgreSQL can't handle
-      const cleanedTranscript = transcriptText.replace(/\0/g, '');
-
-      const { data: transcriptData, error: transcriptError } = await supabase
-        .from('sermon_transcripts')
-        .insert({
-          church_id: primaryChurch.id,
-          uploaded_by: user?.id,
-          file_name: transcriptFile?.name || 'transcript.txt',
-          file_path: filePath,
-          transcript_text: cleanedTranscript,
-          speaker_name: speakerName.trim() || null,
-        })
-        .select()
-        .single();
-
-      if (transcriptError) {
-        console.error('Transcript save error:', transcriptError);
-        throw new Error('Failed to save transcript');
-      }
-
-      // Step 3: Fetch style guide
+      // Step 1: Fetch style guide
       const { data: styleGuideData, error: styleGuideError } = await supabase
         .from('style_guides')
         .select('guide_content')
@@ -295,7 +257,7 @@ const Dashboard = () => {
         throw new Error('Failed to fetch style guide');
       }
 
-      // Step 4: Generate social posts
+      // Step 2: Generate social posts
       const { data, error } = await supabase.functions.invoke('generate-social-posts', {
         body: {
           transcript: transcriptText,
@@ -314,7 +276,7 @@ const Dashboard = () => {
         throw error;
       }
 
-      // Step 5: Save generated content to database with transcript reference
+      // Step 3: Save generated content to database (sermon transcript not stored for privacy)
       // Convert single posts to arrays for consistency
       const normalizeToArray = (post: string | string[] | null) => {
         if (!post) return null;
@@ -323,7 +285,7 @@ const Dashboard = () => {
 
       const { error: insertError } = await supabase.from('generated_content').insert({
         church_id: primaryChurch.id,
-        sermon_transcript_id: transcriptData.id,
+        sermon_transcript_id: null,
         platforms,
         custom_cta: customCTA || null,
         posts_per_platform: postsPerPlatform,
