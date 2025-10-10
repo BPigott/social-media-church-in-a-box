@@ -174,6 +174,7 @@ export type Database = {
           id: string
           sermon_documents: Json | null
           updated_at: string
+          website_last_crawled_at: string | null
         }
         Insert: {
           church_id: string
@@ -182,6 +183,7 @@ export type Database = {
           id?: string
           sermon_documents?: Json | null
           updated_at?: string
+          website_last_crawled_at?: string | null
         }
         Update: {
           church_id?: string
@@ -190,6 +192,7 @@ export type Database = {
           id?: string
           sermon_documents?: Json | null
           updated_at?: string
+          website_last_crawled_at?: string | null
         }
         Relationships: [
           {

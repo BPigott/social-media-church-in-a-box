@@ -22,7 +22,6 @@ export interface Church {
 export interface ServiceTime {
   day: string;
   time: string;
-  service_type?: string;
 }
 
 export interface SocialHandles {
@@ -48,6 +47,7 @@ export interface StyleGuide {
   sermon_documents: SermonDocument[];
   generated_at: string;
   updated_at: string;
+  website_last_crawled_at: string | null;
 }
 
 export interface SermonDocument {

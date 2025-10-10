@@ -20,9 +20,10 @@ const TIME_OPTIONS = Array.from({ length: 53 }, (_, i) => {
 interface ChurchInfoFormProps {
   onSubmit: (data: Partial<Church>) => void;
   initialData?: Partial<Church>;
+  buttonText?: string;
 }
 
-export const ChurchInfoForm = ({ onSubmit, initialData }: ChurchInfoFormProps) => {
+export const ChurchInfoForm = ({ onSubmit, initialData, buttonText = "Continue to Sermon Upload" }: ChurchInfoFormProps) => {
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
     email: initialData?.email || "",
@@ -30,7 +31,7 @@ export const ChurchInfoForm = ({ onSubmit, initialData }: ChurchInfoFormProps) =
     location: initialData?.location || "",
     vision_statement: initialData?.vision_statement || "",
     contact_email: initialData?.contact_email || "",
-    service_times: initialData?.service_times || [{ day: "", time: "", service_type: "" }],
+    service_times: initialData?.service_times || [{ day: "", time: "" }],
     social_handles: initialData?.social_handles || { facebook: "", instagram: "", twitter: "", tiktok: "" },
   });
 
@@ -49,7 +50,7 @@ export const ChurchInfoForm = ({ onSubmit, initialData }: ChurchInfoFormProps) =
   const addServiceTime = () => {
     setFormData({
       ...formData,
-      service_times: [...formData.service_times, { day: "", time: "", service_type: "" }],
+      service_times: [...formData.service_times, { day: "", time: "" }],
     });
   };
 
@@ -170,13 +171,6 @@ export const ChurchInfoForm = ({ onSubmit, initialData }: ChurchInfoFormProps) =
               </SelectContent>
             </Select>
             
-            <Input
-              placeholder="Type (optional)"
-              value={st.service_type || ""}
-              onChange={(e) => updateServiceTime(index, 'service_type', e.target.value)}
-              className="flex-1"
-            />
-            
             <Button
               type="button"
               onClick={() => removeServiceTime(index)}
@@ -237,7 +231,7 @@ export const ChurchInfoForm = ({ onSubmit, initialData }: ChurchInfoFormProps) =
       </div>
 
       <Button type="submit" size="lg" className="w-full">
-        Continue to Sermon Upload
+        {buttonText}
       </Button>
     </form>
   );
