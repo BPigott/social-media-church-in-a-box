@@ -484,7 +484,7 @@ const Dashboard = () => {
                 <Textarea id="custom-cta" placeholder="E.g., 'Join us for our new Alpha course starting next Sunday' or 'Celebrating 50 years of ministry this month!'" value={customCTA} onChange={e => setCustomCTA(e.target.value)} rows={4} />
               </div>
 
-              <Button onClick={handleGenerate} disabled={!transcriptFile || platforms.length === 0 || generating} className="w-full" size="lg">
+              <Button onClick={handleGenerate} disabled={!transcriptText.trim() || platforms.length === 0 || generating} className="w-full" size="lg">
                 {generating ? <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Generating...
