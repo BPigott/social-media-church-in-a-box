@@ -76,7 +76,7 @@ export type Database = {
           instagram_post: string[] | null
           platforms: Json
           posts_per_platform: number | null
-          sermon_transcript_id: string
+          sermon_transcript_id: string | null
           tiktok_post: string[] | null
           twitter_post: string[] | null
         }
@@ -90,7 +90,7 @@ export type Database = {
           instagram_post?: string[] | null
           platforms?: Json
           posts_per_platform?: number | null
-          sermon_transcript_id: string
+          sermon_transcript_id?: string | null
           tiktok_post?: string[] | null
           twitter_post?: string[] | null
         }
@@ -104,7 +104,7 @@ export type Database = {
           instagram_post?: string[] | null
           platforms?: Json
           posts_per_platform?: number | null
-          sermon_transcript_id?: string
+          sermon_transcript_id?: string | null
           tiktok_post?: string[] | null
           twitter_post?: string[] | null
         }
