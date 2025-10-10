@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Eye, EyeOff, Shield } from "lucide-react";
+import { Eye, EyeOff, Shield, Mail } from "lucide-react";
 import { z } from "zod";
 
 const passwordSchema = z.object({
@@ -25,6 +25,7 @@ type PasswordFormData = z.infer<typeof passwordSchema>;
 
 export const AccountSettings = () => {
   const { toast } = useToast();
+  const [userEmail, setUserEmail] = useState<string>("");
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -35,6 +36,16 @@ export const AccountSettings = () => {
     confirmPassword: "",
   });
   const [errors, setErrors] = useState<Partial<Record<keyof PasswordFormData, string>>>({});
+
+  useEffect(() => {
+    const loadUserEmail = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.email) {
+        setUserEmail(user.email);
+      }
+    };
+    loadUserEmail();
+  }, []);
 
   const getPasswordStrength = (password: string): { strength: number; label: string; color: string } => {
     if (password.length === 0) return { strength: 0, label: "", color: "" };
@@ -124,12 +135,34 @@ export const AccountSettings = () => {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
+            <Mail className="w-5 h-5 text-primary" />
+            <CardTitle className="font-playfair">Account Information</CardTitle>
+          </div>
+          <CardDescription>Your account details</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <Label>Email Address</Label>
+            <Input value={userEmail} disabled className="bg-muted" />
+            <p className="text-sm text-muted-foreground">
+              Your email address is used for authentication and account recovery.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
             <Shield className="w-5 h-5 text-primary" />
             <CardTitle className="font-playfair">Security</CardTitle>
           </div>
           <CardDescription>Manage your account security settings</CardDescription>
         </CardHeader>
         <CardContent>
+          <p className="text-sm text-muted-foreground mb-6">
+            If you wish to create a new password, please complete the form below.
+          </p>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="currentPassword">Current Password</Label>
