@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { ChurchInfoForm } from "@/components/onboarding/ChurchInfoForm";
+import { AccountSettings } from "@/components/settings/AccountSettings";
 import { Textarea } from "@/components/ui/textarea";
 import { Download, LogOut, RefreshCw } from "lucide-react";
 import { signOut } from "@/lib/auth";
@@ -250,9 +251,10 @@ const Settings = () => {
         </div>
 
         <Tabs defaultValue="church" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="church">Church Information</TabsTrigger>
             <TabsTrigger value="style">Style Guide</TabsTrigger>
+            <TabsTrigger value="account">Account</TabsTrigger>
           </TabsList>
 
           <TabsContent value="church" className="mt-6">
@@ -315,6 +317,10 @@ const Settings = () => {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="account" className="mt-6">
+            <AccountSettings />
           </TabsContent>
         </Tabs>
 
