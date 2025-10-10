@@ -177,6 +177,23 @@ const Index = () => {
             </div>
           </div>
         </div>
+
+        {/* Footer */}
+        <div className="mt-32 border-t border-border">
+          <div className="container mx-auto px-4 py-12">
+            <div className="max-w-4xl mx-auto text-center space-y-4">
+              <h3 className="text-lg font-semibold">IN FOCUS OPERATIONS LIMITED</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                We're an AI automation consultancy that bridges cutting-edge artificial intelligence 
+                with practical business implementation, empowering businesses, churches and charities 
+                to harness AI's potential with confidence, understanding, and clarity.
+              </p>
+              <p className="text-xs text-muted-foreground pt-4">
+                © 2025 In Focus Operations Limited | Company No. 16707659 | Registered in England and Wales | Fully insured for professional indemnity
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>;
 };
