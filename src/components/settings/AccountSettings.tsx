@@ -26,6 +26,8 @@ type PasswordFormData = z.infer<typeof passwordSchema>;
 export const AccountSettings = () => {
   const { toast } = useToast();
   const [userEmail, setUserEmail] = useState<string>("");
+  const [newEmail, setNewEmail] = useState<string>("");
+  const [isChangingEmail, setIsChangingEmail] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -64,6 +66,54 @@ export const AccountSettings = () => {
   };
 
   const passwordStrength = getPasswordStrength(formData.newPassword);
+
+  const handleEmailChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!newEmail || newEmail === userEmail) {
+      toast({
+        variant: "destructive",
+        title: "Invalid email",
+        description: "Please enter a different email address.",
+      });
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newEmail)) {
+      toast({
+        variant: "destructive",
+        title: "Invalid email",
+        description: "Please enter a valid email address.",
+      });
+      return;
+    }
+
+    setIsChangingEmail(true);
+
+    try {
+      const { error } = await supabase.auth.updateUser({ email: newEmail });
+
+      if (error) throw error;
+
+      toast({
+        title: "Confirmation email sent",
+        description: "Please check your new email address to confirm the change.",
+      });
+
+      setNewEmail("");
+    } catch (error: any) {
+      console.error("Error changing email:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to change email. Please try again.",
+      });
+    } finally {
+      setIsChangingEmail(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -141,12 +191,31 @@ export const AccountSettings = () => {
           <CardDescription>Your account details</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
-            <Label>Email Address</Label>
-            <Input value={userEmail} disabled className="bg-muted" />
-            <p className="text-sm text-muted-foreground">
-              Your email address is used for authentication and account recovery.
-            </p>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Current Email Address</Label>
+              <Input value={userEmail} disabled className="bg-muted" />
+            </div>
+            
+            <form onSubmit={handleEmailChange} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="newEmail">New Email Address</Label>
+                <Input
+                  id="newEmail"
+                  type="email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  placeholder="Enter new email address"
+                />
+                <p className="text-sm text-muted-foreground">
+                  You'll receive a confirmation email at your new address. The change will take effect after you confirm.
+                </p>
+              </div>
+              
+              <Button type="submit" disabled={isChangingEmail || !newEmail}>
+                {isChangingEmail ? "Sending confirmation..." : "Change Email"}
+              </Button>
+            </form>
           </div>
         </CardContent>
       </Card>
