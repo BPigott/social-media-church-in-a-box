@@ -19,12 +19,19 @@ import * as pdfjsLib from "pdfjs-dist";
 
 // Configure PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-
 const Dashboard = () => {
-  const { user, loading } = useAuth();
-  const { primaryChurch, loading: churchLoading } = useChurch(user?.id);
+  const {
+    user,
+    loading
+  } = useAuth();
+  const {
+    primaryChurch,
+    loading: churchLoading
+  } = useChurch(user?.id);
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
 
   // Helper function to count words
   const countWords = (text: string): number => {
@@ -35,51 +42,97 @@ const Dashboard = () => {
   const getLengthIndicator = (text: string, platform: string) => {
     const charCount = text.length;
     const wordCount = countWords(text);
-    
-    switch(platform) {
+    switch (platform) {
       case 'facebook':
         if (wordCount >= 40 && wordCount <= 80) {
-          return { status: '✅', color: 'text-green-600', message: `${wordCount} words (Ideal: 40-80)` };
+          return {
+            status: '✅',
+            color: 'text-green-600',
+            message: `${wordCount} words (Ideal: 40-80)`
+          };
         } else if (wordCount > 80 && wordCount <= 100) {
-          return { status: '⚠️', color: 'text-yellow-600', message: `${wordCount} words (Recommended: 40-80)` };
+          return {
+            status: '⚠️',
+            color: 'text-yellow-600',
+            message: `${wordCount} words (Recommended: 40-80)`
+          };
         } else {
-          return { status: '❌', color: 'text-red-600', message: `${wordCount} words (Target: 40-80)` };
+          return {
+            status: '❌',
+            color: 'text-red-600',
+            message: `${wordCount} words (Target: 40-80)`
+          };
         }
-      
       case 'instagram':
         const firstLine = text.split('\n')[0];
         const firstLineLength = firstLine.length;
         if (firstLineLength <= 125 && charCount <= 200) {
-          return { status: '✅', color: 'text-green-600', message: `First line: ${firstLineLength} chars (Ideal)` };
+          return {
+            status: '✅',
+            color: 'text-green-600',
+            message: `First line: ${firstLineLength} chars (Ideal)`
+          };
         } else if (firstLineLength <= 125) {
-          return { status: '⚠️', color: 'text-yellow-600', message: `First line: ${firstLineLength} chars (caption longer than ideal)` };
+          return {
+            status: '⚠️',
+            color: 'text-yellow-600',
+            message: `First line: ${firstLineLength} chars (caption longer than ideal)`
+          };
         } else {
-          return { status: '❌', color: 'text-red-600', message: `First line: ${firstLineLength} chars (Target: <125)` };
+          return {
+            status: '❌',
+            color: 'text-red-600',
+            message: `First line: ${firstLineLength} chars (Target: <125)`
+          };
         }
-      
       case 'tiktok':
         if (charCount <= 150) {
-          return { status: '✅', color: 'text-green-600', message: `${charCount} chars (Perfect)` };
+          return {
+            status: '✅',
+            color: 'text-green-600',
+            message: `${charCount} chars (Perfect)`
+          };
         } else if (charCount <= 180) {
-          return { status: '⚠️', color: 'text-yellow-600', message: `${charCount} chars (Target: <150)` };
+          return {
+            status: '⚠️',
+            color: 'text-yellow-600',
+            message: `${charCount} chars (Target: <150)`
+          };
         } else {
-          return { status: '❌', color: 'text-red-600', message: `${charCount} chars (Too long)` };
+          return {
+            status: '❌',
+            color: 'text-red-600',
+            message: `${charCount} chars (Too long)`
+          };
         }
-      
       case 'twitter':
         if (charCount <= 260) {
-          return { status: '✅', color: 'text-green-600', message: `${charCount} chars (Good for retweets)` };
+          return {
+            status: '✅',
+            color: 'text-green-600',
+            message: `${charCount} chars (Good for retweets)`
+          };
         } else if (charCount <= 280) {
-          return { status: '⚠️', color: 'text-yellow-600', message: `${charCount} chars (At limit)` };
+          return {
+            status: '⚠️',
+            color: 'text-yellow-600',
+            message: `${charCount} chars (At limit)`
+          };
         } else {
-          return { status: '❌', color: 'text-red-600', message: `${charCount} chars (Over 280 limit!)` };
+          return {
+            status: '❌',
+            color: 'text-red-600',
+            message: `${charCount} chars (Over 280 limit!)`
+          };
         }
-      
       default:
-        return { status: '', color: '', message: `${charCount} characters` };
+        return {
+          status: '',
+          color: '',
+          message: `${charCount} characters`
+        };
     }
   };
-
   const [transcriptFile, setTranscriptFile] = useState<File | null>(null);
   const [transcriptText, setTranscriptText] = useState("");
   const [speakerName, setSpeakerName] = useState("");
@@ -91,22 +144,18 @@ const Dashboard = () => {
   const [copiedItem, setCopiedItem] = useState<string | null>(null);
   const [activeVariations, setActiveVariations] = useState<Record<string, number>>({});
   const [dragActive, setDragActive] = useState(false);
-
   useEffect(() => {
     if (!loading && !user) {
       navigate("/login");
     }
   }, [user, loading, navigate]);
-
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     setTranscriptFile(file);
-    
+
     // Detect file type
     const fileExtension = file.name.toLowerCase().split('.').pop();
-    
     try {
       if (fileExtension === 'txt' || fileExtension === 'md') {
         // Plain text files - read directly
@@ -114,54 +163,50 @@ const Dashboard = () => {
         setTranscriptText(text);
         toast({
           title: "File uploaded",
-          description: "Transcript loaded successfully.",
+          description: "Transcript loaded successfully."
         });
       } else if (fileExtension === 'docx' || fileExtension === 'doc') {
         // Word documents - use mammoth to extract text
         toast({
           title: "Processing document...",
-          description: "Extracting text from Word document.",
+          description: "Extracting text from Word document."
         });
-        
         const arrayBuffer = await file.arrayBuffer();
-        const result = await mammoth.extractRawText({ arrayBuffer });
+        const result = await mammoth.extractRawText({
+          arrayBuffer
+        });
         setTranscriptText(result.value);
-        
         toast({
           title: "Document processed",
-          description: "Text extracted successfully from Word document.",
+          description: "Text extracted successfully from Word document."
         });
       } else if (fileExtension === 'pdf') {
         // PDF files - extract text using PDF.js
         toast({
           title: "Processing PDF...",
-          description: "Extracting text from PDF document.",
+          description: "Extracting text from PDF document."
         });
-        
         const arrayBuffer = await file.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        
+        const pdf = await pdfjsLib.getDocument({
+          data: arrayBuffer
+        }).promise;
         let fullText = "";
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const textContent = await page.getTextContent();
-          const pageText = textContent.items
-            .map((item: any) => item.str)
-            .join(" ");
+          const pageText = textContent.items.map((item: any) => item.str).join(" ");
           fullText += pageText + "\n\n";
         }
-        
         setTranscriptText(fullText.trim());
-        
         toast({
           title: "PDF processed",
-          description: `Text extracted successfully from ${pdf.numPages} page(s).`,
+          description: `Text extracted successfully from ${pdf.numPages} page(s).`
         });
       } else {
         toast({
           variant: "destructive",
           title: "Unsupported file type",
-          description: "Please upload a .txt, .pdf, .docx, or .doc file.",
+          description: "Please upload a .txt, .pdf, .docx, or .doc file."
         });
         setTranscriptFile(null);
       }
@@ -170,13 +215,12 @@ const Dashboard = () => {
       toast({
         variant: "destructive",
         title: "Error processing file",
-        description: error instanceof Error ? error.message : "Failed to read file content.",
+        description: error instanceof Error ? error.message : "Failed to read file content."
       });
       setTranscriptFile(null);
       setTranscriptText("");
     }
   };
-
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -186,12 +230,10 @@ const Dashboard = () => {
       setDragActive(false);
     }
   };
-
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
     const files = e.dataTransfer.files;
     if (files && files[0]) {
       const input = document.getElementById('transcript-upload') as HTMLInputElement;
@@ -199,66 +241,58 @@ const Dashboard = () => {
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(files[0]);
         input.files = dataTransfer.files;
-        
-        handleFileUpload({ target: input } as any);
+        handleFileUpload({
+          target: input
+        } as any);
       }
     }
   };
-
   const handlePlatformToggle = (platform: Platform) => {
-    setPlatforms(prev =>
-      prev.includes(platform)
-        ? prev.filter(p => p !== platform)
-        : [...prev, platform]
-    );
+    setPlatforms(prev => prev.includes(platform) ? prev.filter(p => p !== platform) : [...prev, platform]);
   };
-
   const handleGenerate = async () => {
     if (!primaryChurch) {
       toast({
         variant: "destructive",
         title: "No church profile",
-        description: "Please complete your church onboarding first.",
+        description: "Please complete your church onboarding first."
       });
       navigate("/onboarding");
       return;
     }
-
     if (!transcriptText.trim()) {
       toast({
         variant: "destructive",
         title: "No transcript",
-        description: "Please upload a sermon transcript first.",
+        description: "Please upload a sermon transcript first."
       });
       return;
     }
-
     if (platforms.length === 0) {
       toast({
         variant: "destructive",
         title: "No platforms selected",
-        description: "Please select at least one platform.",
+        description: "Please select at least one platform."
       });
       return;
     }
-
     setGenerating(true);
-
     try {
       // Step 1: Fetch style guide
-      const { data: styleGuideData, error: styleGuideError } = await supabase
-        .from('style_guides')
-        .select('guide_content')
-        .eq('church_id', primaryChurch.id)
-        .single();
-
+      const {
+        data: styleGuideData,
+        error: styleGuideError
+      } = await supabase.from('style_guides').select('guide_content').eq('church_id', primaryChurch.id).single();
       if (styleGuideError) {
         console.error('Style guide fetch error:', styleGuideError);
         throw new Error('Failed to fetch style guide');
       }
 
       // Step 2: Generate social posts
-      const { data, error } = await supabase.functions.invoke('generate-social-posts', {
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('generate-social-posts', {
         body: {
           transcript: transcriptText,
           styleGuide: styleGuideData.guide_content,
@@ -267,10 +301,9 @@ const Dashboard = () => {
           churchId: primaryChurch.id,
           postsPerPlatform,
           speakerName: speakerName.trim() || null,
-          socialHandles: primaryChurch.social_handles || {},
+          socialHandles: primaryChurch.social_handles || {}
         }
       });
-
       if (error) {
         console.error('Generation error:', error);
         throw error;
@@ -282,8 +315,9 @@ const Dashboard = () => {
         if (!post) return null;
         return Array.isArray(post) ? post : [post];
       };
-
-      const { error: insertError } = await supabase.from('generated_content').insert({
+      const {
+        error: insertError
+      } = await supabase.from('generated_content').insert({
         church_id: primaryChurch.id,
         sermon_transcript_id: null,
         platforms,
@@ -293,56 +327,47 @@ const Dashboard = () => {
         instagram_post: normalizeToArray(data.instagram),
         tiktok_post: normalizeToArray(data.tiktok),
         twitter_post: normalizeToArray(data.twitter),
-        executive_summary: data.executiveSummary,
+        executive_summary: data.executiveSummary
       });
-
       if (insertError) {
         console.error('Content save error:', insertError);
         throw new Error('Failed to save generated content');
       }
-
       setGeneratedContent(data);
-
       toast({
         title: "Content generated!",
-        description: "Your social media posts are ready.",
+        description: "Your social media posts are ready."
       });
     } catch (error) {
       console.error('Error in handleGenerate:', error);
       toast({
         variant: "destructive",
         title: "Generation failed",
-        description: error instanceof Error ? error.message : "Failed to generate content",
+        description: error instanceof Error ? error.message : "Failed to generate content"
       });
     } finally {
       setGenerating(false);
     }
   };
-
   const copyToClipboard = async (text: string, label: string) => {
     await navigator.clipboard.writeText(text);
     setCopiedItem(label);
     toast({
       title: "Copied!",
-      description: `${label} copied to clipboard.`,
+      description: `${label} copied to clipboard.`
     });
     setTimeout(() => setCopiedItem(null), 2000);
   };
-
   const downloadAll = () => {
     const content = [];
-    
     const formatPosts = (posts: string | string[], platformName: string) => {
       const postsArray = Array.isArray(posts) ? posts : [posts];
       if (postsArray.length === 1) {
         return `=== ${platformName} ===\n${postsArray[0]}\n\nCharacters: ${postsArray[0].length}\n`;
       } else {
-        return postsArray.map((post, idx) => 
-          `=== ${platformName} (Variation ${idx + 1}) ===\n${post}\n\nCharacters: ${post.length}\n`
-        ).join('\n\n');
+        return postsArray.map((post, idx) => `=== ${platformName} (Variation ${idx + 1}) ===\n${post}\n\nCharacters: ${post.length}\n`).join('\n\n');
       }
     };
-    
     if (generatedContent.facebook) {
       content.push(formatPosts(generatedContent.facebook, 'FACEBOOK'));
     }
@@ -358,8 +383,9 @@ const Dashboard = () => {
     if (generatedContent.executiveSummary) {
       content.push(`=== EXECUTIVE SUMMARY ===\n${generatedContent.executiveSummary}\n`);
     }
-
-    const blob = new Blob([content.join('\n\n')], { type: 'text/plain' });
+    const blob = new Blob([content.join('\n\n')], {
+      type: 'text/plain'
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -367,17 +393,12 @@ const Dashboard = () => {
     a.click();
     URL.revokeObjectURL(url);
   };
-
   if (loading || churchLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+    return <div className="min-h-screen flex items-center justify-center bg-background">
         <p>Loading...</p>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <>
+  return <>
       <Navigation />
       <div className="min-h-screen bg-background p-8">
       <div className="max-w-6xl mx-auto space-y-8">
@@ -397,61 +418,30 @@ const Dashboard = () => {
             <CardContent className="space-y-6">
               <div>
                 <Label htmlFor="transcript-upload" className="cursor-pointer">
-                  <div 
-                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-all ${
-                      dragActive 
-                        ? "border-primary bg-primary/5 scale-[1.02]" 
-                        : "border-muted-foreground hover:border-primary"
-                    }`}
-                    onDragEnter={handleDrag}
-                    onDragLeave={handleDrag}
-                    onDragOver={handleDrag}
-                    onDrop={handleDrop}
-                  >
-                    <Upload className={`w-10 h-10 mx-auto mb-2 transition-all ${
-                      dragActive ? "text-primary scale-110" : "text-muted-foreground"
-                    }`} />
+                  <div className={`border-2 border-dashed rounded-lg p-8 text-center transition-all ${dragActive ? "border-primary bg-primary/5 scale-[1.02]" : "border-muted-foreground hover:border-primary"}`} onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop}>
+                    <Upload className={`w-10 h-10 mx-auto mb-2 transition-all ${dragActive ? "text-primary scale-110" : "text-muted-foreground"}`} />
                     <p className="text-sm font-medium mb-1">
-                      {transcriptFile ? transcriptFile.name : (
-                        <>
+                      {transcriptFile ? transcriptFile.name : <>
                           <span className="font-semibold">Drop sermon file here</span> or click to upload
-                        </>
-                      )}
+                        </>}
                     </p>
                     <p className="text-xs text-muted-foreground">TXT, PDF, DOCX, or DOC</p>
                   </div>
-                  <input
-                    id="transcript-upload"
-                    type="file"
-                    accept=".txt,.pdf,.docx,.doc,.md"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
+                  <input id="transcript-upload" type="file" accept=".txt,.pdf,.docx,.doc,.md" onChange={handleFileUpload} className="hidden" />
                 </Label>
-                {primaryChurch?.social_handles && Object.keys(primaryChurch.social_handles).some(k => primaryChurch.social_handles[k as keyof typeof primaryChurch.social_handles]) && (
-                  <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md mt-4">
+                {primaryChurch?.social_handles && Object.keys(primaryChurch.social_handles).some(k => primaryChurch.social_handles[k as keyof typeof primaryChurch.social_handles]) && <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md mt-4">
                     <p className="font-medium mb-1">Your social handles will be naturally integrated:</p>
                     <div className="flex flex-wrap gap-2">
-                      {Object.entries(primaryChurch.social_handles)
-                        .filter(([_, handle]) => handle)
-                        .map(([platform, handle]) => (
-                          <span key={platform} className="text-xs">
+                      {Object.entries(primaryChurch.social_handles).filter(([_, handle]) => handle).map(([platform, handle]) => <span key={platform} className="text-xs">
                             {platform}: @{handle}
-                          </span>
-                        ))}
+                          </span>)}
                     </div>
-                  </div>
-                )}
+                  </div>}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="speaker-name">Who was preaching? (Optional)</Label>
-                <Input
-                  id="speaker-name"
-                  placeholder="e.g., Pastor John, Rob Smith, Sarah Johnson"
-                  value={speakerName}
-                  onChange={(e) => setSpeakerName(e.target.value)}
-                />
+                <Input id="speaker-name" placeholder="e.g., Pastor John, Rob Smith, Sarah Johnson" value={speakerName} onChange={e => setSpeakerName(e.target.value)} />
                 <p className="text-xs text-muted-foreground">
                   Adding the speaker's name helps personalize the content
                 </p>
@@ -460,18 +450,12 @@ const Dashboard = () => {
               <div className="space-y-3">
                 <Label>Select Platforms</Label>
                 <div className="grid grid-cols-2 gap-3">
-                  {(['facebook', 'instagram', 'tiktok', 'twitter'] as Platform[]).map((platform) => (
-                    <div key={platform} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={platform}
-                        checked={platforms.includes(platform)}
-                        onCheckedChange={() => handlePlatformToggle(platform)}
-                      />
+                  {(['facebook', 'instagram', 'tiktok', 'twitter'] as Platform[]).map(platform => <div key={platform} className="flex items-center space-x-2">
+                      <Checkbox id={platform} checked={platforms.includes(platform)} onCheckedChange={() => handlePlatformToggle(platform)} />
                       <Label htmlFor={platform} className="capitalize cursor-pointer">
                         {platform === 'twitter' ? 'Twitter/X' : platform}
                       </Label>
-                    </div>
-                  ))}
+                    </div>)}
                 </div>
               </div>
 
@@ -481,23 +465,15 @@ const Dashboard = () => {
                   Generate multiple variations to choose from or schedule throughout the week
                 </p>
                 <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5].map((num) => (
-                    <Button
-                      key={num}
-                      type="button"
-                      variant={postsPerPlatform === num ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setPostsPerPlatform(num)}
-                      className="flex-1"
-                    >
+                  {[1, 2, 3, 4, 5].map(num => <Button key={num} type="button" variant={postsPerPlatform === num ? "default" : "outline"} size="sm" onClick={() => setPostsPerPlatform(num)} className="flex-1">
                       {num}
-                    </Button>
-                  ))}
+                    </Button>)}
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="custom-cta">Custom CTA/Themes (Optional)</Label>
+                <Label htmlFor="custom-cta">Do you have specific events or messages you want to include - add them here! 
+(Optional)</Label>
                 <p className="text-sm text-muted-foreground mb-2">
                   Add specific themes, announcements, or calls-to-action to include in your posts. Examples:
                   <span className="block mt-1 italic">• Birthday celebrations, baptisms, or special events</span>
@@ -505,29 +481,14 @@ const Dashboard = () => {
                   <span className="block italic">• Visit our website, register for an event, or volunteer</span>
                   <span className="block italic">• Christmas services, Easter celebrations, prayer nights</span>
                 </p>
-                <Textarea
-                  id="custom-cta"
-                  placeholder="E.g., 'Join us for our new Alpha course starting next Sunday' or 'Celebrating 50 years of ministry this month!'"
-                  value={customCTA}
-                  onChange={(e) => setCustomCTA(e.target.value)}
-                  rows={4}
-                />
+                <Textarea id="custom-cta" placeholder="E.g., 'Join us for our new Alpha course starting next Sunday' or 'Celebrating 50 years of ministry this month!'" value={customCTA} onChange={e => setCustomCTA(e.target.value)} rows={4} />
               </div>
 
-              <Button
-                onClick={handleGenerate}
-                disabled={!transcriptFile || platforms.length === 0 || generating}
-                className="w-full"
-                size="lg"
-              >
-                {generating ? (
-                  <>
+              <Button onClick={handleGenerate} disabled={!transcriptFile || platforms.length === 0 || generating} className="w-full" size="lg">
+                {generating ? <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Generating...
-                  </>
-                ) : (
-                  "Generate Social Media Posts"
-                )}
+                  </> : "Generate Social Media Posts"}
               </Button>
             </CardContent>
           </Card>
@@ -537,21 +498,16 @@ const Dashboard = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="font-playfair">Generated Content</CardTitle>
-                {generatedContent && (
-                  <Button onClick={downloadAll} variant="outline" size="sm">
+                {generatedContent && <Button onClick={downloadAll} variant="outline" size="sm">
                     <Download className="w-4 h-4 mr-2" />
                     Download All
-                  </Button>
-                )}
+                  </Button>}
               </div>
             </CardHeader>
             <CardContent>
-              {!generatedContent ? (
-                <div className="text-center py-12 text-muted-foreground">
+              {!generatedContent ? <div className="text-center py-12 text-muted-foreground">
                   <p>Your generated content will appear here</p>
-                </div>
-              ) : (
-                <Tabs defaultValue={platforms[0]} className="w-full">
+                </div> : <Tabs defaultValue={platforms[0]} className="w-full">
                   <TabsList className="grid w-full grid-cols-5">
                     {generatedContent.facebook && <TabsTrigger value="facebook">Facebook</TabsTrigger>}
                     {generatedContent.instagram && <TabsTrigger value="instagram">Instagram</TabsTrigger>}
@@ -561,45 +517,31 @@ const Dashboard = () => {
                   </TabsList>
 
                   {generatedContent.facebook && (() => {
-                    const posts = Array.isArray(generatedContent.facebook) ? generatedContent.facebook : [generatedContent.facebook];
-                    const activeIdx = activeVariations['facebook'] || 0;
-                    const currentPost = posts[activeIdx];
-                    const lengthInfo = getLengthIndicator(currentPost, 'facebook');
-                    
-                    return (
-                      <TabsContent value="facebook" className="space-y-3">
+                  const posts = Array.isArray(generatedContent.facebook) ? generatedContent.facebook : [generatedContent.facebook];
+                  const activeIdx = activeVariations['facebook'] || 0;
+                  const currentPost = posts[activeIdx];
+                  const lengthInfo = getLengthIndicator(currentPost, 'facebook');
+                  return <TabsContent value="facebook" className="space-y-3">
                         <div className="text-xs text-muted-foreground mb-2">
                           📘 Facebook works best with 40-80 words and clear paragraph breaks
                         </div>
-                        {posts.length > 1 && (
-                          <div className="flex items-center justify-between text-sm text-muted-foreground">
+                        {posts.length > 1 && <div className="flex items-center justify-between text-sm text-muted-foreground">
                             <span>Variation {activeIdx + 1} of {posts.length}</span>
                             <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setActiveVariations(prev => ({
-                                  ...prev,
-                                  facebook: Math.max(0, activeIdx - 1)
-                                }))}
-                                disabled={activeIdx === 0}
-                              >
+                              <Button variant="outline" size="sm" onClick={() => setActiveVariations(prev => ({
+                          ...prev,
+                          facebook: Math.max(0, activeIdx - 1)
+                        }))} disabled={activeIdx === 0}>
                                 ← Previous
                               </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setActiveVariations(prev => ({
-                                  ...prev,
-                                  facebook: Math.min(posts.length - 1, activeIdx + 1)
-                                }))}
-                                disabled={activeIdx === posts.length - 1}
-                              >
+                              <Button variant="outline" size="sm" onClick={() => setActiveVariations(prev => ({
+                          ...prev,
+                          facebook: Math.min(posts.length - 1, activeIdx + 1)
+                        }))} disabled={activeIdx === posts.length - 1}>
                                 Next →
                               </Button>
                             </div>
-                          </div>
-                        )}
+                          </div>}
                         <div className="bg-muted p-4 rounded-lg">
                           <p className="whitespace-pre-wrap">{currentPost}</p>
                         </div>
@@ -607,63 +549,40 @@ const Dashboard = () => {
                           <p className={`text-sm font-medium ${lengthInfo.color}`}>
                             {lengthInfo.status} {lengthInfo.message} • {currentPost.length} chars
                           </p>
-                          <Button
-                            onClick={() => copyToClipboard(currentPost, "Facebook post")}
-                            variant="outline"
-                            size="sm"
-                          >
-                            {copiedItem === "Facebook post" ? (
-                              <CheckCircle2 className="w-4 h-4 mr-2" />
-                            ) : (
-                              <Copy className="w-4 h-4 mr-2" />
-                            )}
+                          <Button onClick={() => copyToClipboard(currentPost, "Facebook post")} variant="outline" size="sm">
+                            {copiedItem === "Facebook post" ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
                             Copy
                           </Button>
                         </div>
-                      </TabsContent>
-                    );
-                  })()}
+                      </TabsContent>;
+                })()}
 
                   {generatedContent.instagram && (() => {
-                    const posts = Array.isArray(generatedContent.instagram) ? generatedContent.instagram : [generatedContent.instagram];
-                    const activeIdx = activeVariations['instagram'] || 0;
-                    const currentPost = posts[activeIdx];
-                    const lengthInfo = getLengthIndicator(currentPost, 'instagram');
-                    
-                    return (
-                      <TabsContent value="instagram" className="space-y-3">
+                  const posts = Array.isArray(generatedContent.instagram) ? generatedContent.instagram : [generatedContent.instagram];
+                  const activeIdx = activeVariations['instagram'] || 0;
+                  const currentPost = posts[activeIdx];
+                  const lengthInfo = getLengthIndicator(currentPost, 'instagram');
+                  return <TabsContent value="instagram" className="space-y-3">
                         <div className="text-xs text-muted-foreground mb-2">
                           📸 Instagram: Keep first line under 125 characters (what shows before "...more")
                         </div>
-                        {posts.length > 1 && (
-                          <div className="flex items-center justify-between text-sm text-muted-foreground">
+                        {posts.length > 1 && <div className="flex items-center justify-between text-sm text-muted-foreground">
                             <span>Variation {activeIdx + 1} of {posts.length}</span>
                             <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setActiveVariations(prev => ({
-                                  ...prev,
-                                  instagram: Math.max(0, activeIdx - 1)
-                                }))}
-                                disabled={activeIdx === 0}
-                              >
+                              <Button variant="outline" size="sm" onClick={() => setActiveVariations(prev => ({
+                          ...prev,
+                          instagram: Math.max(0, activeIdx - 1)
+                        }))} disabled={activeIdx === 0}>
                                 ← Previous
                               </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setActiveVariations(prev => ({
-                                  ...prev,
-                                  instagram: Math.min(posts.length - 1, activeIdx + 1)
-                                }))}
-                                disabled={activeIdx === posts.length - 1}
-                              >
+                              <Button variant="outline" size="sm" onClick={() => setActiveVariations(prev => ({
+                          ...prev,
+                          instagram: Math.min(posts.length - 1, activeIdx + 1)
+                        }))} disabled={activeIdx === posts.length - 1}>
                                 Next →
                               </Button>
                             </div>
-                          </div>
-                        )}
+                          </div>}
                         <div className="bg-muted p-4 rounded-lg">
                           <p className="whitespace-pre-wrap">{currentPost}</p>
                         </div>
@@ -671,63 +590,40 @@ const Dashboard = () => {
                           <p className={`text-sm font-medium ${lengthInfo.color}`}>
                             {lengthInfo.status} {lengthInfo.message} • Total: {currentPost.length} chars
                           </p>
-                          <Button
-                            onClick={() => copyToClipboard(currentPost, "Instagram post")}
-                            variant="outline"
-                            size="sm"
-                          >
-                            {copiedItem === "Instagram post" ? (
-                              <CheckCircle2 className="w-4 h-4 mr-2" />
-                            ) : (
-                              <Copy className="w-4 h-4 mr-2" />
-                            )}
+                          <Button onClick={() => copyToClipboard(currentPost, "Instagram post")} variant="outline" size="sm">
+                            {copiedItem === "Instagram post" ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
                             Copy
                           </Button>
                         </div>
-                      </TabsContent>
-                    );
-                  })()}
+                      </TabsContent>;
+                })()}
 
                   {generatedContent.tiktok && (() => {
-                    const posts = Array.isArray(generatedContent.tiktok) ? generatedContent.tiktok : [generatedContent.tiktok];
-                    const activeIdx = activeVariations['tiktok'] || 0;
-                    const currentPost = posts[activeIdx];
-                    const lengthInfo = getLengthIndicator(currentPost, 'tiktok');
-                    
-                    return (
-                      <TabsContent value="tiktok" className="space-y-3">
+                  const posts = Array.isArray(generatedContent.tiktok) ? generatedContent.tiktok : [generatedContent.tiktok];
+                  const activeIdx = activeVariations['tiktok'] || 0;
+                  const currentPost = posts[activeIdx];
+                  const lengthInfo = getLengthIndicator(currentPost, 'tiktok');
+                  return <TabsContent value="tiktok" className="space-y-3">
                         <div className="text-xs text-muted-foreground mb-2">
                           🎵 TikTok: Keep it short and punchy - under 150 characters
                         </div>
-                        {posts.length > 1 && (
-                          <div className="flex items-center justify-between text-sm text-muted-foreground">
+                        {posts.length > 1 && <div className="flex items-center justify-between text-sm text-muted-foreground">
                             <span>Variation {activeIdx + 1} of {posts.length}</span>
                             <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setActiveVariations(prev => ({
-                                  ...prev,
-                                  tiktok: Math.max(0, activeIdx - 1)
-                                }))}
-                                disabled={activeIdx === 0}
-                              >
+                              <Button variant="outline" size="sm" onClick={() => setActiveVariations(prev => ({
+                          ...prev,
+                          tiktok: Math.max(0, activeIdx - 1)
+                        }))} disabled={activeIdx === 0}>
                                 ← Previous
                               </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setActiveVariations(prev => ({
-                                  ...prev,
-                                  tiktok: Math.min(posts.length - 1, activeIdx + 1)
-                                }))}
-                                disabled={activeIdx === posts.length - 1}
-                              >
+                              <Button variant="outline" size="sm" onClick={() => setActiveVariations(prev => ({
+                          ...prev,
+                          tiktok: Math.min(posts.length - 1, activeIdx + 1)
+                        }))} disabled={activeIdx === posts.length - 1}>
                                 Next →
                               </Button>
                             </div>
-                          </div>
-                        )}
+                          </div>}
                         <div className="bg-muted p-4 rounded-lg">
                           <p className="whitespace-pre-wrap">{currentPost}</p>
                         </div>
@@ -735,63 +631,40 @@ const Dashboard = () => {
                           <p className={`text-sm font-medium ${lengthInfo.color}`}>
                             {lengthInfo.status} {lengthInfo.message}
                           </p>
-                          <Button
-                            onClick={() => copyToClipboard(currentPost, "TikTok post")}
-                            variant="outline"
-                            size="sm"
-                          >
-                            {copiedItem === "TikTok post" ? (
-                              <CheckCircle2 className="w-4 h-4 mr-2" />
-                            ) : (
-                              <Copy className="w-4 h-4 mr-2" />
-                            )}
+                          <Button onClick={() => copyToClipboard(currentPost, "TikTok post")} variant="outline" size="sm">
+                            {copiedItem === "TikTok post" ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
                             Copy
                           </Button>
                         </div>
-                      </TabsContent>
-                    );
-                  })()}
+                      </TabsContent>;
+                })()}
 
                   {generatedContent.twitter && (() => {
-                    const posts = Array.isArray(generatedContent.twitter) ? generatedContent.twitter : [generatedContent.twitter];
-                    const activeIdx = activeVariations['twitter'] || 0;
-                    const currentPost = posts[activeIdx];
-                    const lengthInfo = getLengthIndicator(currentPost, 'twitter');
-                    
-                    return (
-                      <TabsContent value="twitter" className="space-y-3">
+                  const posts = Array.isArray(generatedContent.twitter) ? generatedContent.twitter : [generatedContent.twitter];
+                  const activeIdx = activeVariations['twitter'] || 0;
+                  const currentPost = posts[activeIdx];
+                  const lengthInfo = getLengthIndicator(currentPost, 'twitter');
+                  return <TabsContent value="twitter" className="space-y-3">
                         <div className="text-xs text-muted-foreground mb-2">
                           🐦 Twitter/X: Aim for 240-260 characters (leaves room for retweets with comments)
                         </div>
-                        {posts.length > 1 && (
-                          <div className="flex items-center justify-between text-sm text-muted-foreground">
+                        {posts.length > 1 && <div className="flex items-center justify-between text-sm text-muted-foreground">
                             <span>Variation {activeIdx + 1} of {posts.length}</span>
                             <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setActiveVariations(prev => ({
-                                  ...prev,
-                                  twitter: Math.max(0, activeIdx - 1)
-                                }))}
-                                disabled={activeIdx === 0}
-                              >
+                              <Button variant="outline" size="sm" onClick={() => setActiveVariations(prev => ({
+                          ...prev,
+                          twitter: Math.max(0, activeIdx - 1)
+                        }))} disabled={activeIdx === 0}>
                                 ← Previous
                               </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setActiveVariations(prev => ({
-                                  ...prev,
-                                  twitter: Math.min(posts.length - 1, activeIdx + 1)
-                                }))}
-                                disabled={activeIdx === posts.length - 1}
-                              >
+                              <Button variant="outline" size="sm" onClick={() => setActiveVariations(prev => ({
+                          ...prev,
+                          twitter: Math.min(posts.length - 1, activeIdx + 1)
+                        }))} disabled={activeIdx === posts.length - 1}>
                                 Next →
                               </Button>
                             </div>
-                          </div>
-                        )}
+                          </div>}
                         <div className="bg-muted p-4 rounded-lg">
                           <p className="whitespace-pre-wrap">{currentPost}</p>
                         </div>
@@ -799,50 +672,29 @@ const Dashboard = () => {
                           <p className={`text-sm font-medium ${lengthInfo.color}`}>
                             {lengthInfo.status} {lengthInfo.message}
                           </p>
-                          <Button
-                            onClick={() => copyToClipboard(currentPost, "Twitter post")}
-                            variant="outline"
-                            size="sm"
-                          >
-                            {copiedItem === "Twitter post" ? (
-                              <CheckCircle2 className="w-4 h-4 mr-2" />
-                            ) : (
-                              <Copy className="w-4 h-4 mr-2" />
-                            )}
+                          <Button onClick={() => copyToClipboard(currentPost, "Twitter post")} variant="outline" size="sm">
+                            {copiedItem === "Twitter post" ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
                             Copy
                           </Button>
                         </div>
-                      </TabsContent>
-                    );
-                  })()}
+                      </TabsContent>;
+                })()}
 
                   <TabsContent value="summary" className="space-y-3">
                     <div className="bg-muted p-4 rounded-lg">
                       <p className="whitespace-pre-wrap">{generatedContent.executiveSummary}</p>
                     </div>
-                    <Button
-                      onClick={() => copyToClipboard(generatedContent.executiveSummary, "Executive summary")}
-                      variant="outline"
-                      size="sm"
-                      className="w-full"
-                    >
-                      {copiedItem === "Executive summary" ? (
-                        <CheckCircle2 className="w-4 h-4 mr-2" />
-                      ) : (
-                        <Copy className="w-4 h-4 mr-2" />
-                      )}
+                    <Button onClick={() => copyToClipboard(generatedContent.executiveSummary, "Executive summary")} variant="outline" size="sm" className="w-full">
+                      {copiedItem === "Executive summary" ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
                       Copy Summary
                     </Button>
                   </TabsContent>
-                </Tabs>
-              )}
+                </Tabs>}
             </CardContent>
           </Card>
         </div>
       </div>
       </div>
-    </>
-  );
+    </>;
 };
-
 export default Dashboard;
