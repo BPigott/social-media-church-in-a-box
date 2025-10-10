@@ -10,6 +10,10 @@ const Index = () => {
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-16 md:py-24">
         <div className="max-w-4xl mx-auto text-center space-y-8">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold mb-4">
+            <Sparkles className="w-4 h-4" />
+            <span>Beta</span>
+          </div>
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-playfair font-bold text-foreground">
             Transform Sermons into
             <span className="block text-primary mt-2">Social Media Mission</span>
@@ -190,6 +194,9 @@ const Index = () => {
               </p>
               <p className="text-xs text-muted-foreground pt-4">
                 © 2025 In Focus Operations Limited | Company No. 16707659 | Registered in England and Wales | Fully insured for professional indemnity
+              </p>
+              <p className="text-xs text-muted-foreground pt-2">
+                This product is currently in beta. Features and functionality may change as we continue to improve the service.
               </p>
             </div>
           </div>
