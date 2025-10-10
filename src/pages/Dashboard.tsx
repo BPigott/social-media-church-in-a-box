@@ -197,7 +197,22 @@ const Dashboard = () => {
           const pageText = textContent.items.map((item: any) => item.str).join(" ");
           fullText += pageText + "\n\n";
         }
-        setTranscriptText(fullText.trim());
+        
+        const trimmedText = fullText.trim();
+        
+        // Check if PDF is empty or scanned (no extractable text)
+        if (!trimmedText || trimmedText.length < 50) {
+          toast({
+            variant: "destructive",
+            title: "No text found in PDF",
+            description: "This PDF appears to be scanned or contains only images. Please upload a PDF with selectable text, or try converting it using OCR software first."
+          });
+          setTranscriptFile(null);
+          setTranscriptText("");
+          return;
+        }
+        
+        setTranscriptText(trimmedText);
         toast({
           title: "PDF processed",
           description: `Text extracted successfully from ${pdf.numPages} page(s).`
@@ -212,10 +227,31 @@ const Dashboard = () => {
       }
     } catch (error) {
       console.error('Error processing file:', error);
+      
+      let errorTitle = "Error processing file";
+      let errorDescription = "Failed to read file content.";
+      
+      if (error instanceof Error) {
+        // Password-protected PDF
+        if (error.message.includes('password')) {
+          errorTitle = "Password-protected PDF";
+          errorDescription = "This PDF is password-protected. Please unlock it and try again.";
+        }
+        // Corrupted or invalid PDF
+        else if (error.message.includes('Invalid PDF') || error.message.includes('corrupted')) {
+          errorTitle = "Invalid PDF file";
+          errorDescription = "This PDF file appears to be corrupted. Try re-exporting it and upload again.";
+        }
+        // Generic error with actual message
+        else {
+          errorDescription = error.message;
+        }
+      }
+      
       toast({
         variant: "destructive",
-        title: "Error processing file",
-        description: error instanceof Error ? error.message : "Failed to read file content."
+        title: errorTitle,
+        description: errorDescription
       });
       setTranscriptFile(null);
       setTranscriptText("");
