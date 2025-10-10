@@ -261,28 +261,16 @@ const Settings = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="font-playfair">Church Information</CardTitle>
-                {primaryChurch?.website_url && (
-                  <CardDescription className="flex items-center justify-between mt-2">
-                    <span className="text-sm text-muted-foreground">
-                      Website last updated: {formatLastCrawled(websiteLastCrawled)}
-                    </span>
-                    <Button
-                      onClick={() => setShowRecrawlDialog(true)}
-                      variant="outline"
-                      size="sm"
-                      disabled={isRecrawling}
-                    >
-                      <RefreshCw className={`w-4 h-4 mr-2 ${isRecrawling ? 'animate-spin' : ''}`} />
-                      {isRecrawling ? "Updating..." : "Update from Website"}
-                    </Button>
-                  </CardDescription>
-                )}
               </CardHeader>
               <CardContent>
                 <ChurchInfoForm
                   onSubmit={handleChurchUpdate}
                   initialData={primaryChurch || undefined}
                   buttonText="Save Changes"
+                  showWebsiteRefresh={true}
+                  isRecrawling={isRecrawling}
+                  onWebsiteRefresh={() => setShowRecrawlDialog(true)}
+                  websiteLastCrawled={websiteLastCrawled}
                 />
               </CardContent>
             </Card>
