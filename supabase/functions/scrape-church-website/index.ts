@@ -40,7 +40,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         url: websiteUrl,
-        limit: 15,
+        limit: 10,
         scrapeOptions: {
           formats: ['markdown'],
         },
@@ -72,8 +72,8 @@ serve(async (req) => {
 
     console.log('Crawl job started with ID:', jobId);
 
-    // Poll for results (max 45 seconds)
-    const maxAttempts = 15;
+    // Poll for results (max 90 seconds)
+    const maxAttempts = 30;
     const pollInterval = 3000; // 3 seconds
     let attempts = 0;
     let crawlComplete = false;
@@ -95,7 +95,9 @@ serve(async (req) => {
       }
 
       const statusData = await statusResponse.json();
-      console.log(`Crawl status (attempt ${attempts}):`, statusData.status);
+      const completed = statusData.completed || 0;
+      const total = statusData.total || 0;
+      console.log(`Crawl status (attempt ${attempts}): ${statusData.status}${total > 0 ? ` (${completed}/${total} pages)` : ''}`);
 
       if (statusData.status === 'completed') {
         crawlComplete = true;
