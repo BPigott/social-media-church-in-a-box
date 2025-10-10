@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, X } from "lucide-react";
+import { Plus, X, RefreshCw } from "lucide-react";
 import type { Church } from "@/types/database";
 
 const DAYS_OF_WEEK = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -21,9 +21,21 @@ interface ChurchInfoFormProps {
   onSubmit: (data: Partial<Church>) => void;
   initialData?: Partial<Church>;
   buttonText?: string;
+  showWebsiteRefresh?: boolean;
+  isRecrawling?: boolean;
+  onWebsiteRefresh?: () => void;
+  websiteLastCrawled?: string | null;
 }
 
-export const ChurchInfoForm = ({ onSubmit, initialData, buttonText = "Continue to Sermon Upload" }: ChurchInfoFormProps) => {
+export const ChurchInfoForm = ({ 
+  onSubmit, 
+  initialData, 
+  buttonText = "Continue to Sermon Upload",
+  showWebsiteRefresh = false,
+  isRecrawling = false,
+  onWebsiteRefresh,
+  websiteLastCrawled
+}: ChurchInfoFormProps) => {
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
     email: initialData?.email || "",
@@ -106,13 +118,33 @@ export const ChurchInfoForm = ({ onSubmit, initialData, buttonText = "Continue t
 
       <div className="space-y-2">
         <Label htmlFor="website_url">Website URL</Label>
-        <Input
-          id="website_url"
-          type="url"
-          placeholder="https://www.yourchurch.com"
-          value={formData.website_url}
-          onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
-        />
+        <div className="flex gap-2 items-start">
+          <Input
+            id="website_url"
+            type="url"
+            placeholder="https://www.yourchurch.com"
+            value={formData.website_url}
+            onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
+            className="flex-1"
+          />
+          {showWebsiteRefresh && formData.website_url && (
+            <Button
+              type="button"
+              onClick={onWebsiteRefresh}
+              variant="outline"
+              disabled={isRecrawling}
+              className="whitespace-nowrap"
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${isRecrawling ? 'animate-spin' : ''}`} />
+              {isRecrawling ? "Updating..." : "Refresh"}
+            </Button>
+          )}
+        </div>
+        {showWebsiteRefresh && formData.website_url && (
+          <p className="text-xs text-muted-foreground">
+            Updated your website recently? Click refresh to update our information for the style guide.
+          </p>
+        )}
       </div>
 
       <div className="space-y-2">
