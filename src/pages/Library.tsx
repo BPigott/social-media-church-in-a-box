@@ -108,8 +108,7 @@ const Library = () => {
   const renderPlatformSection = (
     itemId: string,
     platform: string,
-    posts: string[],
-    icon: string
+    posts: string[]
   ) => {
     const sectionKey = `${itemId}-${platform}`;
     const currentIndex = currentVariations[sectionKey] || 0;
@@ -124,7 +123,7 @@ const Library = () => {
               <div className="flex items-center gap-2">
                 <ChevronDown className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                 <p className="text-sm font-medium">
-                  {icon} {platform} {posts.length > 1 && `(${posts.length} variations)`}
+                  {platform} {posts.length > 1 && `(${posts.length} variations)`}
                 </p>
               </div>
               <Button
@@ -318,7 +317,7 @@ const Library = () => {
                                   expandedSections[`${item.id}-summary`] ? 'rotate-180' : ''
                                 }`} 
                               />
-                              <p className="text-sm font-medium">📋 Executive Summary</p>
+                              <p className="text-sm font-medium">Executive Summary</p>
                             </div>
                             <Button
                               variant="ghost"
@@ -334,11 +333,11 @@ const Library = () => {
                         </CollapsibleTrigger>
                         <CollapsibleContent>
                           <div className="px-4 pb-4">
-                            <ScrollArea className="max-h-[400px]">
-                              <div className="bg-muted p-4 rounded-lg">
-                                <p className="text-sm whitespace-pre-wrap">{item.executive_summary}</p>
-                              </div>
-                            </ScrollArea>
+                            <div className="bg-muted p-4 rounded-lg">
+                              <ScrollArea className="h-[300px]">
+                                <p className="text-sm whitespace-pre-wrap pr-4">{item.executive_summary}</p>
+                              </ScrollArea>
+                            </div>
                           </div>
                         </CollapsibleContent>
                       </div>
@@ -349,28 +348,28 @@ const Library = () => {
                     const postsArray = Array.isArray(item.facebook_post) ? item.facebook_post : [item.facebook_post];
                     const posts = postsArray.filter((p): p is string => typeof p === "string" && p.length > 0);
                     if (posts.length === 0) return null;
-                    return renderPlatformSection(item.id, "Facebook", posts, "📘");
+                    return renderPlatformSection(item.id, "Facebook", posts);
                   })()}
 
                   {item.instagram_post && item.instagram_post.length > 0 && (() => {
                     const postsArray = Array.isArray(item.instagram_post) ? item.instagram_post : [item.instagram_post];
                     const posts = postsArray.filter((p): p is string => typeof p === "string" && p.length > 0);
                     if (posts.length === 0) return null;
-                    return renderPlatformSection(item.id, "Instagram", posts, "📸");
+                    return renderPlatformSection(item.id, "Instagram", posts);
                   })()}
 
                   {item.tiktok_post && item.tiktok_post.length > 0 && (() => {
                     const postsArray = Array.isArray(item.tiktok_post) ? item.tiktok_post : [item.tiktok_post];
                     const posts = postsArray.filter((p): p is string => typeof p === "string" && p.length > 0);
                     if (posts.length === 0) return null;
-                    return renderPlatformSection(item.id, "TikTok", posts, "🎵");
+                    return renderPlatformSection(item.id, "TikTok", posts);
                   })()}
 
                   {item.twitter_post && item.twitter_post.length > 0 && (() => {
                     const postsArray = Array.isArray(item.twitter_post) ? item.twitter_post : [item.twitter_post];
                     const posts = postsArray.filter((p): p is string => typeof p === "string" && p.length > 0);
                     if (posts.length === 0) return null;
-                    return renderPlatformSection(item.id, "Twitter/X", posts, "🐦");
+                    return renderPlatformSection(item.id, "Twitter/X", posts);
                   })()}
                 </CardContent>
               </Card>
