@@ -182,26 +182,36 @@ const Dashboard = () => {
         });
       } else if (fileExtension === 'pdf') {
         // PDF files - extract text using PDF.js
+        console.log('🔵 PDF processing started');
         toast({
           title: "Processing PDF...",
           description: "Extracting text from PDF document."
         });
         const arrayBuffer = await file.arrayBuffer();
+        console.log('🔵 PDF arrayBuffer created, size:', arrayBuffer.byteLength);
+        
         const pdf = await pdfjsLib.getDocument({
           data: arrayBuffer
         }).promise;
+        console.log('🔵 PDF loaded, pages:', pdf.numPages);
+        
         let fullText = "";
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const textContent = await page.getTextContent();
           const pageText = textContent.items.map((item: any) => item.str).join(" ");
+          console.log(`🔵 Page ${i} extracted, length:`, pageText.length);
           fullText += pageText + "\n\n";
         }
         
+        console.log('🔵 Full text extracted, total length:', fullText.length);
         const trimmedText = fullText.trim();
+        console.log('🔵 Trimmed text length:', trimmedText.length);
+        console.log('🔵 First 200 chars:', trimmedText.substring(0, 200));
         
         // Check if PDF is empty or scanned (no extractable text)
         if (!trimmedText || trimmedText.length < 50) {
+          console.log('❌ PDF has insufficient text (<50 chars)');
           toast({
             variant: "destructive",
             title: "No text found in PDF",
@@ -212,6 +222,7 @@ const Dashboard = () => {
           return;
         }
         
+        console.log('✅ PDF text extraction successful');
         setTranscriptText(trimmedText);
         toast({
           title: "PDF processed",
@@ -226,7 +237,10 @@ const Dashboard = () => {
         setTranscriptFile(null);
       }
     } catch (error) {
-      console.error('Error processing file:', error);
+      console.error('❌ Error processing file:', error);
+      console.error('❌ Error type:', error instanceof Error ? error.constructor.name : typeof error);
+      console.error('❌ Error message:', error instanceof Error ? error.message : String(error));
+      console.error('❌ Full error object:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
       
       let errorTitle = "Error processing file";
       let errorDescription = "Failed to read file content.";
@@ -248,6 +262,7 @@ const Dashboard = () => {
         }
       }
       
+      console.log('🔔 Showing error toast:', errorTitle, errorDescription);
       toast({
         variant: "destructive",
         title: errorTitle,
