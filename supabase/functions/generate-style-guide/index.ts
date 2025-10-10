@@ -74,54 +74,27 @@ ${page.markdown.substring(0, 2000)}
 
 ---
 
-Based on the above information, create a comprehensive style guide with the following structure and content:
+Create a comprehensive style guide following this structure:
 
 # [Church Name] Communications Style Guide
 
 ## Church Overview
-[Include name, location, denomination, vision statement]
-
 ## 1. Voice & Tone
-Describe the church's communication style (formal/casual, inspirational/practical, traditional/contemporary)
-
 ### Primary Voice Characteristics
-[List key characteristics]
-
 ### Tone Variations by Context
-[Describe different contexts]
-
 ## 2. Key Themes
-Identify recurring theological themes and topics
-
 ## 3. Language Preferences
-Note specific vocabulary, phrases, or terminology commonly used
-
 ## 4. Target Audience
-Describe the primary audience based on content and context
-
 ## 5. Scripture Usage
-How scripture is referenced and applied
-
 ## 6. Communication Goals
-What the church aims to achieve through its messaging
-
 ## 7. Content Pillars
-3-5 main content categories that align with the church's mission
-
 ## 8. Hashtag Strategy
-Suggest 5-7 branded hashtags
-
 ## 9. Do's and Don'ts
-Specific guidelines for maintaining consistency
 
-FORMATTING REQUIREMENTS:
-- Use # for the main title (Church Name Communications Style Guide)
-- Use ## for major sections (numbered 1-9 and Church Overview)
-- Use ### for subsections within major sections
-- Include blank lines between all sections for readability
-- Use **bold** for emphasis within text
-- Use bullet points (-) for lists
-- Maintain consistent spacing throughout the document
+FORMATTING RULES:
+- Use # for main title, ## for sections, ### for subsections
+- Blank lines between all sections
+- **bold** for emphasis, bullet points (-) for lists
 `;
 
     const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
@@ -140,7 +113,7 @@ FORMATTING REQUIREMENTS:
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 8192,
+        max_tokens: 6144,
         system: systemPrompt,
         messages: [
           { role: 'user', content: userPrompt }
@@ -173,7 +146,7 @@ FORMATTING REQUIREMENTS:
     const aiData = await aiResponse.json();
     const styleGuide = aiData.content[0].text;
 
-    console.log('Style guide generated successfully');
+    console.log('Style guide generated successfully, length:', styleGuide.length);
 
     return new Response(
       JSON.stringify({ styleGuide }),
