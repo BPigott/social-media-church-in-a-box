@@ -75,7 +75,7 @@ const DualLanguageDisplay: React.FC<DualLanguageDisplayProps> = ({
           </Label>
           <span className="text-xs text-muted-foreground">Read-only</span>
         </div>
-        <ScrollArea className="border rounded-lg max-h-[500px]">
+        <ScrollArea className="border rounded-lg max-h-[600px]">
           <div className="prose prose-sm max-w-none p-6">
             <ReactMarkdown>{foreignContent}</ReactMarkdown>
           </div>
@@ -113,7 +113,7 @@ const DualLanguageDisplay: React.FC<DualLanguageDisplayProps> = ({
                   />
                 </div>
               ) : (
-                <ScrollArea className="border rounded-lg max-h-[400px]">
+                <ScrollArea className="border rounded-lg max-h-[500px]">
                   <div className="prose prose-sm max-w-none p-6 prose-p:mb-4">
                     <ReactMarkdown>{editedEnglish}</ReactMarkdown>
                   </div>
@@ -312,7 +312,8 @@ const Dashboard = () => {
 
   // New state for enhanced features
   const [contentTypes, setContentTypes] = useState<('social_media' | 'bible_study' | 'devotional')[]>(['social_media']);
-  const [outputLanguage, setOutputLanguage] = useState('en');
+  const [outputLanguages, setOutputLanguages] = useState<string[]>(['en']);
+  const [primaryLanguage, setPrimaryLanguage] = useState('en');
   const [bibleStudySelected, setBibleStudySelected] = useState(false);
   const [socialMediaSelected, setSocialMediaSelected] = useState(true);
   const [devotionalSelected, setDevotionalSelected] = useState(false);
@@ -328,7 +329,7 @@ const Dashboard = () => {
     }
   }, [user, loading, navigate]);
 
-  // Initialize active social platform when content is generated
+  // Initialize active social platform and set editing mode for English content when content is generated
   useEffect(() => {
     if (generatedContent) {
       const defaultPlatform = generatedContent.facebook ? 'facebook' :
@@ -339,8 +340,49 @@ const Dashboard = () => {
       if (defaultPlatform) {
         setActiveSocialPlatform(defaultPlatform as 'facebook' | 'instagram' | 'tiktok' | 'twitter');
       }
+
+      // Auto-enable editing mode for all English content (MDEditor by default)
+      if (primaryLanguage === 'en') {
+        const newEditingState: Record<string, boolean> = {};
+        
+        // Set social media posts to editing mode
+        ['facebook', 'instagram', 'tiktok', 'twitter'].forEach(platform => {
+          if (generatedContent[platform]) {
+            const posts = Array.isArray(generatedContent[platform]) ? generatedContent[platform] : [generatedContent[platform]];
+            posts.forEach((_: any, idx: number) => {
+              newEditingState[`${platform}-${idx}`] = true;
+            });
+          }
+        });
+
+        // Set Bible study and devotional to editing mode
+        if (generatedContent.bibleStudyGuide) {
+          newEditingState['bibleStudyGuide'] = true;
+        }
+        if (generatedContent.devotional) {
+          newEditingState['devotional'] = true;
+        }
+
+        setEditingContent(newEditingState);
+        
+        // Initialize edited content with current content
+        const newEditedContent: Record<string, string> = {};
+        Object.keys(newEditingState).forEach(key => {
+          if (key === 'bibleStudyGuide') {
+            newEditedContent[key] = generatedContent.bibleStudyGuide || '';
+          } else if (key === 'devotional') {
+            newEditedContent[key] = generatedContent.devotional || '';
+          } else if (key.includes('-')) {
+            const [platform, idxStr] = key.split('-');
+            const idx = parseInt(idxStr);
+            const posts = Array.isArray(generatedContent[platform]) ? generatedContent[platform] : [generatedContent[platform]];
+            newEditedContent[key] = posts[idx] || '';
+          }
+        });
+        setEditedContent(newEditedContent);
+      }
     }
-  }, [generatedContent]);
+  }, [generatedContent, primaryLanguage]);
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -578,18 +620,53 @@ const Dashboard = () => {
     });
   };
 
+  // Helper functions for multi-language support
+  const handleLanguageToggle = (languageCode: string) => {
+    if (languageCode === 'en') {
+      // English must always be included
+      return;
+    }
+
+    setOutputLanguages(prev => {
+      const isCurrentlySelected = prev.includes(languageCode);
+      
+      if (isCurrentlySelected) {
+        // Remove language (but keep English)
+        const newLanguages = prev.filter(lang => lang !== languageCode);
+        // If removed language was primary, set English as primary
+        if (primaryLanguage === languageCode) {
+          setPrimaryLanguage('en');
+        }
+        return newLanguages;
+      } else {
+        // Add language if under limit of 3
+        if (prev.length >= 3) {
+          return prev; // Don't add if already at limit
+        }
+        return [...prev, languageCode];
+      }
+    });
+  };
+
+  const handlePrimaryLanguageChange = (languageCode: string) => {
+    if (outputLanguages.includes(languageCode)) {
+      setPrimaryLanguage(languageCode);
+    }
+  };
+
   const handleRetranslate = async (editedEnglish: string, contentType: string) => {
     if (!primaryChurch) return;
 
     setRetranslating(true);
 
     try {
+      // For retranslation, use the current primary language as target
       const { data, error } = await supabase.functions.invoke(
         'retranslate-content',
         {
           body: {
             englishContent: editedEnglish,
-            targetLanguage: outputLanguage,
+            targetLanguage: primaryLanguage,
             contentType
           }
         }
@@ -751,11 +828,13 @@ const Dashboard = () => {
         speakerName: speakerName.trim() || null,
         socialHandles: primaryChurch.social_handles || {},
         contentTypes,
-        outputLanguage
+        outputLanguages,
+        primaryLanguage
       };
 
       console.log('=== FRONTEND REQUEST ===');
-      console.log('Output Language:', outputLanguage);
+      console.log('Output Languages:', outputLanguages);
+      console.log('Primary Language:', primaryLanguage);
       console.log('Content Types:', contentTypes);
       console.log('Custom CTA:', customCTA);
       console.log('Full Request Body:', requestBody);
@@ -802,8 +881,9 @@ const Dashboard = () => {
         devotional_english: data.englishVersions?.devotional || null,
         bible_study_guide: data.bibleStudyGuide || null,
         bible_study_guide_english: data.englishVersions?.bibleStudyGuide || null,
-        output_language: outputLanguage,
-        content_types: contentTypes
+        output_language: primaryLanguage,
+        content_types: contentTypes,
+        output_languages: outputLanguages
       });
       if (insertError) {
         console.error('Content save error:', insertError);
@@ -825,8 +905,9 @@ const Dashboard = () => {
           devotional_english: data.englishVersions?.devotional || null,
           bible_study_guide: data.bibleStudyGuide || null,
           bible_study_guide_english: data.englishVersions?.bibleStudyGuide || null,
-          output_language: outputLanguage,
-          content_types: contentTypes
+          output_language: primaryLanguage,
+          content_types: contentTypes,
+          output_languages: outputLanguages
         });
         throw new Error(`Failed to save generated content: ${insertError.message}`);
       }
@@ -994,33 +1075,68 @@ const Dashboard = () => {
 
               {/* Language Selection - Show when ANY content type is selected */}
               {contentTypes.length > 0 && (
-                <div className="space-y-2">
-                  <Label htmlFor="output-language">Output Language for All Content</Label>
-                  <p className="text-xs text-muted-foreground mb-2">
-                    This language will be used for {contentTypes.includes('social_media') && contentTypes.includes('bible_study') && contentTypes.includes('devotional') ? 'social media posts, Bible study guide, devotional, and executive summary' : contentTypes.includes('social_media') && contentTypes.includes('bible_study') ? 'social media posts, Bible study guide, and executive summary' : contentTypes.includes('social_media') && contentTypes.includes('devotional') ? 'social media posts, devotional, and executive summary' : contentTypes.includes('bible_study') && contentTypes.includes('devotional') ? 'Bible study guide, devotional, and executive summary' : contentTypes.includes('social_media') ? 'social media posts and executive summary' : contentTypes.includes('bible_study') ? 'Bible study guide and executive summary' : contentTypes.includes('devotional') ? 'devotional and executive summary' : 'content'}
-                  </p>
-                  <select
-                    id="output-language"
-                    value={outputLanguage}
-                    onChange={(e) => setOutputLanguage(e.target.value)}
-                    className="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
-                  >
-                    <option value="en">English</option>
-                    <option value="es">Spanish</option>
-                    <option value="fr">French</option>
-                    <option value="pt">Portuguese</option>
-                    <option value="de">German</option>
-                    <option value="ko">Korean</option>
-                    <option value="zh">Chinese (Simplified)</option>
-                    <option value="zh-TW">Chinese (Traditional/Cantonese)</option>
-                    <option value="ar">Arabic</option>
-                    <option value="fa">Persian (Farsi)</option>
-                    <option value="pl">Polish</option>
-                    <option value="uk">Ukrainian</option>
-                    <option value="it">Italian</option>
-                    <option value="ru">Russian</option>
-                    <option value="ja">Japanese</option>
-                  </select>
+                <div className="space-y-4">
+                  <div>
+                    <Label>Output Languages for All Content (Max 3)</Label>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      Select up to 3 languages. Content will be generated in English (UK) first, then translated.
+                    </p>
+                    
+                    {/* Language Selection Grid */}
+                    <div className="grid grid-cols-2 gap-2 mb-4">
+                      {Object.entries(LANGUAGE_NAMES).map(([code, name]) => (
+                        <div key={code} className="flex items-center space-x-2">
+                          <Checkbox 
+                            id={`lang-${code}`}
+                            checked={outputLanguages.includes(code)}
+                            onCheckedChange={() => handleLanguageToggle(code)}
+                            disabled={code === 'en' || (!outputLanguages.includes(code) && outputLanguages.length >= 3)}
+                          />
+                          <Label htmlFor={`lang-${code}`} className="text-sm cursor-pointer">
+                            {name} {code === 'en' && '(Always included)'}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Primary Language Selection */}
+                    {outputLanguages.length > 1 && (
+                      <div className="space-y-2">
+                        <Label htmlFor="primary-language">Primary Language (displayed first)</Label>
+                        <select
+                          id="primary-language"
+                          value={primaryLanguage}
+                          onChange={(e) => handlePrimaryLanguageChange(e.target.value)}
+                          className="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
+                        >
+                          {outputLanguages.map(code => (
+                            <option key={code} value={code}>
+                              {LANGUAGE_NAMES[code] || code}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    {/* Selected Languages Summary */}
+                    <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
+                      <p className="font-medium mb-1">Selected Languages ({outputLanguages.length}/3):</p>
+                      <div className="flex flex-wrap gap-2">
+                        {outputLanguages.map(code => (
+                          <span 
+                            key={code} 
+                            className={`px-2 py-1 rounded text-xs ${
+                              code === primaryLanguage 
+                                ? 'bg-primary text-primary-foreground' 
+                                : 'bg-muted-foreground/10'
+                            }`}
+                          >
+                            {LANGUAGE_NAMES[code] || code} {code === primaryLanguage && '(Primary)'}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -1047,7 +1163,7 @@ const Dashboard = () => {
                     Generate multiple variations to choose from or schedule throughout the week
                   </p>
                   <div className="flex gap-2">
-                    {[1, 2, 3, 4, 5].map(num => <Button key={num} type="button" variant={postsPerPlatform === num ? "default" : "outline"} size="sm" onClick={() => setPostsPerPlatform(num)} className="flex-1">
+                    {[1, 2, 3].map(num => <Button key={num} type="button" variant={postsPerPlatform === num ? "default" : "outline"} size="sm" onClick={() => setPostsPerPlatform(num)} className="flex-1">
                         {num}
                       </Button>)}
                   </div>
@@ -1116,10 +1232,11 @@ const Dashboard = () => {
                     const displayContent = isEditing ? (editedContent[contentKey] || currentPost) : currentPost;
                     const lengthInfo = getLengthIndicator(displayContent, platform);
 
-                    // Get English version for dual-language display
+                    // Get versions for multi-language display
                     const englishPosts = generatedContent.englishVersions?.[platform];
                     const englishPost = englishPosts ? (Array.isArray(englishPosts) ? englishPosts[activeIdx] : englishPosts) : null;
-                    const showDualLanguage = outputLanguage !== 'en' && englishPost;
+                    const multiLanguageVersions = generatedContent.multiLanguageVersions || {};
+                    const showMultiLanguage = Object.keys(multiLanguageVersions).length > 0 || (primaryLanguage !== 'en' && englishPost);
 
                     // Platform-specific tips
                     const platformTips: Record<string, string> = {
@@ -1165,26 +1282,92 @@ const Dashboard = () => {
                           </div>
                         )}
 
-                        {showDualLanguage ? (
-                          <DualLanguageDisplay
-                            foreignContent={currentPost}
-                            englishContent={englishPost}
-                            contentType={contentKey}
-                            languageName={LANGUAGE_NAMES[outputLanguage] || outputLanguage}
-                            onRetranslate={handleRetranslate}
-                            retranslating={retranslating}
-                          />
+                        {showMultiLanguage ? (
+                          <div className="space-y-4">
+                            {/* Primary Language Content */}
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <Label className="text-sm font-semibold">
+                                  {LANGUAGE_NAMES[primaryLanguage] || primaryLanguage} (Primary)
+                                </Label>
+                                <span className="text-xs text-muted-foreground">Main version</span>
+                              </div>
+                              <div className="min-h-[400px]">
+                                <MDEditor
+                                  value={displayContent}
+                                  onChange={(val) => setEditedContent(prev => ({ ...prev, [contentKey]: val || '' }))}
+                                  height={400}
+                                  preview="edit"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Additional Language Versions */}
+                            {englishPost && primaryLanguage !== 'en' && (
+                              <Collapsible>
+                                <CollapsibleTrigger className="w-full">
+                                  <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border rounded-lg">
+                                    <div className="flex items-center gap-2">
+                                      <ChevronDown className="w-4 h-4" />
+                                      <span className="text-sm font-medium">English Reference</span>
+                                    </div>
+                                  </div>
+                                </CollapsibleTrigger>
+                                <CollapsibleContent>
+                                  <div className="p-4 border-l-2 border-muted-foreground/20 ml-4">
+                                    <ScrollArea className="border rounded-lg max-h-[400px]">
+                                      <div className="prose prose-sm max-w-none p-4">
+                                        <ReactMarkdown>{englishPost}</ReactMarkdown>
+                                      </div>
+                                    </ScrollArea>
+                                  </div>
+                                </CollapsibleContent>
+                              </Collapsible>
+                            )}
+
+                            {/* Other Language Versions */}
+                            {Object.entries(multiLanguageVersions).map(([langCode, langContent]: [string, any]) => {
+                              if (langCode === primaryLanguage) return null;
+                              const posts = Array.isArray(langContent[platform]) ? langContent[platform] : [langContent[platform]];
+                              const post = posts[activeIdx];
+                              if (!post) return null;
+
+                              return (
+                                <Collapsible key={langCode}>
+                                  <CollapsibleTrigger className="w-full">
+                                    <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border rounded-lg">
+                                      <div className="flex items-center gap-2">
+                                        <ChevronDown className="w-4 h-4" />
+                                        <span className="text-sm font-medium">{LANGUAGE_NAMES[langCode] || langCode}</span>
+                                      </div>
+                                    </div>
+                                  </CollapsibleTrigger>
+                                  <CollapsibleContent>
+                                    <div className="p-4 border-l-2 border-muted-foreground/20 ml-4">
+                                      <ScrollArea className="border rounded-lg max-h-[400px]">
+                                        <div className="prose prose-sm max-w-none p-4">
+                                          <ReactMarkdown>{post}</ReactMarkdown>
+                                        </div>
+                                      </ScrollArea>
+                                    </div>
+                                  </CollapsibleContent>
+                                </Collapsible>
+                              );
+                            })}
+                          </div>
                         ) : (
                           <>
                             {isEditing ? (
-                              <Textarea
-                                value={displayContent}
-                                onChange={(e) => setEditedContent(prev => ({ ...prev, [contentKey]: e.target.value }))}
-                                rows={8}
-                                className="font-mono text-sm"
-                              />
+                              <div className="min-h-[400px]">
+                                <MDEditor
+                                  value={displayContent}
+                                  onChange={(val) => setEditedContent(prev => ({ ...prev, [contentKey]: val || '' }))}
+                                  height={400}
+                                  preview="edit"
+                                />
+                              </div>
                             ) : (
-                              <ScrollArea className="border rounded-lg max-h-[400px]">
+                              <ScrollArea className="border rounded-lg max-h-[500px]">
                                 <div className="bg-muted p-4">
                                   <p className="whitespace-pre-wrap">{displayContent}</p>
                                 </div>
@@ -1312,19 +1495,79 @@ const Dashboard = () => {
                       {/* Bible Study Tab */}
                       {generatedContent.bibleStudyGuide && (
                     <TabsContent value="bible-study" className="space-y-3">
-                      {outputLanguage !== 'en' && generatedContent.englishVersions?.bibleStudyGuide ? (
+                      {(generatedContent.multiLanguageVersions && Object.keys(generatedContent.multiLanguageVersions).length > 0) || (primaryLanguage !== 'en' && generatedContent.englishVersions?.bibleStudyGuide) ? (
                         <>
                           <div className="text-xs text-muted-foreground mb-2">
-                            📖 Bible Study Guide - Dual Language View
+                            📖 Bible Study Guide - Multi-Language View
                           </div>
-                          <DualLanguageDisplay
-                            foreignContent={generatedContent.bibleStudyGuide}
-                            englishContent={generatedContent.englishVersions.bibleStudyGuide}
-                            contentType="bibleStudy"
-                            languageName={LANGUAGE_NAMES[outputLanguage] || outputLanguage}
-                            onRetranslate={handleRetranslate}
-                            retranslating={retranslating}
-                          />
+                          <div className="space-y-4">
+                            {/* Primary Language */}
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <Label className="text-sm font-semibold">
+                                  {LANGUAGE_NAMES[primaryLanguage] || primaryLanguage} (Primary)
+                                </Label>
+                                <span className="text-xs text-muted-foreground">Main version</span>
+                              </div>
+                              <div className="min-h-[600px]">
+                                <MDEditor
+                                  value={editedContent['bibleStudyGuide'] || generatedContent.bibleStudyGuide}
+                                  onChange={(val) => setEditedContent(prev => ({ ...prev, bibleStudyGuide: val || '' }))}
+                                  height={600}
+                                  preview="edit"
+                                />
+                              </div>
+                            </div>
+
+                            {/* English Reference */}
+                            {generatedContent.englishVersions?.bibleStudyGuide && primaryLanguage !== 'en' && (
+                              <Collapsible>
+                                <CollapsibleTrigger className="w-full">
+                                  <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border rounded-lg">
+                                    <div className="flex items-center gap-2">
+                                      <ChevronDown className="w-4 h-4" />
+                                      <span className="text-sm font-medium">English Reference</span>
+                                    </div>
+                                  </div>
+                                </CollapsibleTrigger>
+                                <CollapsibleContent>
+                                  <div className="p-4 border-l-2 border-muted-foreground/20 ml-4">
+                                    <ScrollArea className="border rounded-lg max-h-[500px]">
+                                      <div className="prose prose-sm max-w-none p-4">
+                                        <ReactMarkdown>{cleanBibleStudyFormatting(generatedContent.englishVersions.bibleStudyGuide)}</ReactMarkdown>
+                                      </div>
+                                    </ScrollArea>
+                                  </div>
+                                </CollapsibleContent>
+                              </Collapsible>
+                            )}
+
+                            {/* Other Language Versions */}
+                            {generatedContent.multiLanguageVersions && Object.entries(generatedContent.multiLanguageVersions).map(([langCode, langContent]: [string, any]) => {
+                              if (langCode === primaryLanguage || !langContent.bibleStudyGuide) return null;
+                              return (
+                                <Collapsible key={langCode}>
+                                  <CollapsibleTrigger className="w-full">
+                                    <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border rounded-lg">
+                                      <div className="flex items-center gap-2">
+                                        <ChevronDown className="w-4 h-4" />
+                                        <span className="text-sm font-medium">{LANGUAGE_NAMES[langCode] || langCode}</span>
+                                      </div>
+                                    </div>
+                                  </CollapsibleTrigger>
+                                  <CollapsibleContent>
+                                    <div className="p-4 border-l-2 border-muted-foreground/20 ml-4">
+                                      <ScrollArea className="border rounded-lg max-h-[500px]">
+                                        <div className="prose prose-sm max-w-none p-4">
+                                          <ReactMarkdown>{cleanBibleStudyFormatting(langContent.bibleStudyGuide)}</ReactMarkdown>
+                                        </div>
+                                      </ScrollArea>
+                                    </div>
+                                  </CollapsibleContent>
+                                </Collapsible>
+                              );
+                            })}
+                          </div>
                         </>
                       ) : (
                         <>
@@ -1339,7 +1582,7 @@ const Dashboard = () => {
                               preview="edit"
                             />
                           ) : (
-                            <ScrollArea className="border rounded-lg max-h-[600px]">
+                            <ScrollArea className="border rounded-lg max-h-[700px]">
                               <div className="prose prose-sm max-w-none bg-muted p-6 prose-p:mb-4">
                                 <ReactMarkdown>{cleanBibleStudyFormatting(generatedContent.bibleStudyGuide)}</ReactMarkdown>
                               </div>
@@ -1406,31 +1649,94 @@ const Dashboard = () => {
                     {(() => {
                       const currentDevotional = generatedContent.devotional;
                       const englishDevotional = generatedContent.englishVersions?.devotional;
-                      const showDualLanguage = outputLanguage !== 'en' && englishDevotional;
+                      const multiLanguageVersions = generatedContent.multiLanguageVersions || {};
+                      const showMultiLanguage = Object.keys(multiLanguageVersions).length > 0 || (primaryLanguage !== 'en' && englishDevotional);
 
-                      if (showDualLanguage) {
+                      if (showMultiLanguage) {
                         return (
-                          <DualLanguageDisplay
-                            foreignContent={currentDevotional}
-                            englishContent={englishDevotional}
-                            contentType="devotional"
-                            languageName={LANGUAGE_NAMES[outputLanguage] || outputLanguage}
-                            onRetranslate={handleRetranslate}
-                            retranslating={retranslating}
-                          />
+                          <div className="space-y-4">
+                            {/* Primary Language */}
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <Label className="text-sm font-semibold">
+                                  {LANGUAGE_NAMES[primaryLanguage] || primaryLanguage} (Primary)
+                                </Label>
+                                <span className="text-xs text-muted-foreground">Main version</span>
+                              </div>
+                              <div className="min-h-[500px]">
+                                <MDEditor
+                                  value={editedContent['devotional'] || generatedContent.devotional}
+                                  onChange={(val) => setEditedContent(prev => ({ ...prev, devotional: val || '' }))}
+                                  height={500}
+                                  preview="edit"
+                                />
+                              </div>
+                            </div>
+
+                            {/* English Reference */}
+                            {englishDevotional && primaryLanguage !== 'en' && (
+                              <Collapsible>
+                                <CollapsibleTrigger className="w-full">
+                                  <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border rounded-lg">
+                                    <div className="flex items-center gap-2">
+                                      <ChevronDown className="w-4 h-4" />
+                                      <span className="text-sm font-medium">English Reference</span>
+                                    </div>
+                                  </div>
+                                </CollapsibleTrigger>
+                                <CollapsibleContent>
+                                  <div className="p-4 border-l-2 border-muted-foreground/20 ml-4">
+                                    <ScrollArea className="border rounded-lg max-h-[400px]">
+                                      <div className="prose prose-sm max-w-none p-4">
+                                        <ReactMarkdown>{englishDevotional}</ReactMarkdown>
+                                      </div>
+                                    </ScrollArea>
+                                  </div>
+                                </CollapsibleContent>
+                              </Collapsible>
+                            )}
+
+                            {/* Other Language Versions */}
+                            {Object.entries(multiLanguageVersions).map(([langCode, langContent]: [string, any]) => {
+                              if (langCode === primaryLanguage || !langContent.devotional) return null;
+                              return (
+                                <Collapsible key={langCode}>
+                                  <CollapsibleTrigger className="w-full">
+                                    <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border rounded-lg">
+                                      <div className="flex items-center gap-2">
+                                        <ChevronDown className="w-4 h-4" />
+                                        <span className="text-sm font-medium">{LANGUAGE_NAMES[langCode] || langCode}</span>
+                                      </div>
+                                    </div>
+                                  </CollapsibleTrigger>
+                                  <CollapsibleContent>
+                                    <div className="p-4 border-l-2 border-muted-foreground/20 ml-4">
+                                      <ScrollArea className="border rounded-lg max-h-[400px]">
+                                        <div className="prose prose-sm max-w-none p-4">
+                                          <ReactMarkdown>{langContent.devotional}</ReactMarkdown>
+                                        </div>
+                                      </ScrollArea>
+                                    </div>
+                                  </CollapsibleContent>
+                                </Collapsible>
+                              );
+                            })}
+                          </div>
                         );
                       } else {
                         return (
                           <>
                             {editingContent['devotional'] ? (
-                              <Textarea
-                                value={editedContent['devotional'] || generatedContent.devotional}
-                                onChange={(e) => setEditedContent(prev => ({ ...prev, devotional: e.target.value }))}
-                                rows={12}
-                                className="font-mono text-sm"
-                              />
+                              <div className="min-h-[500px]">
+                                <MDEditor
+                                  value={editedContent['devotional'] || generatedContent.devotional}
+                                  onChange={(val) => setEditedContent(prev => ({ ...prev, devotional: val || '' }))}
+                                  height={500}
+                                  preview="edit"
+                                />
+                              </div>
                             ) : (
-                              <ScrollArea className="border rounded-lg max-h-[500px]">
+                              <ScrollArea className="border rounded-lg max-h-[600px]">
                                 <div className="bg-muted p-4">
                                   <p className="whitespace-pre-wrap">{generatedContent.devotional}</p>
                                 </div>

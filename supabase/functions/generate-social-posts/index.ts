@@ -88,14 +88,15 @@ serve(async (req)=>{
     }
     const { transcript, styleGuide, platforms, customCTA, churchId, postsPerPlatform = 1, speakerName, socialHandles, contentTypes = [
       'social_media'
-    ], outputLanguage = 'en' } = await req.json();
-    // Get language name from code
-    const languageName = LANGUAGE_NAMES[outputLanguage] || outputLanguage;
+    ], outputLanguages = ['en'], primaryLanguage = 'en' } = await req.json();
+    // Get language names from codes
+    const languageNames = outputLanguages.map(code => LANGUAGE_NAMES[code] || code);
     // Debug logging for translation
     console.log('=== TRANSLATION DEBUG ===');
-    console.log('Output Language Code:', outputLanguage);
-    console.log('Output Language Name:', languageName);
-    console.log('Will translate?', outputLanguage !== 'en');
+    console.log('Output Languages:', outputLanguages);
+    console.log('Primary Language:', primaryLanguage);
+    console.log('Language Names:', languageNames);
+    console.log('Will translate?', primaryLanguage !== 'en' || outputLanguages.length > 1);
     // Validate input based on content types
     const hasSocialMedia = contentTypes.includes('social_media');
     const hasBibleStudy = contentTypes.includes('bible_study');
@@ -139,7 +140,8 @@ serve(async (req)=>{
     }
     console.log('Generating content for church:', churchId);
     console.log('Content types:', contentTypes);
-    console.log('Output language:', outputLanguage);
+    console.log('Output languages:', outputLanguages);
+    console.log('Primary language:', primaryLanguage);
     console.log('Has transcript:', hasTranscript, 'Length:', transcript?.length || 0);
     console.log('Has CTA:', hasCTA, 'Length:', customCTA?.length || 0);
     console.log('Style guide length:', styleGuide?.length || 0);
@@ -232,12 +234,12 @@ ${hasTranscript ? `
 - Focus on practical application and community building
 `}
 
-Generate the Bible Study Guide in English.
+Generate the Bible Study Guide in UK English spelling.
 
 IMPORTANT:
-- ALL content must be generated in English
-- Content will be translated to ${languageName} automatically if needed
-- Focus on clear, natural English that translates well
+- ALL content must be generated in UK English spelling (colour, realise, centre, etc.)
+- Content will be translated to selected languages automatically if needed
+- Focus on clear, natural UK English that translates well
 
 BIBLE STUDY GUIDE FORMAT:
 # Bible Study Guide
@@ -288,7 +290,7 @@ ${hasTranscript ? `
 - Make it relatable to the event's theme and purpose
 `}
 
-Generate the Daily Devotional in English following the Blended Approach format.
+Generate the Daily Devotional in UK English spelling following the Blended Approach format.
 
 DEVOTIONAL FORMAT REQUIREMENTS:
 # [Engaging Title]
@@ -381,10 +383,10 @@ FINAL LENGTH CHECK (VALIDATE BEFORE RETURNING):
 
 ${hasBibleStudy ? `
 FINAL VALIDATION (CHECK BEFORE RETURNING):
-- Verify ALL text is in English
+- Verify ALL text is in UK English spelling
 - Confirm no hashtags or asterisks used for emphasis
 - Ensure clean markdown formatting with proper spacing
-- Use natural, clear language that translates well
+- Use natural, clear UK English that translates well
 ` : ''}
 
 ${hasDevotional ? `
@@ -487,8 +489,9 @@ FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
         }
       }
     }
-    console.log('Content generated successfully in English');
-    // Store the English versions (original)
+    console.log('Content generated successfully in UK English');
+    
+    // Store the original UK English versions
     const englishContent = {
       facebook: generatedContent.facebook,
       instagram: generatedContent.instagram,
@@ -498,54 +501,84 @@ FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
       executiveSummary: generatedContent.executiveSummary,
       devotional: generatedContent.devotional
     };
-    // If non-English, translate all content using Google Translate
-    if (outputLanguage !== 'en') {
-      console.log(`=== STARTING TRANSLATION TO ${languageName} (${outputLanguage}) ===`);
-      console.log('=== DEBUG: About to call translation functions ===');
+
+    // Create response structure with content in all requested languages
+    const multiLanguageContent: Record<string, any> = {};
+    
+    // Handle multi-language translation
+    const nonEnglishLanguages = outputLanguages.filter(lang => lang !== 'en');
+    
+    if (nonEnglishLanguages.length > 0) {
+      console.log(`=== STARTING PARALLEL TRANSLATION TO ${nonEnglishLanguages.length} LANGUAGES ===`);
+      console.log('Target languages:', nonEnglishLanguages);
+      
       try {
-        // Translate social media posts
-        if (hasSocialMedia) {
-          console.log('Translating social media posts for platforms:', platforms);
-          for (const platform of platforms){
-            if (generatedContent[platform]) {
-              if (Array.isArray(generatedContent[platform])) {
-                // Multiple variations - translate each
-                console.log(`Translating ${platform} posts (${generatedContent[platform].length} variations)...`);
-                generatedContent[platform] = await translateMultiple(generatedContent[platform], outputLanguage);
-              } else {
-                // Single post
-                console.log(`Translating ${platform} post...`);
-                generatedContent[platform] = await translateText(generatedContent[platform], outputLanguage);
+        // Create promises for parallel translation to all languages
+        const translationPromises = nonEnglishLanguages.map(async (targetLang) => {
+          console.log(`Starting translation to ${LANGUAGE_NAMES[targetLang] || targetLang}...`);
+          
+          const translatedContent = {
+            facebook: null,
+            instagram: null,
+            tiktok: null,
+            twitter: null,
+            bibleStudyGuide: null,
+            executiveSummary: null,
+            devotional: null
+          };
+
+          // Translate social media posts
+          if (hasSocialMedia) {
+            for (const platform of platforms){
+              if (generatedContent[platform]) {
+                if (Array.isArray(generatedContent[platform])) {
+                  translatedContent[platform] = await translateMultiple(generatedContent[platform], targetLang);
+                } else {
+                  translatedContent[platform] = await translateText(generatedContent[platform], targetLang);
+                }
               }
             }
+            // Translate executive summary if present
+            if (generatedContent.executiveSummary) {
+              translatedContent.executiveSummary = await translateText(generatedContent.executiveSummary, targetLang);
+            }
           }
-          // Translate executive summary if present
-          if (generatedContent.executiveSummary) {
-            console.log('Translating executive summary...');
-            generatedContent.executiveSummary = await translateText(generatedContent.executiveSummary, outputLanguage);
+
+          // Translate Bible study
+          if (hasBibleStudy && generatedContent.bibleStudyGuide) {
+            translatedContent.bibleStudyGuide = await translateText(generatedContent.bibleStudyGuide, targetLang);
           }
+
+          // Translate devotional
+          if (hasDevotional && generatedContent.devotional) {
+            translatedContent.devotional = await translateText(generatedContent.devotional, targetLang);
+          }
+
+          return { language: targetLang, content: translatedContent };
+        });
+
+        // Execute all translations in parallel
+        const translationResults = await Promise.all(translationPromises);
+        
+        // Store translated content by language
+        for (const result of translationResults) {
+          multiLanguageContent[result.language] = result.content;
         }
-        // Translate Bible study
-        if (hasBibleStudy && generatedContent.bibleStudyGuide) {
-          console.log('Translating Bible study guide...');
-          generatedContent.bibleStudyGuide = await translateText(generatedContent.bibleStudyGuide, outputLanguage);
-        }
-        // Translate devotional
-        if (hasDevotional && generatedContent.devotional) {
-          console.log('Translating devotional...');
-          generatedContent.devotional = await translateText(generatedContent.devotional, outputLanguage);
-        }
-        console.log('=== TRANSLATION COMPLETED SUCCESSFULLY ===');
+        
+        console.log('=== ALL PARALLEL TRANSLATIONS COMPLETED SUCCESSFULLY ===');
+        
       } catch (translateError) {
-        console.error('=== TRANSLATION ERROR ===');
+        console.error('=== PARALLEL TRANSLATION ERROR ===');
         console.error('Error type:', translateError instanceof Error ? translateError.constructor.name : typeof translateError);
         console.error('Error message:', translateError instanceof Error ? translateError.message : String(translateError));
         console.error('Full error:', translateError);
+        
         // If translation fails, return English content with error note
         return new Response(JSON.stringify({
           ...englishContent,
           englishVersions: null,
-          translationError: `Translation to ${languageName} failed: ${translateError instanceof Error ? translateError.message : 'Unknown error'}. Returning English content only.`
+          multiLanguageVersions: null,
+          translationError: `Multi-language translation failed: ${translateError instanceof Error ? translateError.message : 'Unknown error'}. Returning English content only.`
         }), {
           headers: {
             ...corsHeaders,
@@ -554,12 +587,20 @@ FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
         });
       }
     } else {
-      console.log('=== NO TRANSLATION NEEDED (English selected) ===');
+      console.log('=== NO TRANSLATION NEEDED (Only English selected) ===');
     }
-    // Return both translated and English versions
+
+    // Return content structured by primary language
+    const responseContent = primaryLanguage === 'en' 
+      ? englishContent 
+      : multiLanguageContent[primaryLanguage] || englishContent;
+
     return new Response(JSON.stringify({
-      ...generatedContent,
-      englishVersions: outputLanguage !== 'en' ? englishContent : null
+      ...responseContent,
+      englishVersions: primaryLanguage !== 'en' ? englishContent : null,
+      multiLanguageVersions: nonEnglishLanguages.length > 0 ? multiLanguageContent : null,
+      outputLanguages,
+      primaryLanguage
     }), {
       headers: {
         ...corsHeaders,
