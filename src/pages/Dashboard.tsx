@@ -573,7 +573,7 @@ const Dashboard = () => {
     });
   };
 
-  const handleSaveEdit = (contentKey: string) => {
+  const handleSaveEdit = async (contentKey: string) => {
     const newContent = editedContent[contentKey];
     if (!newContent) return;
 
