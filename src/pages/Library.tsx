@@ -338,8 +338,16 @@ const Library = () => {
                   <p className="text-sm whitespace-pre-wrap">{currentPost}</p>
                 </div>
               </ScrollArea>
-              {englishPost && primaryChurch?.primary_language !== 'en' && (
-                <div className="flex justify-end">
+              {englishPost && (
+                <div className="flex justify-end gap-2">
+                  <Button
+                    onClick={() => copyToClipboard(englishPost, `English ${platform} post`)}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <Copy className="w-4 h-4 mr-2" />
+                    Copy English
+                  </Button>
                   <Button
                     onClick={() => handleRetranslate(
                       englishPost, 
@@ -538,7 +546,7 @@ const Library = () => {
                                 <p className="text-sm whitespace-pre-wrap pr-4">{item.devotional}</p>
                               </ScrollArea>
                             </div>
-                            {(item as any).devotional_english && primaryChurch?.primary_language !== 'en' && (
+                            {(item as any).devotional_english && (
                               <div className="mt-3 flex justify-end">
                                 <Button
                                   onClick={() => handleRetranslate(
@@ -638,7 +646,7 @@ const Library = () => {
                                 <ReactMarkdown>{cleanBibleStudyFormatting(item.bible_study_guide)}</ReactMarkdown>
                               </div>
                             </ScrollArea>
-                            {(item as any).bible_study_guide_english && primaryChurch?.primary_language !== 'en' && (
+                            {(item as any).bible_study_guide_english && (
                               <div className="mt-3 flex justify-end">
                                 <Button
                                   onClick={() => handleRetranslate(
