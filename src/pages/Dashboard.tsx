@@ -1435,6 +1435,28 @@ const Dashboard = () => {
                                   preview="edit"
                                 />
                               </div>
+                              {primaryLanguage !== 'en' && englishPost && (
+                                <div className="flex justify-end">
+                                  <Button
+                                    onClick={() => handleRetranslate(
+                                      editedContent[contentKey] || displayContent, 
+                                      `${platform}-${activeIdx}`
+                                    )}
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={retranslating}
+                                  >
+                                    {retranslating ? (
+                                      <>
+                                        <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                                        Re-translating...
+                                      </>
+                                    ) : (
+                                      'Re-translate from English'
+                                    )}
+                                  </Button>
+                                </div>
+                              )}
                             </div>
 
                             {/* Additional Language Versions */}
@@ -1652,6 +1674,28 @@ const Dashboard = () => {
                                   preview="edit"
                                 />
                               </div>
+                              {primaryLanguage !== 'en' && generatedContent.englishVersions?.bibleStudyGuide && (
+                                <div className="flex justify-end">
+                                  <Button
+                                    onClick={() => handleRetranslate(
+                                      editedContent['bibleStudyGuide'] || generatedContent.bibleStudyGuide, 
+                                      'bibleStudy'
+                                    )}
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={retranslating}
+                                  >
+                                    {retranslating ? (
+                                      <>
+                                        <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                                        Re-translating...
+                                      </>
+                                    ) : (
+                                      'Re-translate from English'
+                                    )}
+                                  </Button>
+                                </div>
+                              )}
                             </div>
 
                             {/* English Reference */}
@@ -1672,6 +1716,20 @@ const Dashboard = () => {
                                         <ReactMarkdown>{cleanBibleStudyFormatting(generatedContent.englishVersions.bibleStudyGuide)}</ReactMarkdown>
                                       </div>
                                     </ScrollArea>
+                                    <div className="mt-2 flex justify-end">
+                                      <Button
+                                        onClick={() => copyToClipboard(generatedContent.englishVersions.bibleStudyGuide, "English Bible Study Guide")}
+                                        variant="outline"
+                                        size="sm"
+                                      >
+                                        {copiedItem === "English Bible Study Guide" ? (
+                                          <CheckCircle2 className="w-4 h-4 mr-2" />
+                                        ) : (
+                                          <Copy className="w-4 h-4 mr-2" />
+                                        )}
+                                        Copy
+                                      </Button>
+                                    </div>
                                   </div>
                                 </CollapsibleContent>
                               </Collapsible>
@@ -1697,6 +1755,20 @@ const Dashboard = () => {
                                           <ReactMarkdown>{cleanBibleStudyFormatting(langContent.bibleStudyGuide)}</ReactMarkdown>
                                         </div>
                                       </ScrollArea>
+                                      <div className="mt-2 flex justify-end">
+                                        <Button
+                                          onClick={() => copyToClipboard(langContent.bibleStudyGuide, `${LANGUAGE_NAMES[langCode] || langCode} Bible Study Guide`)}
+                                          variant="outline"
+                                          size="sm"
+                                        >
+                                          {copiedItem === `${LANGUAGE_NAMES[langCode] || langCode} Bible Study Guide` ? (
+                                            <CheckCircle2 className="w-4 h-4 mr-2" />
+                                          ) : (
+                                            <Copy className="w-4 h-4 mr-2" />
+                                          )}
+                                          Copy
+                                        </Button>
+                                      </div>
                                     </div>
                                   </CollapsibleContent>
                                 </Collapsible>
@@ -1806,6 +1878,28 @@ const Dashboard = () => {
                                   preview="edit"
                                 />
                               </div>
+                              {primaryLanguage !== 'en' && englishDevotional && (
+                                <div className="flex justify-end">
+                                  <Button
+                                    onClick={() => handleRetranslate(
+                                      editedContent['devotional'] || generatedContent.devotional, 
+                                      'devotional'
+                                    )}
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={retranslating}
+                                  >
+                                    {retranslating ? (
+                                      <>
+                                        <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                                        Re-translating...
+                                      </>
+                                    ) : (
+                                      'Re-translate from English'
+                                    )}
+                                  </Button>
+                                </div>
+                              )}
                             </div>
 
                             {/* English Reference */}
