@@ -244,6 +244,9 @@ IMPORTANT:
 BIBLE STUDY GUIDE FORMAT:
 # Bible Study Guide
 
+## ${hasTranscript ? 'Sermon' : 'Event'} Summary
+[2-3 paragraph summary of the ${hasTranscript ? 'sermon\'s main message' : 'event\'s key themes'}]
+
 ## Scripture References
 [List all scriptures with book/chapter/verse]
 
@@ -252,9 +255,6 @@ BIBLE STUDY GUIDE FORMAT:
 [Full text of verse(s) in NIV translation]
 
 [Repeat for each scripture reference]
-
-## ${hasTranscript ? 'Sermon' : 'Event'} Summary
-[2-3 paragraph summary of the ${hasTranscript ? 'sermon\'s main message' : 'event\'s key themes'}]
 
 ## Reflection Questions
 1. [Question designed for 10-minute discussion]
