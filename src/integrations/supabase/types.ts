@@ -100,7 +100,9 @@ export type Database = {
           id: string
           instagram_post: string[] | null
           instagram_post_english: Json | null
+          multi_language_versions: Json | null
           output_language: string | null
+          output_languages: string[] | null
           platforms: Json
           posts_per_platform: number | null
           sermon_transcript_id: string | null
@@ -123,7 +125,9 @@ export type Database = {
           id?: string
           instagram_post?: string[] | null
           instagram_post_english?: Json | null
+          multi_language_versions?: Json | null
           output_language?: string | null
+          output_languages?: string[] | null
           platforms?: Json
           posts_per_platform?: number | null
           sermon_transcript_id?: string | null
@@ -146,7 +150,9 @@ export type Database = {
           id?: string
           instagram_post?: string[] | null
           instagram_post_english?: Json | null
+          multi_language_versions?: Json | null
           output_language?: string | null
+          output_languages?: string[] | null
           platforms?: Json
           posts_per_platform?: number | null
           sermon_transcript_id?: string | null
