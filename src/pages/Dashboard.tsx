@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useChurch } from "@/hooks/useChurch";
@@ -12,13 +12,163 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Loader2, Copy, Download, Upload, CheckCircle2 } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Loader2, Copy, Download, Upload, CheckCircle2, ChevronDown } from "lucide-react";
 import type { Platform } from "@/types/database";
 import mammoth from "mammoth";
 import * as pdfjsLib from "pdfjs-dist";
+import ReactMarkdown from "react-markdown";
+import MDEditor from '@uiw/react-md-editor';
 
 // Configure PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+
+// Language names mapping
+const LANGUAGE_NAMES: Record<string, string> = {
+  'en': 'English',
+  'es': 'Spanish',
+  'fr': 'French',
+  'pt': 'Portuguese',
+  'de': 'German',
+  'ko': 'Korean',
+  'zh': 'Chinese (Simplified)',
+  'zh-TW': 'Chinese (Traditional)',
+  'ar': 'Arabic',
+  'fa': 'Persian (Farsi)',
+  'pl': 'Polish',
+  'uk': 'Ukrainian',
+  'it': 'Italian',
+  'ru': 'Russian',
+  'ja': 'Japanese'
+};
+
+// Dual Language Display Component
+interface DualLanguageDisplayProps {
+  foreignContent: string;
+  englishContent: string;
+  contentType: string;
+  languageName: string;
+  onRetranslate: (editedEnglish: string, contentType: string) => void;
+  retranslating: boolean;
+}
+
+const DualLanguageDisplay: React.FC<DualLanguageDisplayProps> = ({
+  foreignContent,
+  englishContent,
+  contentType,
+  languageName,
+  onRetranslate,
+  retranslating
+}) => {
+  const [editedEnglish, setEditedEnglish] = useState(englishContent);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isEnglishExpanded, setIsEnglishExpanded] = useState(false);
+
+  return (
+    <div className="space-y-4">
+      {/* Primary: Foreign Language (Full Width) */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label className="text-sm font-semibold">
+            {languageName} Version
+          </Label>
+          <span className="text-xs text-muted-foreground">Read-only</span>
+        </div>
+        <ScrollArea className="border rounded-lg max-h-[500px]">
+          <div className="prose prose-sm max-w-none p-6">
+            <ReactMarkdown>{foreignContent}</ReactMarkdown>
+          </div>
+        </ScrollArea>
+      </div>
+
+      {/* Secondary: English Reference (Collapsible) */}
+      <Collapsible open={isEnglishExpanded} onOpenChange={setIsEnglishExpanded}>
+        <div className="border rounded-lg">
+          <CollapsibleTrigger className="w-full">
+            <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors">
+              <div className="flex items-center gap-2">
+                <ChevronDown
+                  className={`w-4 h-4 transition-transform ${
+                    isEnglishExpanded ? 'rotate-180' : ''
+                  }`}
+                />
+                <span className="text-sm font-medium">English Reference</span>
+                <span className="text-xs text-muted-foreground">
+                  {isEnglishExpanded ? '(Click to hide)' : '(Click to view)'}
+                </span>
+              </div>
+            </div>
+          </CollapsibleTrigger>
+
+          <CollapsibleContent>
+            <div className="px-4 pb-4 space-y-3">
+              {isEditing ? (
+                <div className="min-h-[300px]">
+                  <MDEditor
+                    value={editedEnglish}
+                    onChange={(val) => setEditedEnglish(val || '')}
+                    height={300}
+                    preview="edit"
+                  />
+                </div>
+              ) : (
+                <ScrollArea className="border rounded-lg max-h-[400px]">
+                  <div className="prose prose-sm max-w-none p-6 prose-p:mb-4">
+                    <ReactMarkdown>{editedEnglish}</ReactMarkdown>
+                  </div>
+                </ScrollArea>
+              )}
+
+              <div className="flex gap-2 justify-end">
+                {!isEditing ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsEditing(true)}
+                  >
+                    Edit
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setEditedEnglish(englishContent);
+                        setIsEditing(false);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        onRetranslate(editedEnglish, contentType);
+                        setIsEditing(false);
+                      }}
+                      disabled={retranslating}
+                    >
+                      {retranslating ? (
+                        <>
+                          <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                          Translating...
+                        </>
+                      ) : (
+                        'Save & Re-translate'
+                      )}
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          </CollapsibleContent>
+        </div>
+      </Collapsible>
+    </div>
+  );
+};
+
 const Dashboard = () => {
   const {
     user,
@@ -33,7 +183,21 @@ const Dashboard = () => {
     toast
   } = useToast();
 
-  // Helper function to count words
+  // Helper function to clean up Bible Study formatting
+  const cleanBibleStudyFormatting = (content: string): string => {
+    return content
+      // Remove standalone hashtags (but keep markdown headers)
+      .replace(/(?<!#)\s+#(?![#\s])/g, '')
+      // Remove excessive asterisks used for emphasis
+      .replace(/\*{1,2}([^*]+)\*{1,2}/g, '$1')
+      // Clean up any remaining social media formatting
+      .replace(/#{2,}/g, '')
+      // Ensure proper spacing between sections
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  };
+
+  // Helper function to count words in text
   const countWords = (text: string): number => {
     return text.trim().split(/\s+/).filter(word => word.length > 0).length;
   };
@@ -136,7 +300,7 @@ const Dashboard = () => {
   const [transcriptFile, setTranscriptFile] = useState<File | null>(null);
   const [transcriptText, setTranscriptText] = useState("");
   const [speakerName, setSpeakerName] = useState("");
-  const [platforms, setPlatforms] = useState<Platform[]>([]);
+  const [platforms, setPlatforms] = useState<Platform[]>(['facebook', 'instagram', 'tiktok', 'twitter']);
   const [customCTA, setCustomCTA] = useState("");
   const [postsPerPlatform, setPostsPerPlatform] = useState(1);
   const [generating, setGenerating] = useState(false);
@@ -144,11 +308,39 @@ const Dashboard = () => {
   const [copiedItem, setCopiedItem] = useState<string | null>(null);
   const [activeVariations, setActiveVariations] = useState<Record<string, number>>({});
   const [dragActive, setDragActive] = useState(false);
+  const [activeSocialPlatform, setActiveSocialPlatform] = useState<'facebook' | 'instagram' | 'tiktok' | 'twitter'>('facebook');
+
+  // New state for enhanced features
+  const [contentTypes, setContentTypes] = useState<('social_media' | 'bible_study' | 'devotional')[]>(['social_media']);
+  const [outputLanguage, setOutputLanguage] = useState('en');
+  const [bibleStudySelected, setBibleStudySelected] = useState(false);
+  const [socialMediaSelected, setSocialMediaSelected] = useState(true);
+  const [devotionalSelected, setDevotionalSelected] = useState(false);
+  const [retranslating, setRetranslating] = useState(false);
+
+  // Editing state for inline content editing
+  const [editingContent, setEditingContent] = useState<Record<string, boolean>>({});
+  const [editedContent, setEditedContent] = useState<Record<string, string>>({});
+
   useEffect(() => {
     if (!loading && !user) {
       navigate("/login");
     }
   }, [user, loading, navigate]);
+
+  // Initialize active social platform when content is generated
+  useEffect(() => {
+    if (generatedContent) {
+      const defaultPlatform = generatedContent.facebook ? 'facebook' :
+                             generatedContent.instagram ? 'instagram' :
+                             generatedContent.tiktok ? 'tiktok' :
+                             generatedContent.twitter ? 'twitter' : null;
+
+      if (defaultPlatform) {
+        setActiveSocialPlatform(defaultPlatform as 'facebook' | 'instagram' | 'tiktok' | 'twitter');
+      }
+    }
+  }, [generatedContent]);
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -301,6 +493,200 @@ const Dashboard = () => {
   const handlePlatformToggle = (platform: Platform) => {
     setPlatforms(prev => prev.includes(platform) ? prev.filter(p => p !== platform) : [...prev, platform]);
   };
+
+  const handleContentTypeToggle = (type: 'social_media' | 'bible_study' | 'devotional') => {
+    setContentTypes(prev => {
+      const newTypes = prev.includes(type)
+        ? prev.filter(t => t !== type)
+        : [...prev, type];
+
+      // Update individual state flags
+      if (type === 'social_media') {
+        setSocialMediaSelected(newTypes.includes('social_media'));
+        // Auto-select all platforms when social_media is enabled
+        if (newTypes.includes('social_media') && platforms.length === 0) {
+          setPlatforms(['facebook', 'instagram', 'tiktok', 'twitter']);
+        }
+      } else if (type === 'bible_study') {
+        setBibleStudySelected(newTypes.includes('bible_study'));
+      } else if (type === 'devotional') {
+        setDevotionalSelected(newTypes.includes('devotional'));
+      }
+
+      return newTypes;
+    });
+  };
+
+  const handleStartEdit = (contentKey: string, currentContent: string) => {
+    setEditingContent(prev => ({ ...prev, [contentKey]: true }));
+    setEditedContent(prev => ({ ...prev, [contentKey]: currentContent }));
+  };
+
+  const handleCancelEdit = (contentKey: string) => {
+    setEditingContent(prev => ({ ...prev, [contentKey]: false }));
+    setEditedContent(prev => {
+      const updated = { ...prev };
+      delete updated[contentKey];
+      return updated;
+    });
+  };
+
+  const handleSaveEdit = (contentKey: string) => {
+    const newContent = editedContent[contentKey];
+    if (!newContent) return;
+
+    // Update the generatedContent state with the edited value
+    setGeneratedContent((prev: any) => {
+      const updated = { ...prev };
+
+      // Parse the contentKey to determine what to update
+      if (contentKey === 'devotional') {
+        updated.devotional = newContent;
+      } else if (contentKey === 'bibleStudyGuide') {
+        updated.bibleStudyGuide = newContent;
+      } else if (contentKey.startsWith('facebook-')) {
+        const idx = parseInt(contentKey.split('-')[1]);
+        const posts = Array.isArray(updated.facebook) ? [...updated.facebook] : [updated.facebook];
+        posts[idx] = newContent;
+        updated.facebook = posts;
+      } else if (contentKey.startsWith('instagram-')) {
+        const idx = parseInt(contentKey.split('-')[1]);
+        const posts = Array.isArray(updated.instagram) ? [...updated.instagram] : [updated.instagram];
+        posts[idx] = newContent;
+        updated.instagram = posts;
+      } else if (contentKey.startsWith('tiktok-')) {
+        const idx = parseInt(contentKey.split('-')[1]);
+        const posts = Array.isArray(updated.tiktok) ? [...updated.tiktok] : [updated.tiktok];
+        posts[idx] = newContent;
+        updated.tiktok = posts;
+      } else if (contentKey.startsWith('twitter-')) {
+        const idx = parseInt(contentKey.split('-')[1]);
+        const posts = Array.isArray(updated.twitter) ? [...updated.twitter] : [updated.twitter];
+        posts[idx] = newContent;
+        updated.twitter = posts;
+      }
+
+      return updated;
+    });
+
+    // Clear editing state
+    setEditingContent(prev => ({ ...prev, [contentKey]: false }));
+
+    toast({
+      title: "Content updated",
+      description: "Your edits have been saved."
+    });
+  };
+
+  const handleRetranslate = async (editedEnglish: string, contentType: string) => {
+    if (!primaryChurch) return;
+
+    setRetranslating(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        'retranslate-content',
+        {
+          body: {
+            englishContent: editedEnglish,
+            targetLanguage: outputLanguage,
+            contentType
+          }
+        }
+      );
+
+      if (error) throw error;
+
+      // Update the appropriate content based on contentType
+      setGeneratedContent((prev: any) => {
+        const updated = { ...prev };
+
+        if (contentType === 'bibleStudy') {
+          updated.bibleStudyGuide = data.translatedContent;
+          if (updated.englishVersions) {
+            updated.englishVersions.bibleStudyGuide = editedEnglish;
+          }
+        } else if (contentType.startsWith('facebook-')) {
+          const idx = parseInt(contentType.split('-')[1]);
+          const posts = Array.isArray(updated.facebook)
+            ? [...updated.facebook]
+            : [updated.facebook];
+          posts[idx] = data.translatedContent;
+          updated.facebook = posts;
+
+          if (updated.englishVersions?.facebook) {
+            const engPosts = Array.isArray(updated.englishVersions.facebook)
+              ? [...updated.englishVersions.facebook]
+              : [updated.englishVersions.facebook];
+            engPosts[idx] = editedEnglish;
+            updated.englishVersions.facebook = engPosts;
+          }
+        } else if (contentType.startsWith('instagram-')) {
+          const idx = parseInt(contentType.split('-')[1]);
+          const posts = Array.isArray(updated.instagram)
+            ? [...updated.instagram]
+            : [updated.instagram];
+          posts[idx] = data.translatedContent;
+          updated.instagram = posts;
+
+          if (updated.englishVersions?.instagram) {
+            const engPosts = Array.isArray(updated.englishVersions.instagram)
+              ? [...updated.englishVersions.instagram]
+              : [updated.englishVersions.instagram];
+            engPosts[idx] = editedEnglish;
+            updated.englishVersions.instagram = engPosts;
+          }
+        } else if (contentType.startsWith('tiktok-')) {
+          const idx = parseInt(contentType.split('-')[1]);
+          const posts = Array.isArray(updated.tiktok)
+            ? [...updated.tiktok]
+            : [updated.tiktok];
+          posts[idx] = data.translatedContent;
+          updated.tiktok = posts;
+
+          if (updated.englishVersions?.tiktok) {
+            const engPosts = Array.isArray(updated.englishVersions.tiktok)
+              ? [...updated.englishVersions.tiktok]
+              : [updated.englishVersions.tiktok];
+            engPosts[idx] = editedEnglish;
+            updated.englishVersions.tiktok = engPosts;
+          }
+        } else if (contentType.startsWith('twitter-')) {
+          const idx = parseInt(contentType.split('-')[1]);
+          const posts = Array.isArray(updated.twitter)
+            ? [...updated.twitter]
+            : [updated.twitter];
+          posts[idx] = data.translatedContent;
+          updated.twitter = posts;
+
+          if (updated.englishVersions?.twitter) {
+            const engPosts = Array.isArray(updated.englishVersions.twitter)
+              ? [...updated.englishVersions.twitter]
+              : [updated.englishVersions.twitter];
+            engPosts[idx] = editedEnglish;
+            updated.englishVersions.twitter = engPosts;
+          }
+        }
+
+        return updated;
+      });
+
+      toast({
+        title: "Content re-translated",
+        description: "Your edited English content has been translated successfully."
+      });
+    } catch (error) {
+      console.error('Re-translation error:', error);
+      toast({
+        variant: "destructive",
+        title: "Re-translation failed",
+        description: "Failed to translate the edited content. Please try again."
+      });
+    } finally {
+      setRetranslating(false);
+    }
+  };
+
   const handleGenerate = async () => {
     if (!primaryChurch) {
       toast({
@@ -311,19 +697,34 @@ const Dashboard = () => {
       navigate("/onboarding");
       return;
     }
-    if (!transcriptText.trim()) {
+
+    // Enhanced validation
+    if (contentTypes.length === 0) {
       toast({
         variant: "destructive",
-        title: "No transcript",
-        description: "Please upload a sermon transcript first."
+        title: "No content type selected",
+        description: "Please select at least one content type to generate."
       });
       return;
     }
-    if (platforms.length === 0) {
+
+    const hasTranscript = transcriptText.trim().length >= 100;
+    const hasCTA = customCTA.trim().length >= 10;
+    
+    if (!hasTranscript && !hasCTA) {
+      toast({
+        variant: "destructive",
+        title: "No content source",
+        description: "Please provide either a sermon transcript (100+ words) or call-to-action/event information (10+ words)."
+      });
+      return;
+    }
+
+    if (contentTypes.includes('social_media') && platforms.length === 0) {
       toast({
         variant: "destructive",
         title: "No platforms selected",
-        description: "Please select at least one platform."
+        description: "Please select at least one platform for social media posts."
       });
       return;
     }
@@ -339,28 +740,43 @@ const Dashboard = () => {
         throw new Error('Failed to fetch style guide');
       }
 
-      // Step 2: Generate social posts
+      // Step 2: Generate content
+      const requestBody = {
+        transcript: transcriptText || null,
+        styleGuide: styleGuideData.guide_content,
+        platforms: contentTypes.includes('social_media') ? platforms : [],
+        customCTA,
+        churchId: primaryChurch.id,
+        postsPerPlatform,
+        speakerName: speakerName.trim() || null,
+        socialHandles: primaryChurch.social_handles || {},
+        contentTypes,
+        outputLanguage
+      };
+
+      console.log('=== FRONTEND REQUEST ===');
+      console.log('Output Language:', outputLanguage);
+      console.log('Content Types:', contentTypes);
+      console.log('Custom CTA:', customCTA);
+      console.log('Full Request Body:', requestBody);
+
       const {
         data,
         error
       } = await supabase.functions.invoke('generate-social-posts', {
-        body: {
-          transcript: transcriptText,
-          styleGuide: styleGuideData.guide_content,
-          platforms,
-          customCTA,
-          churchId: primaryChurch.id,
-          postsPerPlatform,
-          speakerName: speakerName.trim() || null,
-          socialHandles: primaryChurch.social_handles || {}
-        }
+        body: requestBody
       });
       if (error) {
         console.error('Generation error:', error);
         throw error;
       }
 
-      // Step 3: Save generated content to database (sermon transcript not stored for privacy)
+      console.log('=== FRONTEND RESPONSE ===');
+      console.log('Data received:', data);
+      console.log('Has englishVersions?', !!data.englishVersions);
+      console.log('Translation Error?', data.translationError);
+
+      // Step 3: Save generated content to database
       // Convert single posts to arrays for consistency
       const normalizeToArray = (post: string | string[] | null) => {
         if (!post) return null;
@@ -371,23 +787,53 @@ const Dashboard = () => {
       } = await supabase.from('generated_content').insert({
         church_id: primaryChurch.id,
         sermon_transcript_id: null,
-        platforms,
+        platforms: contentTypes.includes('social_media') ? platforms : [],
         custom_cta: customCTA || null,
         posts_per_platform: postsPerPlatform,
         facebook_post: normalizeToArray(data.facebook),
+        facebook_post_english: data.englishVersions ? normalizeToArray(data.englishVersions.facebook) : null,
         instagram_post: normalizeToArray(data.instagram),
+        instagram_post_english: data.englishVersions ? normalizeToArray(data.englishVersions.instagram) : null,
         tiktok_post: normalizeToArray(data.tiktok),
+        tiktok_post_english: data.englishVersions ? normalizeToArray(data.englishVersions.tiktok) : null,
         twitter_post: normalizeToArray(data.twitter),
-        executive_summary: data.executiveSummary
+        twitter_post_english: data.englishVersions ? normalizeToArray(data.englishVersions.twitter) : null,
+        devotional: data.devotional || 'Generated devotional content',
+        devotional_english: data.englishVersions?.devotional || null,
+        bible_study_guide: data.bibleStudyGuide || null,
+        bible_study_guide_english: data.englishVersions?.bibleStudyGuide || null,
+        output_language: outputLanguage,
+        content_types: contentTypes
       });
       if (insertError) {
         console.error('Content save error:', insertError);
-        throw new Error('Failed to save generated content');
+        console.error('Insert data:', {
+          church_id: primaryChurch.id,
+          sermon_transcript_id: null,
+          platforms: contentTypes.includes('social_media') ? platforms : [],
+          custom_cta: customCTA || null,
+          posts_per_platform: postsPerPlatform,
+          facebook_post: normalizeToArray(data.facebook),
+          facebook_post_english: data.englishVersions ? normalizeToArray(data.englishVersions.facebook) : null,
+          instagram_post: normalizeToArray(data.instagram),
+          instagram_post_english: data.englishVersions ? normalizeToArray(data.englishVersions.instagram) : null,
+          tiktok_post: normalizeToArray(data.tiktok),
+          tiktok_post_english: data.englishVersions ? normalizeToArray(data.englishVersions.tiktok) : null,
+          twitter_post: normalizeToArray(data.twitter),
+          twitter_post_english: data.englishVersions ? normalizeToArray(data.englishVersions.twitter) : null,
+          devotional: data.devotional || 'Generated devotional content',
+          devotional_english: data.englishVersions?.devotional || null,
+          bible_study_guide: data.bibleStudyGuide || null,
+          bible_study_guide_english: data.englishVersions?.bibleStudyGuide || null,
+          output_language: outputLanguage,
+          content_types: contentTypes
+        });
+        throw new Error(`Failed to save generated content: ${insertError.message}`);
       }
       setGeneratedContent(data);
       toast({
         title: "Content generated!",
-        description: "Your social media posts are ready."
+        description: `Your ${contentTypes.includes('social_media') ? 'social media posts' : ''}${contentTypes.includes('social_media') && (contentTypes.includes('bible_study') || contentTypes.includes('devotional')) ? ', ' : ''}${contentTypes.includes('bible_study') ? 'Bible study guide' : ''}${contentTypes.includes('bible_study') && contentTypes.includes('devotional') ? ', and ' : ''}${contentTypes.includes('devotional') ? 'daily devotional' : ''} are ready.`
       });
     } catch (error) {
       console.error('Error in handleGenerate:', error);
@@ -431,8 +877,11 @@ const Dashboard = () => {
     if (generatedContent.twitter) {
       content.push(formatPosts(generatedContent.twitter, 'TWITTER/X'));
     }
-    if (generatedContent.executiveSummary) {
-      content.push(`=== EXECUTIVE SUMMARY ===\n${generatedContent.executiveSummary}\n`);
+    if (generatedContent.bibleStudyGuide) {
+      content.push(`=== BIBLE STUDY GUIDE ===\n${generatedContent.bibleStudyGuide}\n`);
+    }
+    if (generatedContent.devotional) {
+      content.push(`=== DAILY DEVOTIONAL ===\n${generatedContent.devotional}\n`);
     }
     const blob = new Blob([content.join('\n\n')], {
       type: 'text/plain'
@@ -440,7 +889,19 @@ const Dashboard = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${primaryChurch?.name || 'church'}-social-posts-${new Date().toISOString().split('T')[0]}.txt`;
+    a.download = `${primaryChurch?.name || 'church'}-content-${new Date().toISOString().split('T')[0]}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const downloadBibleStudy = (bibleStudyContent: string) => {
+    const blob = new Blob([bibleStudyContent], {
+      type: 'text/plain'
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${primaryChurch?.name || 'church'}-bible-study-${new Date().toISOString().split('T')[0]}.txt`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -457,16 +918,48 @@ const Dashboard = () => {
           <h1 className="text-4xl font-playfair font-bold mb-2">
             Welcome back, {primaryChurch?.name}!
           </h1>
-          <p className="text-muted-foreground">Generate social media content from your sermon transcripts</p>
+          <p className="text-muted-foreground">Generate social media content and Bible study guides from your sermon transcripts or events</p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Input Section */}
           <Card>
             <CardHeader>
-              <CardTitle className="font-playfair">Upload Sermon Transcript</CardTitle>
+              <CardTitle className="font-playfair">Content Generation</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Content Type Selection */}
+              <div className="space-y-3">
+                <Label>What would you like to generate?</Label>
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="social-media" 
+                      checked={contentTypes.includes('social_media')}
+                      onCheckedChange={() => handleContentTypeToggle('social_media')}
+                    />
+                    <Label htmlFor="social-media">Social Media Posts</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="bible-study" 
+                      checked={contentTypes.includes('bible_study')}
+                      onCheckedChange={() => handleContentTypeToggle('bible_study')}
+                    />
+                    <Label htmlFor="bible-study">Bible Study Guide</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="devotional" 
+                      checked={contentTypes.includes('devotional')}
+                      onCheckedChange={() => handleContentTypeToggle('devotional')}
+                    />
+                    <Label htmlFor="devotional">Daily Devotional</Label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sermon Upload Section */}
               <div>
                 <Label htmlFor="transcript-upload" className="cursor-pointer">
                   <div className={`border-2 border-dashed rounded-lg p-8 text-center transition-all ${dragActive ? "border-primary bg-primary/5 scale-[1.02]" : "border-muted-foreground hover:border-primary"}`} onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop}>
@@ -476,7 +969,8 @@ const Dashboard = () => {
                           <span className="font-semibold">Drop sermon file here</span> or click to upload
                         </>}
                     </p>
-                    <p className="text-xs text-muted-foreground">TXT, PDF, DOCX, or DOC</p>
+                    <p className="text-xs text-muted-foreground">TXT, PDF, DOCX, or DOC (Optional)</p>
+                    <p className="text-xs text-muted-foreground mt-1">Skip this if generating from announcement/event only</p>
                   </div>
                   <input id="transcript-upload" type="file" accept=".txt,.pdf,.docx,.doc,.md" onChange={handleFileUpload} className="hidden" />
                 </Label>
@@ -498,48 +992,101 @@ const Dashboard = () => {
                 </p>
               </div>
 
-              <div className="space-y-3">
-                <Label>Select Platforms</Label>
-                <div className="grid grid-cols-2 gap-3">
-                  {(['facebook', 'instagram', 'tiktok', 'twitter'] as Platform[]).map(platform => <div key={platform} className="flex items-center space-x-2">
-                      <Checkbox id={platform} checked={platforms.includes(platform)} onCheckedChange={() => handlePlatformToggle(platform)} />
-                      <Label htmlFor={platform} className="capitalize cursor-pointer">
-                        {platform === 'twitter' ? 'Twitter/X' : platform}
-                      </Label>
-                    </div>)}
+              {/* Language Selection - Show when ANY content type is selected */}
+              {contentTypes.length > 0 && (
+                <div className="space-y-2">
+                  <Label htmlFor="output-language">Output Language for All Content</Label>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    This language will be used for {contentTypes.includes('social_media') && contentTypes.includes('bible_study') && contentTypes.includes('devotional') ? 'social media posts, Bible study guide, devotional, and executive summary' : contentTypes.includes('social_media') && contentTypes.includes('bible_study') ? 'social media posts, Bible study guide, and executive summary' : contentTypes.includes('social_media') && contentTypes.includes('devotional') ? 'social media posts, devotional, and executive summary' : contentTypes.includes('bible_study') && contentTypes.includes('devotional') ? 'Bible study guide, devotional, and executive summary' : contentTypes.includes('social_media') ? 'social media posts and executive summary' : contentTypes.includes('bible_study') ? 'Bible study guide and executive summary' : contentTypes.includes('devotional') ? 'devotional and executive summary' : 'content'}
+                  </p>
+                  <select
+                    id="output-language"
+                    value={outputLanguage}
+                    onChange={(e) => setOutputLanguage(e.target.value)}
+                    className="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
+                  >
+                    <option value="en">English</option>
+                    <option value="es">Spanish</option>
+                    <option value="fr">French</option>
+                    <option value="pt">Portuguese</option>
+                    <option value="de">German</option>
+                    <option value="ko">Korean</option>
+                    <option value="zh">Chinese (Simplified)</option>
+                    <option value="zh-TW">Chinese (Traditional/Cantonese)</option>
+                    <option value="ar">Arabic</option>
+                    <option value="fa">Persian (Farsi)</option>
+                    <option value="pl">Polish</option>
+                    <option value="uk">Ukrainian</option>
+                    <option value="it">Italian</option>
+                    <option value="ru">Russian</option>
+                    <option value="ja">Japanese</option>
+                  </select>
                 </div>
-              </div>
+              )}
+
+              {/* Platform Selection - Only show if Social Media is selected */}
+              {contentTypes.includes('social_media') && (
+                <div className="space-y-3">
+                  <Label>Select Platforms</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {(['facebook', 'instagram', 'tiktok', 'twitter'] as Platform[]).map(platform => <div key={platform} className="flex items-center space-x-2">
+                        <Checkbox id={platform} checked={platforms.includes(platform)} onCheckedChange={() => handlePlatformToggle(platform)} />
+                        <Label htmlFor={platform} className="capitalize cursor-pointer">
+                          {platform === 'twitter' ? 'Twitter/X' : platform}
+                        </Label>
+                      </div>)}
+                  </div>
+                </div>
+              )}
+
+              {/* Posts per Platform - Only show if Social Media is selected */}
+              {contentTypes.includes('social_media') && (
+                <div className="space-y-2">
+                  <Label htmlFor="posts-per-platform">Posts per Platform</Label>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Generate multiple variations to choose from or schedule throughout the week
+                  </p>
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5].map(num => <Button key={num} type="button" variant={postsPerPlatform === num ? "default" : "outline"} size="sm" onClick={() => setPostsPerPlatform(num)} className="flex-1">
+                        {num}
+                      </Button>)}
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-2">
-                <Label htmlFor="posts-per-platform">Posts per Platform</Label>
+                <Label htmlFor="custom-cta">Events, Announcements & Calls-to-Action</Label>
                 <p className="text-sm text-muted-foreground mb-2">
-                  Generate multiple variations to choose from or schedule throughout the week
-                </p>
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5].map(num => <Button key={num} type="button" variant={postsPerPlatform === num ? "default" : "outline"} size="sm" onClick={() => setPostsPerPlatform(num)} className="flex-1">
-                      {num}
-                    </Button>)}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="custom-cta">Do you have specific events or messages you want to include - add them here! 
-(Optional)</Label>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Add specific themes, announcements, or calls-to-action to include in your posts. Examples:
+                  {transcriptText.trim() ? 
+                    'Add specific themes, announcements, or calls-to-action to include in your posts. Examples:' :
+                    'Required if no sermon uploaded. Include specific events, themes, or messages. Examples:'
+                  }
                   <span className="block mt-1 italic">• Birthday celebrations, baptisms, or special events</span>
                   <span className="block italic">• New Alpha course or small group starting</span>
                   <span className="block italic">• Visit our website, register for an event, or volunteer</span>
                   <span className="block italic">• Christmas services, Easter celebrations, prayer nights</span>
                 </p>
-                <Textarea id="custom-cta" placeholder="E.g., 'Join us for our new Alpha course starting next Sunday' or 'Celebrating 50 years of ministry this month!'" value={customCTA} onChange={e => setCustomCTA(e.target.value)} rows={4} />
+                <Textarea id="custom-cta" placeholder={transcriptText.trim() ? 
+                  "E.g., 'Join us for our new Alpha course starting next Sunday' or 'Celebrating 50 years of ministry this month!'" :
+                  "E.g., 'Join us for our Christmas Eve service at 7pm' or 'New Alpha course starting January 15th - register today!'"
+                } value={customCTA} onChange={e => setCustomCTA(e.target.value)} rows={4} />
               </div>
 
-              <Button onClick={handleGenerate} disabled={!transcriptText.trim() || platforms.length === 0 || generating} className="w-full" size="lg">
+              <Button 
+                onClick={handleGenerate} 
+                disabled={
+                  contentTypes.length === 0 || 
+                  (!transcriptText.trim() && !customCTA.trim()) ||
+                  (contentTypes.includes('social_media') && platforms.length === 0) ||
+                  generating
+                } 
+                className="w-full" 
+                size="lg"
+              >
                 {generating ? <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Generating...
-                  </> : "Generate Social Media Posts"}
+                  </> : `Generate ${contentTypes.includes('social_media') && contentTypes.includes('bible_study') && contentTypes.includes('devotional') ? 'Content' : contentTypes.includes('social_media') && contentTypes.includes('bible_study') ? 'Social Media & Bible Study' : contentTypes.includes('social_media') && contentTypes.includes('devotional') ? 'Social Media & Devotional' : contentTypes.includes('bible_study') && contentTypes.includes('devotional') ? 'Bible Study & Devotional' : contentTypes.includes('social_media') ? 'Social Media Posts' : contentTypes.includes('bible_study') ? 'Bible Study Guide' : contentTypes.includes('devotional') ? 'Daily Devotional' : 'Content'}`}
               </Button>
             </CardContent>
           </Card>
@@ -558,189 +1105,368 @@ const Dashboard = () => {
             <CardContent>
               {!generatedContent ? <div className="text-center py-12 text-muted-foreground">
                   <p>Your generated content will appear here</p>
-                </div> : <Tabs defaultValue={platforms[0]} className="w-full">
-                  <TabsList className="grid w-full grid-cols-5">
-                    {generatedContent.facebook && <TabsTrigger value="facebook">Facebook</TabsTrigger>}
-                    {generatedContent.instagram && <TabsTrigger value="instagram">Instagram</TabsTrigger>}
-                    {generatedContent.tiktok && <TabsTrigger value="tiktok">TikTok</TabsTrigger>}
-                    {generatedContent.twitter && <TabsTrigger value="twitter">X</TabsTrigger>}
-                    <TabsTrigger value="summary">Summary</TabsTrigger>
-                  </TabsList>
+                </div> : (() => {
+                  // Helper function to render social media platform content
+                  const renderSocialPlatform = (platform: string, platformContent: string | string[]) => {
+                    const posts = Array.isArray(platformContent) ? platformContent : [platformContent];
+                    const activeIdx = activeVariations[platform] || 0;
+                    const currentPost = posts[activeIdx];
+                    const contentKey = `${platform}-${activeIdx}`;
+                    const isEditing = editingContent[contentKey];
+                    const displayContent = isEditing ? (editedContent[contentKey] || currentPost) : currentPost;
+                    const lengthInfo = getLengthIndicator(displayContent, platform);
 
-                  {generatedContent.facebook && (() => {
-                  const posts = Array.isArray(generatedContent.facebook) ? generatedContent.facebook : [generatedContent.facebook];
-                  const activeIdx = activeVariations['facebook'] || 0;
-                  const currentPost = posts[activeIdx];
-                  const lengthInfo = getLengthIndicator(currentPost, 'facebook');
-                  return <TabsContent value="facebook" className="space-y-3">
-                        <div className="text-xs text-muted-foreground mb-2">
-                          📘 Facebook works best with 40-80 words and clear paragraph breaks
+                    // Get English version for dual-language display
+                    const englishPosts = generatedContent.englishVersions?.[platform];
+                    const englishPost = englishPosts ? (Array.isArray(englishPosts) ? englishPosts[activeIdx] : englishPosts) : null;
+                    const showDualLanguage = outputLanguage !== 'en' && englishPost;
+
+                    // Platform-specific tips
+                    const platformTips: Record<string, string> = {
+                      facebook: '📘 Facebook works best with 40-80 words and clear paragraph breaks',
+                      instagram: '📸 Instagram: Keep first line under 125 characters (what shows before "...more")',
+                      tiktok: '🎵 TikTok: Keep it short and punchy - under 150 characters',
+                      twitter: '🐦 Twitter/X: Aim for 240-260 characters (leaves room for retweets with comments)'
+                    };
+
+                    return (
+                      <div className="space-y-3">
+                        <div className="text-xs text-muted-foreground mb-4">
+                          {platformTips[platform]}
                         </div>
-                        {posts.length > 1 && <div className="flex items-center justify-between text-sm text-muted-foreground">
+
+                        {posts.length > 1 && (
+                          <div className="flex items-center justify-between text-sm text-muted-foreground">
                             <span>Variation {activeIdx + 1} of {posts.length}</span>
                             <div className="flex gap-2">
-                              <Button variant="outline" size="sm" onClick={() => setActiveVariations(prev => ({
-                          ...prev,
-                          facebook: Math.max(0, activeIdx - 1)
-                        }))} disabled={activeIdx === 0}>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setActiveVariations(prev => ({
+                                  ...prev,
+                                  [platform]: Math.max(0, activeIdx - 1)
+                                }))}
+                                disabled={activeIdx === 0}
+                              >
                                 ← Previous
                               </Button>
-                              <Button variant="outline" size="sm" onClick={() => setActiveVariations(prev => ({
-                          ...prev,
-                          facebook: Math.min(posts.length - 1, activeIdx + 1)
-                        }))} disabled={activeIdx === posts.length - 1}>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setActiveVariations(prev => ({
+                                  ...prev,
+                                  [platform]: Math.min(posts.length - 1, activeIdx + 1)
+                                }))}
+                                disabled={activeIdx === posts.length - 1}
+                              >
                                 Next →
                               </Button>
                             </div>
-                          </div>}
-                        <div className="bg-muted p-4 rounded-lg">
-                          <p className="whitespace-pre-wrap">{currentPost}</p>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <p className={`text-sm font-medium ${lengthInfo.color}`}>
-                            {lengthInfo.status} {lengthInfo.message} • {currentPost.length} chars
-                          </p>
-                          <Button onClick={() => copyToClipboard(currentPost, "Facebook post")} variant="outline" size="sm">
-                            {copiedItem === "Facebook post" ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
-                            Copy
-                          </Button>
-                        </div>
-                      </TabsContent>;
-                })()}
+                          </div>
+                        )}
 
-                  {generatedContent.instagram && (() => {
-                  const posts = Array.isArray(generatedContent.instagram) ? generatedContent.instagram : [generatedContent.instagram];
-                  const activeIdx = activeVariations['instagram'] || 0;
-                  const currentPost = posts[activeIdx];
-                  const lengthInfo = getLengthIndicator(currentPost, 'instagram');
-                  return <TabsContent value="instagram" className="space-y-3">
-                        <div className="text-xs text-muted-foreground mb-2">
-                          📸 Instagram: Keep first line under 125 characters (what shows before "...more")
-                        </div>
-                        {posts.length > 1 && <div className="flex items-center justify-between text-sm text-muted-foreground">
-                            <span>Variation {activeIdx + 1} of {posts.length}</span>
-                            <div className="flex gap-2">
-                              <Button variant="outline" size="sm" onClick={() => setActiveVariations(prev => ({
-                          ...prev,
-                          instagram: Math.max(0, activeIdx - 1)
-                        }))} disabled={activeIdx === 0}>
-                                ← Previous
-                              </Button>
-                              <Button variant="outline" size="sm" onClick={() => setActiveVariations(prev => ({
-                          ...prev,
-                          instagram: Math.min(posts.length - 1, activeIdx + 1)
-                        }))} disabled={activeIdx === posts.length - 1}>
-                                Next →
-                              </Button>
+                        {showDualLanguage ? (
+                          <DualLanguageDisplay
+                            foreignContent={currentPost}
+                            englishContent={englishPost}
+                            contentType={contentKey}
+                            languageName={LANGUAGE_NAMES[outputLanguage] || outputLanguage}
+                            onRetranslate={handleRetranslate}
+                            retranslating={retranslating}
+                          />
+                        ) : (
+                          <>
+                            {isEditing ? (
+                              <Textarea
+                                value={displayContent}
+                                onChange={(e) => setEditedContent(prev => ({ ...prev, [contentKey]: e.target.value }))}
+                                rows={8}
+                                className="font-mono text-sm"
+                              />
+                            ) : (
+                              <ScrollArea className="border rounded-lg max-h-[400px]">
+                                <div className="bg-muted p-4">
+                                  <p className="whitespace-pre-wrap">{displayContent}</p>
+                                </div>
+                              </ScrollArea>
+                            )}
+                            <div className="flex items-center justify-between">
+                              <p className={`text-sm font-medium ${lengthInfo.color}`}>
+                                {lengthInfo.status} {lengthInfo.message} {platform === 'instagram' && `• Total: ${displayContent.length} chars`} {platform !== 'instagram' && platform !== 'tiktok' && platform !== 'twitter' && `• ${displayContent.length} chars`}
+                              </p>
+                              <div className="flex gap-2">
+                                {isEditing ? (
+                                  <>
+                                    <Button onClick={() => handleCancelEdit(contentKey)} variant="outline" size="sm">
+                                      Cancel
+                                    </Button>
+                                    <Button onClick={() => handleSaveEdit(contentKey)} size="sm">
+                                      Save
+                                    </Button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Button onClick={() => handleStartEdit(contentKey, currentPost)} variant="outline" size="sm">
+                                      Edit
+                                    </Button>
+                                    <Button
+                                      onClick={() => copyToClipboard(displayContent, `${platform.charAt(0).toUpperCase() + platform.slice(1)} post`)}
+                                      variant="outline"
+                                      size="sm"
+                                    >
+                                      {copiedItem === `${platform.charAt(0).toUpperCase() + platform.slice(1)} post` ? (
+                                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                                      ) : (
+                                        <Copy className="w-4 h-4 mr-2" />
+                                      )}
+                                      Copy
+                                    </Button>
+                                  </>
+                                )}
+                              </div>
                             </div>
-                          </div>}
-                        <div className="bg-muted p-4 rounded-lg">
-                          <p className="whitespace-pre-wrap">{currentPost}</p>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <p className={`text-sm font-medium ${lengthInfo.color}`}>
-                            {lengthInfo.status} {lengthInfo.message} • Total: {currentPost.length} chars
-                          </p>
-                          <Button onClick={() => copyToClipboard(currentPost, "Instagram post")} variant="outline" size="sm">
-                            {copiedItem === "Instagram post" ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
-                            Copy
-                          </Button>
-                        </div>
-                      </TabsContent>;
-                })()}
+                          </>
+                        )}
+                      </div>
+                    );
+                  };
+                  
+                  // Check if any social media platforms exist
+                  const hasSocialMedia = generatedContent.facebook || generatedContent.instagram ||
+                                        generatedContent.tiktok || generatedContent.twitter;
 
-                  {generatedContent.tiktok && (() => {
-                  const posts = Array.isArray(generatedContent.tiktok) ? generatedContent.tiktok : [generatedContent.tiktok];
-                  const activeIdx = activeVariations['tiktok'] || 0;
-                  const currentPost = posts[activeIdx];
-                  const lengthInfo = getLengthIndicator(currentPost, 'tiktok');
-                  return <TabsContent value="tiktok" className="space-y-3">
-                        <div className="text-xs text-muted-foreground mb-2">
-                          🎵 TikTok: Keep it short and punchy - under 150 characters
-                        </div>
-                        {posts.length > 1 && <div className="flex items-center justify-between text-sm text-muted-foreground">
-                            <span>Variation {activeIdx + 1} of {posts.length}</span>
-                            <div className="flex gap-2">
-                              <Button variant="outline" size="sm" onClick={() => setActiveVariations(prev => ({
-                          ...prev,
-                          tiktok: Math.max(0, activeIdx - 1)
-                        }))} disabled={activeIdx === 0}>
-                                ← Previous
-                              </Button>
-                              <Button variant="outline" size="sm" onClick={() => setActiveVariations(prev => ({
-                          ...prev,
-                          tiktok: Math.min(posts.length - 1, activeIdx + 1)
-                        }))} disabled={activeIdx === posts.length - 1}>
-                                Next →
-                              </Button>
+                  // Set default active social platform
+                  const defaultSocialPlatform = generatedContent.facebook ? 'facebook' :
+                                               generatedContent.instagram ? 'instagram' :
+                                               generatedContent.tiktok ? 'tiktok' : 'twitter';
+
+                  // Determine default main tab
+                  const defaultMainTab = hasSocialMedia ? 'social-media' :
+                                        generatedContent.bibleStudyGuide ? 'bible-study' : 'summary';
+
+                  return (
+                    <Tabs defaultValue={defaultMainTab} className="w-full">
+                      <div className="mb-6 overflow-x-auto">
+                        <TabsList className="inline-flex w-auto min-w-full">
+                          {hasSocialMedia && <TabsTrigger value="social-media">📱 Social Media</TabsTrigger>}
+                          {generatedContent.bibleStudyGuide && <TabsTrigger value="bible-study">📖 Bible Study</TabsTrigger>}
+                          {generatedContent.devotional && <TabsTrigger value="devotional">🙏 Devotional</TabsTrigger>}
+                        </TabsList>
+                      </div>
+
+                      {/* Social Media Tab with Platform Sub-navigation */}
+                      {hasSocialMedia && (
+                        <TabsContent value="social-media">
+                          <div className="space-y-4">
+                            {/* Platform selector buttons */}
+                            <div className="flex gap-2 flex-wrap">
+                              {generatedContent.facebook && (
+                                <Button
+                                  variant={activeSocialPlatform === 'facebook' ? 'default' : 'outline'}
+                                  size="sm"
+                                  onClick={() => setActiveSocialPlatform('facebook')}
+                                >
+                                  Facebook
+                                </Button>
+                              )}
+                              {generatedContent.instagram && (
+                                <Button
+                                  variant={activeSocialPlatform === 'instagram' ? 'default' : 'outline'}
+                                  size="sm"
+                                  onClick={() => setActiveSocialPlatform('instagram')}
+                                >
+                                  Instagram
+                                </Button>
+                              )}
+                              {generatedContent.tiktok && (
+                                <Button
+                                  variant={activeSocialPlatform === 'tiktok' ? 'default' : 'outline'}
+                                  size="sm"
+                                  onClick={() => setActiveSocialPlatform('tiktok')}
+                                >
+                                  TikTok
+                                </Button>
+                              )}
+                              {generatedContent.twitter && (
+                                <Button
+                                  variant={activeSocialPlatform === 'twitter' ? 'default' : 'outline'}
+                                  size="sm"
+                                  onClick={() => setActiveSocialPlatform('twitter')}
+                                >
+                                  X
+                                </Button>
+                              )}
                             </div>
-                          </div>}
-                        <div className="bg-muted p-4 rounded-lg">
-                          <p className="whitespace-pre-wrap">{currentPost}</p>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <p className={`text-sm font-medium ${lengthInfo.color}`}>
-                            {lengthInfo.status} {lengthInfo.message}
-                          </p>
-                          <Button onClick={() => copyToClipboard(currentPost, "TikTok post")} variant="outline" size="sm">
-                            {copiedItem === "TikTok post" ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
-                            Copy
-                          </Button>
-                        </div>
-                      </TabsContent>;
-                })()}
 
-                  {generatedContent.twitter && (() => {
-                  const posts = Array.isArray(generatedContent.twitter) ? generatedContent.twitter : [generatedContent.twitter];
-                  const activeIdx = activeVariations['twitter'] || 0;
-                  const currentPost = posts[activeIdx];
-                  const lengthInfo = getLengthIndicator(currentPost, 'twitter');
-                  return <TabsContent value="twitter" className="space-y-3">
-                        <div className="text-xs text-muted-foreground mb-2">
-                          🐦 Twitter/X: Aim for 240-260 characters (leaves room for retweets with comments)
-                        </div>
-                        {posts.length > 1 && <div className="flex items-center justify-between text-sm text-muted-foreground">
-                            <span>Variation {activeIdx + 1} of {posts.length}</span>
-                            <div className="flex gap-2">
-                              <Button variant="outline" size="sm" onClick={() => setActiveVariations(prev => ({
-                          ...prev,
-                          twitter: Math.max(0, activeIdx - 1)
-                        }))} disabled={activeIdx === 0}>
-                                ← Previous
-                              </Button>
-                              <Button variant="outline" size="sm" onClick={() => setActiveVariations(prev => ({
-                          ...prev,
-                          twitter: Math.min(posts.length - 1, activeIdx + 1)
-                        }))} disabled={activeIdx === posts.length - 1}>
-                                Next →
-                              </Button>
+                            {/* Active platform content */}
+                            <div className="mt-4">
+                              {activeSocialPlatform === 'facebook' && generatedContent.facebook && renderSocialPlatform('facebook', generatedContent.facebook)}
+                              {activeSocialPlatform === 'instagram' && generatedContent.instagram && renderSocialPlatform('instagram', generatedContent.instagram)}
+                              {activeSocialPlatform === 'tiktok' && generatedContent.tiktok && renderSocialPlatform('tiktok', generatedContent.tiktok)}
+                              {activeSocialPlatform === 'twitter' && generatedContent.twitter && renderSocialPlatform('twitter', generatedContent.twitter)}
                             </div>
-                          </div>}
-                        <div className="bg-muted p-4 rounded-lg">
-                          <p className="whitespace-pre-wrap">{currentPost}</p>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <p className={`text-sm font-medium ${lengthInfo.color}`}>
-                            {lengthInfo.status} {lengthInfo.message}
-                          </p>
-                          <Button onClick={() => copyToClipboard(currentPost, "Twitter post")} variant="outline" size="sm">
-                            {copiedItem === "Twitter post" ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
-                            Copy
-                          </Button>
-                        </div>
-                      </TabsContent>;
-                })()}
+                          </div>
+                        </TabsContent>
+                      )}
 
-                  <TabsContent value="summary" className="space-y-3">
-                    <div className="bg-muted p-4 rounded-lg">
-                      <p className="whitespace-pre-wrap">{generatedContent.executiveSummary}</p>
-                    </div>
-                    <Button onClick={() => copyToClipboard(generatedContent.executiveSummary, "Executive summary")} variant="outline" size="sm" className="w-full">
-                      {copiedItem === "Executive summary" ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
-                      Copy Summary
-                    </Button>
+                      {/* Bible Study Tab */}
+                      {generatedContent.bibleStudyGuide && (
+                    <TabsContent value="bible-study" className="space-y-3">
+                      {outputLanguage !== 'en' && generatedContent.englishVersions?.bibleStudyGuide ? (
+                        <>
+                          <div className="text-xs text-muted-foreground mb-2">
+                            📖 Bible Study Guide - Dual Language View
+                          </div>
+                          <DualLanguageDisplay
+                            foreignContent={generatedContent.bibleStudyGuide}
+                            englishContent={generatedContent.englishVersions.bibleStudyGuide}
+                            contentType="bibleStudy"
+                            languageName={LANGUAGE_NAMES[outputLanguage] || outputLanguage}
+                            onRetranslate={handleRetranslate}
+                            retranslating={retranslating}
+                          />
+                        </>
+                      ) : (
+                        <>
+                          <div className="text-xs text-muted-foreground mb-2">
+                            📖 Bible Study Guide
+                          </div>
+                          {editingContent['bibleStudyGuide'] ? (
+                            <MDEditor
+                              value={editedContent['bibleStudyGuide'] || generatedContent.bibleStudyGuide}
+                              onChange={(val) => setEditedContent(prev => ({ ...prev, bibleStudyGuide: val || '' }))}
+                              height={600}
+                              preview="edit"
+                            />
+                          ) : (
+                            <ScrollArea className="border rounded-lg max-h-[600px]">
+                              <div className="prose prose-sm max-w-none bg-muted p-6 prose-p:mb-4">
+                                <ReactMarkdown>{cleanBibleStudyFormatting(generatedContent.bibleStudyGuide)}</ReactMarkdown>
+                              </div>
+                            </ScrollArea>
+                          )}
+                        </>
+                      )}
+                      <div className="flex gap-2">
+                        {editingContent['bibleStudyGuide'] ? (
+                          <>
+                            <Button
+                              onClick={() => handleCancelEdit('bibleStudyGuide')}
+                              variant="outline"
+                              size="sm"
+                              className="flex-1"
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              onClick={() => handleSaveEdit('bibleStudyGuide')}
+                              size="sm"
+                              className="flex-1"
+                            >
+                              Save
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button
+                              onClick={() => handleStartEdit('bibleStudyGuide', generatedContent.bibleStudyGuide)}
+                              variant="outline"
+                              size="sm"
+                              className="flex-1"
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              onClick={() => copyToClipboard(generatedContent.bibleStudyGuide, "Bible Study Guide")}
+                              variant="outline"
+                              size="sm"
+                              className="flex-1"
+                            >
+                              {copiedItem === "Bible Study Guide" ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+                              Copy
+                            </Button>
+                            <Button
+                              onClick={() => downloadBibleStudy(generatedContent.bibleStudyGuide)}
+                              variant="outline"
+                              size="sm"
+                              className="flex-1"
+                            >
+                              <Download className="w-4 h-4 mr-2" />
+                              Download
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </TabsContent>
+                  )}
+
+                      {/* Devotional Tab */}
+                      {generatedContent.devotional && (
+                  <TabsContent value="devotional" className="space-y-3">
+                    {(() => {
+                      const currentDevotional = generatedContent.devotional;
+                      const englishDevotional = generatedContent.englishVersions?.devotional;
+                      const showDualLanguage = outputLanguage !== 'en' && englishDevotional;
+
+                      if (showDualLanguage) {
+                        return (
+                          <DualLanguageDisplay
+                            foreignContent={currentDevotional}
+                            englishContent={englishDevotional}
+                            contentType="devotional"
+                            languageName={LANGUAGE_NAMES[outputLanguage] || outputLanguage}
+                            onRetranslate={handleRetranslate}
+                            retranslating={retranslating}
+                          />
+                        );
+                      } else {
+                        return (
+                          <>
+                            {editingContent['devotional'] ? (
+                              <Textarea
+                                value={editedContent['devotional'] || generatedContent.devotional}
+                                onChange={(e) => setEditedContent(prev => ({ ...prev, devotional: e.target.value }))}
+                                rows={12}
+                                className="font-mono text-sm"
+                              />
+                            ) : (
+                              <ScrollArea className="border rounded-lg max-h-[500px]">
+                                <div className="bg-muted p-4">
+                                  <p className="whitespace-pre-wrap">{generatedContent.devotional}</p>
+                                </div>
+                              </ScrollArea>
+                            )}
+                            <div className="flex gap-2">
+                              {editingContent['devotional'] ? (
+                                <>
+                                  <Button onClick={() => handleCancelEdit('devotional')} variant="outline" size="sm" className="flex-1">
+                                    Cancel
+                                  </Button>
+                                  <Button onClick={() => handleSaveEdit('devotional')} size="sm" className="flex-1">
+                                    Save
+                                  </Button>
+                                </>
+                              ) : (
+                                <>
+                                  <Button onClick={() => handleStartEdit('devotional', generatedContent.devotional)} variant="outline" size="sm" className="flex-1">
+                                    Edit
+                                  </Button>
+                                  <Button onClick={() => copyToClipboard(generatedContent.devotional, "Daily devotional")} variant="outline" size="sm" className="flex-1">
+                                    {copiedItem === "Daily devotional" ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+                                    Copy
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          </>
+                        );
+                      }
+                    })()}
                   </TabsContent>
-                </Tabs>}
+                      )}
+                    </Tabs>
+                  );
+                })()}
             </CardContent>
           </Card>
         </div>

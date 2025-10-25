@@ -88,10 +88,32 @@ const Onboarding = () => {
     setGenerating(true);
 
     try {
-      // Read file contents
+      // Read file contents with proper error handling
       const sermonTexts = await Promise.all(
-        sermonFiles.map(file => file.text())
+        sermonFiles.map(async (file) => {
+          try {
+            // Try the modern file.text() method first
+            if (typeof file.text === 'function') {
+              return await file.text();
+            }
+            
+            // Fallback to FileReader for older browsers
+            return new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = () => resolve(reader.result as string);
+              reader.onerror = () => reject(new Error(`Failed to read file: ${file.name}`));
+              reader.readAsText(file);
+            });
+          } catch (error) {
+            console.error(`Error reading file ${file.name}:`, error);
+            throw new Error(`Failed to read file: ${file.name}`);
+          }
+        })
       );
+
+      console.log('Sermon texts loaded:', sermonTexts.length, 'files');
+      console.log('Church data:', churchData);
+      console.log('Website content:', websiteContent);
 
       const { data, error } = await supabase.functions.invoke('generate-style-guide', {
         body: { 
@@ -101,11 +123,19 @@ const Onboarding = () => {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Style guide generation error:', error);
+        throw error;
+      }
+
+      if (!data || !data.styleGuide) {
+        throw new Error('No style guide generated');
+      }
 
       setStyleGuide(data.styleGuide);
       setStep(4);
     } catch (error) {
+      console.error('Generation error:', error);
       toast({
         variant: "destructive",
         title: "Generation failed",

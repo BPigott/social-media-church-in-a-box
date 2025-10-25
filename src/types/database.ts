@@ -76,9 +76,12 @@ export interface GeneratedContent {
   instagram_post: string[] | null;
   tiktok_post: string[] | null;
   twitter_post: string[] | null;
-  executive_summary: string;
+  devotional: string;
   generated_at: string;
   posts_per_platform?: number | null;
+  bible_study_guide?: string | null;
+  output_language?: string;
+  content_types?: ('social_media' | 'bible_study' | 'devotional')[];
 }
 
 export type Platform = 'facebook' | 'instagram' | 'tiktok' | 'twitter';

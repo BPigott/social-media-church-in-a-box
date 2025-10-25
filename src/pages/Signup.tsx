@@ -53,10 +53,10 @@ const Signup = () => {
 
     toast({
       title: "Account created!",
-      description: "Redirecting to onboarding...",
+      description: "Please check your email to confirm your account, then you can sign in.",
     });
 
-    navigate("/onboarding");
+    navigate("/login");
   };
 
   return (

@@ -7,10 +7,30 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "13.0.5"
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -67,46 +87,73 @@ export type Database = {
       }
       generated_content: {
         Row: {
+          bible_study_guide: string | null
+          bible_study_guide_english: string | null
           church_id: string
+          content_types: Json | null
           custom_cta: string | null
-          executive_summary: string
+          devotional: string
+          devotional_english: string | null
           facebook_post: string[] | null
+          facebook_post_english: Json | null
           generated_at: string
           id: string
           instagram_post: string[] | null
+          instagram_post_english: Json | null
+          output_language: string | null
           platforms: Json
           posts_per_platform: number | null
           sermon_transcript_id: string | null
           tiktok_post: string[] | null
+          tiktok_post_english: Json | null
           twitter_post: string[] | null
+          twitter_post_english: Json | null
         }
         Insert: {
+          bible_study_guide?: string | null
+          bible_study_guide_english?: string | null
           church_id: string
+          content_types?: Json | null
           custom_cta?: string | null
-          executive_summary: string
+          devotional: string
+          devotional_english?: string | null
           facebook_post?: string[] | null
+          facebook_post_english?: Json | null
           generated_at?: string
           id?: string
           instagram_post?: string[] | null
+          instagram_post_english?: Json | null
+          output_language?: string | null
           platforms?: Json
           posts_per_platform?: number | null
           sermon_transcript_id?: string | null
           tiktok_post?: string[] | null
+          tiktok_post_english?: Json | null
           twitter_post?: string[] | null
+          twitter_post_english?: Json | null
         }
         Update: {
+          bible_study_guide?: string | null
+          bible_study_guide_english?: string | null
           church_id?: string
+          content_types?: Json | null
           custom_cta?: string | null
-          executive_summary?: string
+          devotional?: string
+          devotional_english?: string | null
           facebook_post?: string[] | null
+          facebook_post_english?: Json | null
           generated_at?: string
           id?: string
           instagram_post?: string[] | null
+          instagram_post_english?: Json | null
+          output_language?: string | null
           platforms?: Json
           posts_per_platform?: number | null
           sermon_transcript_id?: string | null
           tiktok_post?: string[] | null
+          tiktok_post_english?: Json | null
           twitter_post?: string[] | null
+          twitter_post_english?: Json | null
         }
         Relationships: [
           {
@@ -388,9 +435,13 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       app_role: ["owner", "admin", "editor", "viewer"],
     },
   },
 } as const
+

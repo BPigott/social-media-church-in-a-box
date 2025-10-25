@@ -32,7 +32,18 @@ serve(async (req) => {
 
     const { churchData, sermonTexts, websiteContent } = await req.json();
 
+    // Validate required data
+    if (!churchData || !churchData.name) {
+      throw new Error('Church data is required');
+    }
+
+    if (!sermonTexts || !Array.isArray(sermonTexts) || sermonTexts.length === 0) {
+      throw new Error('At least one sermon text is required');
+    }
+
     console.log('Generating style guide for church:', churchData.name);
+    console.log('Sermon texts count:', sermonTexts.length);
+    console.log('Website content provided:', !!websiteContent);
 
     // Build the comprehensive prompt for style guide generation
     const systemPrompt = `You are an expert church communications specialist. Your task is to analyze sermon content and church information to create a comprehensive style guide that captures the unique voice, tone, and branding of the church.`;
@@ -41,11 +52,11 @@ serve(async (req) => {
 # Church Information Analysis
 
 ## Church Details
-- Name: ${churchData.name}
-- Location: ${churchData.location}
+- Name: ${churchData.name || 'Unknown'}
+- Location: ${churchData.location || 'Not specified'}
 - Denomination: ${churchData.denomination || 'Non-denominational'}
-- Vision Statement: ${churchData.vision_statement}
-- Contact Email: ${churchData.contact_email}
+- Vision Statement: ${churchData.vision_statement || 'Not provided'}
+- Contact Email: ${churchData.contact_email || 'Not provided'}
 - Website: ${churchData.website_url || 'Not provided'}
 
 ## Service Times
@@ -60,15 +71,15 @@ ${JSON.stringify(churchData.key_ministries || [], null, 2)}
 ## Sermon Content Sample
 ${sermonTexts.join('\n\n---SERMON BREAK---\n\n')}
 
-${websiteContent ? `
+${websiteContent && websiteContent.content && Array.isArray(websiteContent.content) ? `
 ## Website Content Analysis
-Scraped ${websiteContent.pagesScraped} pages from the church website:
+Scraped ${websiteContent.pagesScraped || websiteContent.content.length} pages from the church website:
 
 ${websiteContent.content.slice(0, 10).map((page: any) => `
 ### ${page.title || 'Untitled Page'}
-URL: ${page.url}
+URL: ${page.url || 'Unknown URL'}
 
-${page.markdown.substring(0, 2000)}
+${(page.markdown || '').substring(0, 2000)}
 `).join('\n\n---PAGE BREAK---\n\n')}
 ` : ''}
 
@@ -102,7 +113,7 @@ FORMATTING RULES:
       throw new Error('ANTHROPIC_API_KEY not configured');
     }
 
-    console.log('Calling Anthropic API with Claude 4.5 Sonnet...');
+    console.log('Calling Anthropic API with Claude 4.5 Haiku...');
 
     const aiResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -112,7 +123,7 @@ FORMATTING RULES:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 6144,
         system: systemPrompt,
         messages: [
