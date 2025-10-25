@@ -1,173 +1,183 @@
-# Social Media Church in a Box
+# Supabase CLI
 
-An AI-powered content generation platform for churches, creating social media posts, devotionals, and Bible study guides from sermon transcripts.
+[![Coverage Status](https://coveralls.io/repos/github/supabase/cli/badge.svg?branch=main)](https://coveralls.io/github/supabase/cli?branch=main) [![Bitbucket Pipelines](https://img.shields.io/bitbucket/pipelines/supabase-cli/setup-cli/master?style=flat-square&label=Bitbucket%20Canary)](https://bitbucket.org/supabase-cli/setup-cli/pipelines) [![Gitlab Pipeline Status](https://img.shields.io/gitlab/pipeline-status/sweatybridge%2Fsetup-cli?label=Gitlab%20Canary)
+](https://gitlab.com/sweatybridge/setup-cli/-/pipelines)
 
-## Features
+[Supabase](https://supabase.io) is an open source Firebase alternative. We're building the features of Firebase using enterprise-grade open source tools.
 
-- **AI-Powered Content Generation**: Uses Claude 4.5 Haiku to generate contextually relevant content
-- **Multiple Content Types**:
-  - Social media posts (Facebook, Instagram, TikTok, Twitter/X)
-  - Daily devotionals
-  - Comprehensive Bible study guides
-- **Multi-language Support**: Generate content in 15+ languages with English reference versions
-- **Style Guide Generation**: Automatically analyzes your church's communication style
-- **Platform-Specific Optimization**: Content tailored to each social media platform's best practices
-- **Dual-Language Display**: Edit and retranslate content with side-by-side comparison
+This repository contains all the functionality for Supabase CLI.
 
-## Technology Stack
+- [x] Running Supabase locally
+- [x] Managing database migrations
+- [x] Creating and deploying Supabase Functions
+- [x] Generating types directly from your database schema
+- [x] Making authenticated HTTP requests to [Management API](https://supabase.com/docs/reference/api/introduction)
 
-- **Frontend**: React + TypeScript + Vite
-- **UI**: shadcn/ui + Tailwind CSS
-- **Backend**: Supabase (PostgreSQL database + Edge Functions)
-- **AI**: Anthropic Claude 4.5 Haiku via direct API integration
-- **Translation**: Google Translate API
-- **Web Scraping**: Firecrawl API for church website analysis
+## Getting started
 
-## Prerequisites
+### Install the CLI
 
-- Node.js 18+ and npm
-- Supabase CLI (`npm install -g supabase`)
-- Anthropic API key (get from [console.anthropic.com](https://console.anthropic.com))
-- Optional: Firecrawl API key (for website scraping)
-- Optional: Google Cloud Service Account (for translations)
-
-## Local Development Setup
-
-### 1. Clone and Install
+Available via [NPM](https://www.npmjs.com) as dev dependency. To install:
 
 ```bash
-git clone https://github.com/BPigott/church-content-craft.git
-cd church-content-craft
-npm install
+npm i supabase --save-dev
 ```
 
-### 2. Start Supabase Locally
+To install the beta release channel:
 
 ```bash
-npx supabase start
+npm i supabase@beta --save-dev
 ```
 
-This will output your local credentials. Save these for the next step.
+When installing with yarn 4, you need to disable experimental fetch with the following nodejs config.
 
-### 3. Configure Environment Variables
+```
+NODE_OPTIONS=--no-experimental-fetch yarn add supabase
+```
 
-Create `.env.local` in the project root:
+> **Note**
+For Bun versions below v1.0.17, you must add `supabase` as a [trusted dependency](https://bun.sh/guides/install/trusted) before running `bun add -D supabase`.
+
+<details>
+  <summary><b>macOS</b></summary>
+
+  Available via [Homebrew](https://brew.sh). To install:
+
+  ```sh
+  brew install supabase/tap/supabase
+  ```
+
+  To install the beta release channel:
+  
+  ```sh
+  brew install supabase/tap/supabase-beta
+  brew link --overwrite supabase-beta
+  ```
+  
+  To upgrade:
+
+  ```sh
+  brew upgrade supabase
+  ```
+</details>
+
+<details>
+  <summary><b>Windows</b></summary>
+
+  Available via [Scoop](https://scoop.sh). To install:
+
+  ```powershell
+  scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
+  scoop install supabase
+  ```
+
+  To upgrade:
+
+  ```powershell
+  scoop update supabase
+  ```
+</details>
+
+<details>
+  <summary><b>Linux</b></summary>
+
+  Available via [Homebrew](https://brew.sh) and Linux packages.
+
+  #### via Homebrew
+
+  To install:
+
+  ```sh
+  brew install supabase/tap/supabase
+  ```
+
+  To upgrade:
+
+  ```sh
+  brew upgrade supabase
+  ```
+
+  #### via Linux packages
+
+  Linux packages are provided in [Releases](https://github.com/supabase/cli/releases). To install, download the `.apk`/`.deb`/`.rpm`/`.pkg.tar.zst` file depending on your package manager and run the respective commands.
+
+  ```sh
+  sudo apk add --allow-untrusted <...>.apk
+  ```
+
+  ```sh
+  sudo dpkg -i <...>.deb
+  ```
+
+  ```sh
+  sudo rpm -i <...>.rpm
+  ```
+
+  ```sh
+  sudo pacman -U <...>.pkg.tar.zst
+  ```
+</details>
+
+<details>
+  <summary><b>Other Platforms</b></summary>
+
+  You can also install the CLI via [go modules](https://go.dev/ref/mod#go-install) without the help of package managers.
+
+  ```sh
+  go install github.com/supabase/cli@latest
+  ```
+
+  Add a symlink to the binary in `$PATH` for easier access:
+
+  ```sh
+  ln -s "$(go env GOPATH)/bin/cli" /usr/bin/supabase
+  ```
+
+  This works on other non-standard Linux distros.
+</details>
+
+<details>
+  <summary><b>Community Maintained Packages</b></summary>
+
+  Available via [pkgx](https://pkgx.sh/). Package script [here](https://github.com/pkgxdev/pantry/blob/main/projects/supabase.com/cli/package.yml).
+  To install in your working directory:
+
+  ```bash
+  pkgx install supabase
+  ```
+
+  Available via [Nixpkgs](https://nixos.org/). Package script [here](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/supabase-cli/default.nix).
+</details>
+
+### Run the CLI
 
 ```bash
-# Use local Supabase for development
-VITE_SUPABASE_URL=http://127.0.0.1:54321
-VITE_SUPABASE_PUBLISHABLE_KEY=<your_local_anon_key>
+supabase bootstrap
 ```
 
-### 4. Set Edge Function Secrets
+Or using npx:
 
 ```bash
-# Required for AI content generation
-supabase secrets set ANTHROPIC_API_KEY=sk-ant-api03-... --local
-
-# Optional: For website scraping
-supabase secrets set FIRECRAWL_API_KEY=fc-... --local
-
-# Optional: For translations
-supabase secrets set GOOGLE_SERVICE_ACCOUNT_JSON='{"type":"service_account",...}' --local
+npx supabase bootstrap
 ```
 
-### 5. Restart Supabase (to load secrets)
+The bootstrap command will guide you through the process of setting up a Supabase project using one of the [starter](https://github.com/supabase-community/supabase-samples/blob/main/samples.json) templates.
 
-```bash
-npx supabase stop
-npx supabase start
+## Docs
+
+Command & config reference can be found [here](https://supabase.com/docs/reference/cli/about).
+
+## Breaking changes
+
+We follow semantic versioning for changes that directly impact CLI commands, flags, and configurations.
+
+However, due to dependencies on other service images, we cannot guarantee that schema migrations, seed.sql, and generated types will always work for the same CLI major version. If you need such guarantees, we encourage you to pin a specific version of CLI in package.json.
+
+## Developing
+
+To run from source:
+
+```sh
+# Go >= 1.22
+go run . help
 ```
-
-### 6. Start Development Server
-
-```bash
-npm run dev
-```
-
-Visit [http://localhost:5173](http://localhost:5173)
-
-## Production Deployment
-
-### 1. Link to Your Supabase Project
-
-```bash
-supabase link --project-ref <your-project-id>
-```
-
-### 2. Push Database Migrations
-
-```bash
-supabase db push
-```
-
-### 3. Set Production Secrets
-
-```bash
-supabase secrets set ANTHROPIC_API_KEY=sk-ant-api03-...
-supabase secrets set FIRECRAWL_API_KEY=fc-...
-supabase secrets set GOOGLE_SERVICE_ACCOUNT_JSON='...'
-```
-
-### 4. Deploy Edge Functions
-
-```bash
-supabase functions deploy
-```
-
-### 5. Deploy Frontend
-
-Build and deploy your frontend to your preferred hosting platform (Vercel, Netlify, etc.):
-
-```bash
-npm run build
-```
-
-Update production environment variables to point to your production Supabase instance.
-
-## Project Structure
-
-```
-├── src/
-│   ├── components/      # React components
-│   ├── hooks/          # Custom React hooks
-│   ├── integrations/   # Supabase client & types
-│   ├── pages/          # Page components
-│   └── types/          # TypeScript type definitions
-├── supabase/
-│   ├── functions/      # Edge Functions (AI generation, scraping, translation)
-│   └── migrations/     # Database schema migrations
-└── public/             # Static assets
-```
-
-## Key Edge Functions
-
-- **generate-social-posts**: Generates social media content, devotionals, and Bible studies
-- **generate-style-guide**: Analyzes church content to create communication style guide
-- **retranslate-content**: Re-translates edited English content to target language
-- **scrape-church-website**: Extracts content from church websites for context
-
-## Cost Considerations
-
-### Anthropic Claude 4.5 Haiku Pricing
-- Input: $1 per million tokens
-- Output: $5 per million tokens
-
-Typical costs per generation:
-- Style guide: $0.015-0.05
-- Social posts: $0.008-0.03
-- Bible study: $0.01-0.04
-
-## Support & Documentation
-
-- [Supabase Documentation](https://supabase.com/docs)
-- [Anthropic Claude Documentation](https://docs.anthropic.com/)
-- [Project Repository](https://github.com/BPigott/church-content-craft)
-
-## License
-
-This project is proprietary software developed for church content creation.
-
----
-
-Built with ❤️ for church communications teams everywhere
