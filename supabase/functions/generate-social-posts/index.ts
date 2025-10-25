@@ -99,7 +99,8 @@ serve(async (req)=>{
     // Validate input based on content types
     const hasSocialMedia = contentTypes.includes('social_media');
     const hasBibleStudy = contentTypes.includes('bible_study');
-    if (!hasSocialMedia && !hasBibleStudy) {
+    const hasDevotional = contentTypes.includes('devotional');
+    if (!hasSocialMedia && !hasBibleStudy && !hasDevotional) {
       return new Response(JSON.stringify({
         error: 'Please select at least one content type to generate.'
       }), {
@@ -156,6 +157,7 @@ CRITICAL: Your response must be ONLY valid JSON with no preamble, explanation, o
 ${hasTranscript ? 'Generate content based on the sermon transcript provided below.' : 'Generate content based on the church event/announcement information provided below.'}
 ${hasSocialMedia ? 'Create social media posts optimized for each platform.' : ''}
 ${hasBibleStudy ? 'Create a comprehensive Bible Study Guide with scripture references and discussion questions.' : ''}
+${hasDevotional ? 'Create a daily devotional following the Blended Approach style guide.' : ''}
 
 # Content Source
 ${hasTranscript ? `
@@ -271,6 +273,47 @@ FORMATTING REQUIREMENTS:
 - Ensure all content is properly spaced and readable
 ` : ''}
 
+${hasDevotional ? `
+# Daily Devotional Generation Requirements
+${hasTranscript ? `
+- Create a devotional based on the sermon transcript following the Blended Approach style guide
+- Extract the core spiritual truth from the sermon
+- Structure: Title → Anchor Verse → Hook (Story) → Truth → Practice → Reflection → Prayer
+- Make it personal, practical, and Spirit-expectant
+- Focus on moving from information to encounter with Jesus
+` : `
+- Create a devotional based on the event/announcement following the Blended Approach style guide
+- Find the spiritual connection and practical application
+- Structure: Title → Anchor Verse → Hook (Story) → Truth → Practice → Reflection → Prayer
+- Make it relatable to the event's theme and purpose
+`}
+
+Generate the Daily Devotional in English following the Blended Approach format.
+
+DEVOTIONAL FORMAT REQUIREMENTS:
+# [Engaging Title]
+
+**[Anchor Verse]** (Bible Reference)
+[Full verse text in NIV]
+
+**The Hook (Personal Story/Observation)**
+[100-word personal story or everyday observation that relates to the main point]
+
+**The Truth**
+[Clear explanation of the spiritual truth and why it matters - based on sermon content]
+
+**The Practice**
+[One specific, actionable spiritual discipline for today - make it concrete and doable]
+
+**Reflection**
+[Single sharp question that cuts to the heart]
+
+**Prayer**
+[Short, first-person prayer the user can adopt as their own]
+
+TONE: Warm, relational (not "religious"), accessible language, story-driven, practical, hopeful
+` : ''}
+
 ---
 
 # Church Social Media Handles
@@ -320,10 +363,12 @@ Return your response as a JSON object with this exact structure:
   "executiveSummary": "summary content here (always a single string)",
   ` : ''}
   ${hasBibleStudy ? `"bibleStudyGuide": "complete Bible study guide content (always a single string)",` : ''}
+  ${hasDevotional ? `"devotional": "complete daily devotional content following Blended Approach format (always a single string)",` : ''}
 }
 
 ${hasSocialMedia ? 'IMPORTANT: Only include keys for the platforms that were requested.' : ''}
 ${hasBibleStudy ? 'IMPORTANT: The Bible Study Guide must be complete and properly formatted.' : ''}
+${hasDevotional ? 'IMPORTANT: The devotional must be complete and follow the Blended Approach format exactly.' : ''}
 
 ${hasSocialMedia ? `
 FINAL LENGTH CHECK (VALIDATE BEFORE RETURNING):
@@ -340,6 +385,16 @@ FINAL VALIDATION (CHECK BEFORE RETURNING):
 - Confirm no hashtags or asterisks used for emphasis
 - Ensure clean markdown formatting with proper spacing
 - Use natural, clear language that translates well
+` : ''}
+
+${hasDevotional ? `
+FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
+- Verify devotional follows exact Blended Approach structure
+- Ensure anchor verse is included with proper NIV citation
+- Confirm practical action is specific and doable today
+- Check that reflection question cuts to the heart
+- Verify prayer is personal and adoptable
+- Use warm, relational tone throughout
 ` : ''}
 `;
     const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
@@ -440,7 +495,8 @@ FINAL VALIDATION (CHECK BEFORE RETURNING):
       tiktok: generatedContent.tiktok,
       twitter: generatedContent.twitter,
       bibleStudyGuide: generatedContent.bibleStudyGuide,
-      executiveSummary: generatedContent.executiveSummary
+      executiveSummary: generatedContent.executiveSummary,
+      devotional: generatedContent.devotional
     };
     // If non-English, translate all content using Google Translate
     if (outputLanguage !== 'en') {
@@ -473,6 +529,11 @@ FINAL VALIDATION (CHECK BEFORE RETURNING):
         if (hasBibleStudy && generatedContent.bibleStudyGuide) {
           console.log('Translating Bible study guide...');
           generatedContent.bibleStudyGuide = await translateText(generatedContent.bibleStudyGuide, outputLanguage);
+        }
+        // Translate devotional
+        if (hasDevotional && generatedContent.devotional) {
+          console.log('Translating devotional...');
+          generatedContent.devotional = await translateText(generatedContent.devotional, outputLanguage);
         }
         console.log('=== TRANSLATION COMPLETED SUCCESSFULLY ===');
       } catch (translateError) {
