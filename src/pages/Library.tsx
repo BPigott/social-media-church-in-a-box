@@ -13,6 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Copy, Download, Trash2, Search, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { GeneratedContent } from "@/types/database";
+import ReactMarkdown from "react-markdown";
 
 const Library = () => {
   const { user, loading } = useAuth();
@@ -24,6 +25,20 @@ const Library = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   const [currentVariations, setCurrentVariations] = useState<Record<string, number>>({});
+
+  // Helper function to clean up Bible Study formatting
+  const cleanBibleStudyFormatting = (content: string): string => {
+    return content
+      // Remove standalone hashtags (but keep markdown headers)
+      .replace(/(?<!#)\s+#(?![#\s])/g, '')
+      // Remove excessive asterisks used for emphasis
+      .replace(/\*{1,2}([^*]+)\*{1,2}/g, '$1')
+      // Clean up any remaining social media formatting
+      .replace(/#{2,}/g, '')
+      // Ensure proper spacing between sections
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  };
 
   useEffect(() => {
     if (!loading && !user) {
@@ -200,15 +215,18 @@ const Library = () => {
         content.push(`=== TWITTER/X ${posts.length > 1 ? `(Variation ${idx + 1})` : ''} ===\n${post}\n`);
       });
     }
-    if (item.executive_summary) {
-      content.push(`=== EXECUTIVE SUMMARY ===\n${item.executive_summary}\n`);
+    if (item.bible_study_guide) {
+      content.push(`=== BIBLE STUDY GUIDE ${item.output_language && item.output_language !== 'en' ? `(${item.output_language.toUpperCase()})` : ''} ===\n${item.bible_study_guide}\n`);
+    }
+    if (item.devotional) {
+      content.push(`=== DAILY DEVOTIONAL ===\n${item.devotional}\n`);
     }
 
     const blob = new Blob([content.join('\n\n')], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `social-posts-${new Date(item.generated_at).toISOString().split('T')[0]}.txt`;
+    a.download = `content-${new Date(item.generated_at).toISOString().split('T')[0]}.txt`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -218,7 +236,8 @@ const Library = () => {
     const fbPosts = Array.isArray(item.facebook_post) ? item.facebook_post : [item.facebook_post];
     const igPosts = Array.isArray(item.instagram_post) ? item.instagram_post : [item.instagram_post];
     
-    return item.executive_summary?.toLowerCase().includes(query) ||
+    return item.devotional?.toLowerCase().includes(query) ||
+      item.bible_study_guide?.toLowerCase().includes(query) ||
       fbPosts.some(post => post?.toLowerCase().includes(query)) ||
       igPosts.some(post => post?.toLowerCase().includes(query));
   });
@@ -303,10 +322,10 @@ const Library = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {item.executive_summary && (
+                  {item.devotional && (
                     <Collapsible
-                      open={expandedSections[`${item.id}-summary`]}
-                      onOpenChange={() => toggleSection(`${item.id}-summary`)}
+                      open={expandedSections[`${item.id}-devotional`]}
+                      onOpenChange={() => toggleSection(`${item.id}-devotional`)}
                     >
                       <div className="border rounded-lg">
                         <CollapsibleTrigger className="w-full">
@@ -314,17 +333,17 @@ const Library = () => {
                             <div className="flex items-center gap-2">
                               <ChevronDown 
                                 className={`w-4 h-4 transition-transform ${
-                                  expandedSections[`${item.id}-summary`] ? 'rotate-180' : ''
-                                }`} 
+                                  expandedSections[`${item.id}-devotional`] ? 'rotate-180' : ''
+                                }`}
                               />
-                              <p className="text-sm font-medium">Executive Summary</p>
+                              <p className="text-sm font-medium">Daily Devotional</p>
                             </div>
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                copyToClipboard(item.executive_summary!, "Executive summary");
+                                copyToClipboard(item.devotional!, "Daily devotional");
                               }}
                             >
                               <Copy className="w-4 h-4" />
@@ -335,7 +354,7 @@ const Library = () => {
                           <div className="px-4 pb-4">
                             <div className="bg-muted p-4 rounded-lg">
                               <ScrollArea className="h-[300px]">
-                                <p className="text-sm whitespace-pre-wrap pr-4">{item.executive_summary}</p>
+                                <p className="text-sm whitespace-pre-wrap pr-4">{item.devotional}</p>
                               </ScrollArea>
                             </div>
                           </div>
@@ -371,6 +390,54 @@ const Library = () => {
                     if (posts.length === 0) return null;
                     return renderPlatformSection(item.id, "Twitter/X", posts);
                   })()}
+
+                  {item.bible_study_guide && (
+                    <Collapsible
+                      open={expandedSections[`${item.id}-bible-study`]}
+                      onOpenChange={() => toggleSection(`${item.id}-bible-study`)}
+                    >
+                      <div className="border rounded-lg">
+                        <CollapsibleTrigger className="w-full">
+                          <div className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                            <div className="flex items-center gap-2">
+                              <ChevronDown 
+                                className={`w-4 h-4 transition-transform ${
+                                  expandedSections[`${item.id}-bible-study`] ? 'rotate-180' : ''
+                                }`} 
+                              />
+                              <p className="text-sm font-medium">
+                                Bible Study Guide
+                                {item.output_language && item.output_language !== 'en' && (
+                                  <span className="ml-2 text-xs text-muted-foreground">
+                                    ({item.output_language.toUpperCase()})
+                                  </span>
+                                )}
+                              </p>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                copyToClipboard(item.bible_study_guide!, "Bible Study Guide");
+                              }}
+                            >
+                              <Copy className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <div className="px-4 pb-4">
+                            <ScrollArea className="h-[400px]">
+                              <div className="prose prose-sm max-w-none bg-muted p-4 rounded-lg prose-p:mb-4">
+                                <ReactMarkdown>{cleanBibleStudyFormatting(item.bible_study_guide)}</ReactMarkdown>
+                              </div>
+                            </ScrollArea>
+                          </div>
+                        </CollapsibleContent>
+                      </div>
+                    </Collapsible>
+                  )}
                 </CardContent>
               </Card>
             ))}

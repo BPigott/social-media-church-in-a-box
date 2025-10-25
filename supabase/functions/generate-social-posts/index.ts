@@ -1,11 +1,27 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
+import { translateText, translateMultiple } from '../_shared/translate.ts';
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
 };
-
+const LANGUAGE_NAMES = {
+  'en': 'English',
+  'es': 'Spanish',
+  'fr': 'French',
+  'pt': 'Portuguese',
+  'de': 'German',
+  'ko': 'Korean',
+  'zh': 'Chinese (Simplified)',
+  'zh-TW': 'Chinese (Traditional)',
+  'ar': 'Arabic',
+  'fa': 'Persian (Farsi)',
+  'pl': 'Polish',
+  'uk': 'Ukrainian',
+  'it': 'Italian',
+  'ru': 'Russian',
+  'ja': 'Japanese'
+};
 const PLATFORM_GUIDELINES = {
   facebook: `
 Facebook Guidelines:
@@ -52,86 +68,106 @@ Twitter/X Guidelines:
 - Social Handle: Can tag @[handle] when relevant, keeps posts more personal
 - Hashtags: 1-2 hashtags maximum
 - Emojis: Use 1-2 for emphasis
-`,
+`
 };
-
-serve(async (req) => {
+serve(async (req)=>{
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, {
+      headers: corsHeaders
+    });
   }
-
   try {
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
-
+    const supabase = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       throw new Error('No authorization header');
     }
-
-    const { data: { user }, error: userError } = await supabase.auth.getUser(
-      authHeader.replace('Bearer ', '')
-    );
-
+    const { data: { user }, error: userError } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
     if (userError || !user) {
       throw new Error('Unauthorized');
     }
-
-    const { transcript, styleGuide, platforms, customCTA, churchId, postsPerPlatform = 1, speakerName, socialHandles } = await req.json();
-
-    // Validate transcript
-    if (!transcript || transcript.trim().length < 100) {
-      return new Response(
-        JSON.stringify({ error: 'Transcript is missing or too short. Please provide a complete sermon transcript.' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    const { transcript, styleGuide, platforms, customCTA, churchId, postsPerPlatform = 1, speakerName, socialHandles, contentTypes = [
+      'social_media'
+    ], outputLanguage = 'en' } = await req.json();
+    // Get language name from code
+    const languageName = LANGUAGE_NAMES[outputLanguage] || outputLanguage;
+    // Debug logging for translation
+    console.log('=== TRANSLATION DEBUG ===');
+    console.log('Output Language Code:', outputLanguage);
+    console.log('Output Language Name:', languageName);
+    console.log('Will translate?', outputLanguage !== 'en');
+    // Validate input based on content types
+    const hasSocialMedia = contentTypes.includes('social_media');
+    const hasBibleStudy = contentTypes.includes('bible_study');
+    if (!hasSocialMedia && !hasBibleStudy) {
+      return new Response(JSON.stringify({
+        error: 'Please select at least one content type to generate.'
+      }), {
+        status: 400,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      });
     }
-
-    console.log('Generating social posts for church:', churchId, 'platforms:', platforms);
-    console.log('Posts per platform:', postsPerPlatform);
-    console.log('Transcript length:', transcript?.length || 0);
+    // For social media, validate platforms
+    if (hasSocialMedia && (!platforms || platforms.length === 0)) {
+      return new Response(JSON.stringify({
+        error: 'Please select at least one platform for social media posts.'
+      }), {
+        status: 400,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      });
+    }
+    // Validate content source - need either transcript or customCTA
+    const hasTranscript = transcript && transcript.trim().length >= 100;
+    const hasCTA = customCTA && customCTA.trim().length >= 10;
+    if (!hasTranscript && !hasCTA) {
+      return new Response(JSON.stringify({
+        error: 'Please provide either a sermon transcript (100+ words) or call-to-action/event information (10+ words).'
+      }), {
+        status: 400,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      });
+    }
+    console.log('Generating content for church:', churchId);
+    console.log('Content types:', contentTypes);
+    console.log('Output language:', outputLanguage);
+    console.log('Has transcript:', hasTranscript, 'Length:', transcript?.length || 0);
+    console.log('Has CTA:', hasCTA, 'Length:', customCTA?.length || 0);
     console.log('Style guide length:', styleGuide?.length || 0);
     console.log('Custom CTA:', customCTA || 'None');
     console.log('Speaker name:', speakerName || 'Not provided');
-
-    // Build platform-specific guidelines
-    const selectedGuidelines = platforms
-      .map((platform: string) => PLATFORM_GUIDELINES[platform as keyof typeof PLATFORM_GUIDELINES])
-      .join('\n\n');
-
-    const systemPrompt = `You are an expert social media content creator for churches. Create engaging, platform-specific social media posts that capture the essence of the sermon while maintaining the church's unique voice and style.
+    console.log('Platforms:', platforms);
+    console.log('Posts per platform:', postsPerPlatform);
+    // Build platform-specific guidelines (only for social media)
+    const selectedGuidelines = hasSocialMedia && platforms ? platforms.map((platform)=>PLATFORM_GUIDELINES[platform]).join('\n\n') : '';
+    const systemPrompt = `You are an expert church communications specialist. Create engaging content that captures the essence of sermons and church events while maintaining the church's unique voice and style.
 
 CRITICAL: Your response must be ONLY valid JSON with no preamble, explanation, or additional text. Do not write "Here is the JSON:" or any other introduction. Start directly with the opening brace {`;
-
     const userPrompt = `
-# Primary Task Context
-Your goal is to create social media posts that capture and communicate the key messages from the sermon transcript provided below. The sermon content must be the primary focus of all posts.
+# Content Generation Task
+${hasTranscript ? 'Generate content based on the sermon transcript provided below.' : 'Generate content based on the church event/announcement information provided below.'}
+${hasSocialMedia ? 'Create social media posts optimized for each platform.' : ''}
+${hasBibleStudy ? 'Create a comprehensive Bible Study Guide with scripture references and discussion questions.' : ''}
 
-# CRITICAL GROUNDING RULES
-- You MUST extract content directly from the sermon transcript below
-- DO NOT create generic theological content that "sounds right" or is spiritually appropriate
-- DO NOT invent examples, stories, or illustrations that are not in the transcript
-- DO NOT cite scripture unless it is explicitly mentioned in the transcript text
-- If you reference a point from the sermon, it must be directly traceable to the transcript
-- Every claim you make must be found in the actual transcript above
-
----
-
-# Sermon Transcript
+# Content Source
+${hasTranscript ? `
+## Sermon Transcript
 ${transcript}
 
----
-
-# Sermon Speaker
+## Sermon Speaker
 ${speakerName ? `This sermon was delivered by ${speakerName}.` : 'Speaker not specified.'}
-
-# Speaker Reference Guidelines
-- If speaker name is provided, use it naturally in posts when relevant (e.g., "${speakerName} shared...", "${speakerName} reminded us...")
-- If no speaker provided, use generic references ("The speaker...", "We heard...", "This message...")
-- Keep speaker references natural and not forced - only mention when it flows well
-- In the executive summary, you can mention the speaker once in the opening
+` : `
+## Event/Announcement Information
+${customCTA}
+`}
 
 ---
 
@@ -140,52 +176,27 @@ ${styleGuide}
 
 ---
 
+${hasSocialMedia ? `
 # Platform Guidelines
 ${selectedGuidelines}
 
 ---
 
-# Optional Additions to Include
-${customCTA || 'None - focus solely on sermon content'}
+# Social Media Generation Requirements
+${hasTranscript ? `
+- Extract content directly from the sermon transcript above
+- DO NOT create generic theological content that "sounds right"
+- DO NOT invent examples, stories, or illustrations not in the transcript
+- DO NOT cite scripture unless explicitly mentioned in the transcript
+- Every claim must be traceable to the actual transcript
+` : `
+- Build content around the event/announcement information provided
+- Use the church style guide to maintain authentic voice and tone
+- Create engaging posts that promote the event/announcement
+- Focus on the key message and call-to-action
+`}
 
-Note: If optional additions are provided above, incorporate them as a secondary call-to-action AFTER presenting the sermon's main message. The sermon content should remain the primary focus.
-
----
-
-# Church Social Media Handles
-${socialHandles && Object.keys(socialHandles).length > 0 ? 
-  Object.entries(socialHandles)
-    .filter(([_, handle]) => handle && String(handle).trim())
-    .map(([platform, handle]) => `${platform}: @${handle}`)
-    .join('\n') || 'None provided'
-  : 'None provided'}
-
-# Social Handle Usage Guidelines
-- Use handles NATURALLY and SPARINGLY - they should enhance, not dominate the content
-- Best practices per platform:
-  * Facebook: Can mention page URL in a natural way (e.g., "Learn more at facebook.com/[handle]")
-  * Instagram: Use @handle in caption for discoverability, especially in CTAs
-  * Twitter: Can tag @handle when relevant, keeps posts more personal
-  * TikTok: Reference @handle in video caption for follows
-- DO NOT force handle mentions - only use when it flows naturally
-- Primary focus should remain on sermon content
-- Handles work best in CTAs: "Follow @handle for weekly messages" or "Connect with us @handle"
-
----
-
-# Task
-Create social media posts that capture and communicate the key messages from the SERMON TRANSCRIPT provided above.
-
-CRITICAL REQUIREMENTS:
-- Each post MUST quote or closely paraphrase actual content from the sermon transcript above
-- Reference ONLY scripture passages that are explicitly mentioned in the transcript
-- If the sermon tells a story or illustration, you may reference it - but ONLY if it actually appears in the transcript
-- DO NOT create "spiritually appropriate" content - use ONLY what the preacher actually said
-- Verify every claim you make can be found in the transcript above
-- If "Optional Additions" are provided, weave them naturally AFTER presenting actual sermon content
-- DO NOT create posts solely about the optional additions - they should enhance, not replace, sermon content
-
-Generate ${postsPerPlatform} ${postsPerPlatform === 1 ? 'post' : 'different variations'} for EACH of the following platforms: ${platforms.join(', ')}
+Generate ${postsPerPlatform} ${postsPerPlatform === 1 ? 'post' : 'different variations'} for EACH of the following platforms: ${platforms?.join(', ') || 'N/A'}
 
 ${postsPerPlatform > 1 ? `
 VARIATION REQUIREMENTS:
@@ -197,114 +208,195 @@ VARIATION REQUIREMENTS:
 - All variations must follow platform-specific guidelines
 ` : ''}
 
-Also create an executive summary (400-500 words) that SUMMARIZES the sermon content:
-- **THIS IS A SUMMARY, NOT A RETELLING**: Condense the key points, don't narrate through the sermon
-- **Structure**: 
-  - Opening: One sentence capturing the central theme/message
-  - Body: 2-3 paragraphs summarizing the main arguments and insights
-  - Closing: Practical application or takeaway
-- **Scripture References**: 
-  - ONLY cite scripture if it appears explicitly in the transcript
-  - If scripture is mentioned, format as: "The sermon referenced [book] [chapter]:[verse]..."
-  - If NO scripture is mentioned in the transcript, DO NOT invent or assume any
-- **Writing Style**: 
-  - Write in third person about what the sermon covered ("The sermon explored...", "The message emphasized...")
-  - Be concise and specific - extract the essence, not the details
-  - Focus on WHAT was taught, not HOW it was preached
-  - Every statement must be traceable to the transcript - no invented theology
-- **End with "Key Takeaways:"** followed by 3-5 bullet points summarizing main applications FROM THE SERMON
-- **DO NOT**: Write in a sermon style, retell the progression, or create generic theological content that wasn't in the sermon
+Also create an executive summary (400-500 words) that SUMMARIZES the ${hasTranscript ? 'sermon content' : 'event/announcement'}:
+- **Structure**: Opening theme → Main points → Practical application
+- **Scripture References**: ${hasTranscript ? 'ONLY cite scripture if it appears explicitly in the transcript' : 'Include relevant scripture if appropriate for the event'}
+- **Writing Style**: Write in third person about what was covered
+- **End with "Key Takeaways:"** followed by 3-5 bullet points
+` : ''}
 
-FINAL VALIDATION:
-Before returning your response, verify that:
-1. Every social post references actual content from the transcript
-2. No scripture is cited unless it appears in the transcript
-3. No stories or illustrations are mentioned unless they're in the transcript
-4. The executive summary accurately reflects what was actually preached
-5. You have not invented any theological points that weren't in the sermon
+${hasBibleStudy ? `
+# Bible Study Guide Generation Requirements
+${hasTranscript ? `
+- Extract ALL scripture references from the sermon transcript
+- For each scripture, provide the NIV translation
+- Create 5 discussion questions designed for ~10 minutes each
+- Focus questions on application, not just comprehension
+- Include practical next steps
+` : `
+- Use the event/announcement as the basis for the study
+- Include relevant scripture passages that relate to the event theme
+- Create discussion questions that help people engage with the event's message
+- Focus on practical application and community building
+`}
 
+Generate the Bible Study Guide in English.
+
+IMPORTANT:
+- ALL content must be generated in English
+- Content will be translated to ${languageName} automatically if needed
+- Focus on clear, natural English that translates well
+
+BIBLE STUDY GUIDE FORMAT:
+# Bible Study Guide
+
+## Scripture References
+[List all scriptures with book/chapter/verse]
+
+### [Scripture Reference 1]
+**[Book Chapter:Verse]** (NIV)
+[Full text of verse(s) in NIV translation]
+
+[Repeat for each scripture reference]
+
+## ${hasTranscript ? 'Sermon' : 'Event'} Summary
+[2-3 paragraph summary of the ${hasTranscript ? 'sermon\'s main message' : 'event\'s key themes'}]
+
+## Reflection Questions
+1. [Question designed for 10-minute discussion]
+2. [Question designed for 10-minute discussion]
+3. [Question designed for 10-minute discussion]
+4. [Question designed for 10-minute discussion]
+5. [Question designed for 10-minute discussion]
+
+## Application
+[Practical takeaways and action steps]
+
+FORMATTING REQUIREMENTS:
+- Use clean markdown formatting with # headers only
+- Do NOT use hashtags (# symbols for anything other than markdown headers)
+- Do NOT use asterisks for emphasis (**bold** or *italic*)
+- Do NOT use social media formatting
+- Use plain text with proper paragraph breaks
+- Ensure all content is properly spaced and readable
+` : ''}
+
+---
+
+# Church Social Media Handles
+${socialHandles && Object.keys(socialHandles).length > 0 ? Object.entries(socialHandles).filter(([_, handle])=>handle && String(handle).trim()).map(([platform, handle])=>`${platform}: @${handle}`).join('\n') || 'None provided' : 'None provided'}
+
+# Social Handle Usage Guidelines
+- Use handles NATURALLY and SPARINGLY - they should enhance, not dominate the content
+- Best practices per platform:
+  * Facebook: Can mention page URL in a natural way
+  * Instagram: Use @handle in caption for discoverability
+  * Twitter: Can tag @handle when relevant
+  * TikTok: Reference @handle in video caption for follows
+- DO NOT force handle mentions - only use when it flows naturally
+- Primary focus should remain on ${hasTranscript ? 'sermon content' : 'event content'}
+
+---
+
+${customCTA && customCTA.trim() ? `
+# Call-to-Action Integration
+IMPORTANT: The following call-to-action/announcement MUST be incorporated into the social media posts:
+
+"${customCTA}"
+
+## CTA Integration Guidelines:
+- **Facebook**: Naturally weave the CTA into the post body or include as a compelling closing statement. The CTA should feel like an organic part of the message, not an afterthought.
+- **Instagram**: Include the CTA in the caption before hashtags, or suggest it as a first comment. Make it visual and engaging.
+- **Twitter/X**: Keep concise - if character limit is tight, prioritize the CTA over other details. Make every character count.
+- **TikTok**: End with a punchy, action-oriented CTA. Keep it short and direct.
+- **Balance**: If there's sermon content, blend it with the CTA naturally. Don't let either feel forced or disconnected.
+- **Urgency**: If the CTA has time-sensitive information (dates, deadlines), make that clear and prominent.
+- **Action Words**: Use strong action verbs (Join, Register, Celebrate, Discover, Come, Experience).
+
+${hasTranscript ? '- The sermon content provides the "why" - the CTA provides the "what next"' : '- The CTA is your primary content - make it compelling and clear'}
+
+---
+` : ''}
+
+
+# Response Format
 Return your response as a JSON object with this exact structure:
 {
+  ${hasSocialMedia ? `
   "facebook": ${postsPerPlatform === 1 ? '"post content for Facebook"' : '["variation 1", "variation 2", ...]'},
   "instagram": ${postsPerPlatform === 1 ? '"post content for Instagram"' : '["variation 1", "variation 2", ...]'},
   "tiktok": ${postsPerPlatform === 1 ? '"post content for TikTok"' : '["variation 1", "variation 2", ...]'},
   "twitter": ${postsPerPlatform === 1 ? '"post content for Twitter"' : '["variation 1", "variation 2", ...]'},
-  "executiveSummary": "summary content here (always a single string)"
+  "executiveSummary": "summary content here (always a single string)",
+  ` : ''}
+  ${hasBibleStudy ? `"bibleStudyGuide": "complete Bible study guide content (always a single string)",` : ''}
 }
 
-${postsPerPlatform > 1 ? 'IMPORTANT: Return an array of exactly ' + postsPerPlatform + ' variations for each platform.' : 'IMPORTANT: Only include keys for the platforms that were requested.'}
+${hasSocialMedia ? 'IMPORTANT: Only include keys for the platforms that were requested.' : ''}
+${hasBibleStudy ? 'IMPORTANT: The Bible Study Guide must be complete and properly formatted.' : ''}
 
-Important:
-- Only include keys for the platforms that were requested
-- Follow the character limits and guidelines for each platform
-- Maintain the church's voice from the style guide
-- Include relevant hashtags for each platform
-- Make each post unique and optimized for its platform
-- Use proper formatting: line breaks, paragraph spacing, and structure
-- DO NOT create solid blocks of text - use whitespace strategically
-- For Instagram: use line breaks generously (Instagram best practice)
-- For Facebook: break into 2-3 paragraphs with spacing
-- Each platform post should be visually scannable, not a text wall
-
+${hasSocialMedia ? `
 FINAL LENGTH CHECK (VALIDATE BEFORE RETURNING):
-- Facebook: Count words - must be 40-80 words maximum. If over 80, trim it down.
-- Instagram: First line (up to first line break) must be under 125 characters (including any @handles). Total caption aim for 150-200 characters.
-- Twitter: Must be under 280 characters total (including @handles).
-- TikTok: Must be under 150 characters total (including @handles).
-- Social handles count toward character limits - adjust accordingly.
-Review each post you generated and revise if any exceed these limits.
-`;
+- Facebook: Count words - must be 40-80 words maximum
+- Instagram: First line must be under 125 characters
+- Twitter: Must be under 280 characters total
+- TikTok: Must be under 150 characters total
+- Social handles count toward character limits
+` : ''}
 
+${hasBibleStudy ? `
+FINAL VALIDATION (CHECK BEFORE RETURNING):
+- Verify ALL text is in English
+- Confirm no hashtags or asterisks used for emphasis
+- Ensure clean markdown formatting with proper spacing
+- Use natural, clear language that translates well
+` : ''}
+`;
     const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
     if (!ANTHROPIC_API_KEY) {
       throw new Error('ANTHROPIC_API_KEY not configured');
     }
-
-    console.log('Calling Anthropic API with Claude 4.5 Sonnet...');
-
+    console.log('Calling Anthropic API with Claude 4.5 Haiku...');
     const aiResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'x-api-key': ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01',
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 8192,
         system: systemPrompt,
         messages: [
-          { role: 'user', content: userPrompt }
+          {
+            role: 'user',
+            content: userPrompt
+          }
         ],
-        temperature: 0.7,
-      }),
+        temperature: 0.7
+      })
     });
-
     if (!aiResponse.ok) {
       const errorText = await aiResponse.text();
       console.error('Anthropic API error:', aiResponse.status, errorText);
-
       if (aiResponse.status === 429) {
-        return new Response(
-          JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }),
-          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return new Response(JSON.stringify({
+          error: 'Rate limit exceeded. Please try again in a moment.'
+        }), {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          }
+        });
       }
-
       if (aiResponse.status === 402 || aiResponse.status === 403) {
-        return new Response(
-          JSON.stringify({ error: 'API key issue or credit limit reached. Please check your Anthropic account.' }),
-          { status: aiResponse.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return new Response(JSON.stringify({
+          error: 'API key issue or credit limit reached. Please check your Anthropic account.'
+        }), {
+          status: aiResponse.status,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          }
+        });
       }
-
       throw new Error(`Anthropic API error: ${aiResponse.status}`);
     }
-
     const aiData = await aiResponse.json();
     const textContent = aiData.content[0].text;
     console.log("Raw AI response preview:", textContent.substring(0, 200));
-
     // Try to extract and parse JSON from the response
     let generatedContent;
     try {
@@ -312,7 +404,6 @@ Review each post you generated and revise if any exceed these limits.
       generatedContent = JSON.parse(textContent);
     } catch (directError) {
       console.log("Direct JSON parse failed, attempting extraction...");
-      
       // Try to extract JSON from markdown code blocks
       let jsonMatch = textContent.match(/```json\n([\s\S]*?)\n```/);
       if (jsonMatch) {
@@ -323,7 +414,6 @@ Review each post you generated and revise if any exceed these limits.
           console.error("Markdown JSON extraction failed:", mdError);
         }
       }
-      
       // If markdown extraction failed, try to find any JSON object in the text
       if (!generatedContent) {
         jsonMatch = textContent.match(/\{[\s\S]*\}/);
@@ -334,7 +424,7 @@ Review each post you generated and revise if any exceed these limits.
           } catch (extractError) {
             console.error("JSON extraction failed:", extractError);
             console.error("Matched text:", jsonMatch[0].substring(0, 500));
-            throw new Error(`Failed to parse AI response as JSON: ${(extractError as Error).message}`);
+            throw new Error(`Failed to parse AI response as JSON: ${extractError.message}`);
           }
         } else {
           console.error("No JSON found in response:", textContent.substring(0, 500));
@@ -342,18 +432,89 @@ Review each post you generated and revise if any exceed these limits.
         }
       }
     }
-
-    console.log('Social posts generated successfully');
-
-    return new Response(
-      JSON.stringify(generatedContent),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    console.log('Content generated successfully in English');
+    // Store the English versions (original)
+    const englishContent = {
+      facebook: generatedContent.facebook,
+      instagram: generatedContent.instagram,
+      tiktok: generatedContent.tiktok,
+      twitter: generatedContent.twitter,
+      bibleStudyGuide: generatedContent.bibleStudyGuide,
+      executiveSummary: generatedContent.executiveSummary
+    };
+    // If non-English, translate all content using Google Translate
+    if (outputLanguage !== 'en') {
+      console.log(`=== STARTING TRANSLATION TO ${languageName} (${outputLanguage}) ===`);
+      console.log('=== DEBUG: About to call translation functions ===');
+      try {
+        // Translate social media posts
+        if (hasSocialMedia) {
+          console.log('Translating social media posts for platforms:', platforms);
+          for (const platform of platforms){
+            if (generatedContent[platform]) {
+              if (Array.isArray(generatedContent[platform])) {
+                // Multiple variations - translate each
+                console.log(`Translating ${platform} posts (${generatedContent[platform].length} variations)...`);
+                generatedContent[platform] = await translateMultiple(generatedContent[platform], outputLanguage);
+              } else {
+                // Single post
+                console.log(`Translating ${platform} post...`);
+                generatedContent[platform] = await translateText(generatedContent[platform], outputLanguage);
+              }
+            }
+          }
+          // Translate executive summary if present
+          if (generatedContent.executiveSummary) {
+            console.log('Translating executive summary...');
+            generatedContent.executiveSummary = await translateText(generatedContent.executiveSummary, outputLanguage);
+          }
+        }
+        // Translate Bible study
+        if (hasBibleStudy && generatedContent.bibleStudyGuide) {
+          console.log('Translating Bible study guide...');
+          generatedContent.bibleStudyGuide = await translateText(generatedContent.bibleStudyGuide, outputLanguage);
+        }
+        console.log('=== TRANSLATION COMPLETED SUCCESSFULLY ===');
+      } catch (translateError) {
+        console.error('=== TRANSLATION ERROR ===');
+        console.error('Error type:', translateError instanceof Error ? translateError.constructor.name : typeof translateError);
+        console.error('Error message:', translateError instanceof Error ? translateError.message : String(translateError));
+        console.error('Full error:', translateError);
+        // If translation fails, return English content with error note
+        return new Response(JSON.stringify({
+          ...englishContent,
+          englishVersions: null,
+          translationError: `Translation to ${languageName} failed: ${translateError instanceof Error ? translateError.message : 'Unknown error'}. Returning English content only.`
+        }), {
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          }
+        });
+      }
+    } else {
+      console.log('=== NO TRANSLATION NEEDED (English selected) ===');
+    }
+    // Return both translated and English versions
+    return new Response(JSON.stringify({
+      ...generatedContent,
+      englishVersions: outputLanguage !== 'en' ? englishContent : null
+    }), {
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json'
+      }
+    });
   } catch (error) {
     console.error('Error in generate-social-posts:', error);
-    return new Response(
-      JSON.stringify({ error: (error as Error).message || 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({
+      error: error.message || 'Internal server error'
+    }), {
+      status: 500,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json'
+      }
+    });
   }
 });

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project uses Supabase Edge Functions with **Claude 4.5 Sonnet** (via Anthropic API) for AI-powered content generation.
+This project uses Supabase Edge Functions with **Claude 4.5 Haiku** (via Anthropic API) for AI-powered content generation.
 
 ## Functions
 
@@ -42,8 +42,8 @@ supabase secrets list
 ## Model Configuration
 
 Both functions are configured to use:
-- **Model**: `claude-sonnet-4-20250514` (Claude 4.5 Sonnet)
-- **Max Tokens**: 8192
+- **Model**: `claude-haiku-4-5-20251001` (Claude 4.5 Haiku)
+- **Max Tokens**: 6144-8192 (varies by function)
 - **Temperature**: 0.7
 
 ## API Endpoints
@@ -95,15 +95,15 @@ supabase functions deploy generate-social-posts
 
 ## Cost Considerations
 
-Claude 4.5 Sonnet pricing (as of 2025):
-- **Input**: ~$3 per million tokens
-- **Output**: ~$15 per million tokens
+Claude 4.5 Haiku pricing (as of 2025):
+- **Input**: $1 per million tokens
+- **Output**: $5 per million tokens
 
 Typical usage per generation:
 - Style guide: ~5,000-10,000 input tokens, ~2,000-4,000 output tokens
 - Social posts: ~3,000-8,000 input tokens, ~1,000-2,000 output tokens
 
-**Cost estimate**: $0.05-0.15 per style guide generation, $0.02-0.10 per social post generation
+**Cost estimate**: $0.015-0.05 per style guide generation, $0.008-0.03 per social post generation
 
 ## Troubleshooting
 
@@ -129,7 +129,7 @@ This codebase was previously using Google Gemini 2.5 Flash via the Lovable AI Ga
 1. **API Endpoint**: Changed from Lovable gateway to direct Anthropic API
 2. **Authentication**: Now uses `x-api-key` header instead of `Authorization: Bearer`
 3. **Response Format**: Changed from OpenAI-compatible format to Anthropic Messages API format
-4. **Model Name**: Changed from `google/gemini-2.5-flash` to `claude-sonnet-4-20250514`
+4. **Model Name**: Changed from `google/gemini-2.5-flash` to `claude-haiku-4-5-20251001`
 5. **Environment Variable**: Changed from `LOVABLE_API_KEY` to `ANTHROPIC_API_KEY`
 
 ## Additional Resources
