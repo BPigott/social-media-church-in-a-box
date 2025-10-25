@@ -10,10 +10,29 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Copy, Download, Trash2, Search, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { Copy, Download, Trash2, Search, ChevronDown, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { GeneratedContent } from "@/types/database";
 import ReactMarkdown from "react-markdown";
+
+// Language names mapping
+const LANGUAGE_NAMES: Record<string, string> = {
+  'en': 'English',
+  'es': 'Spanish',
+  'fr': 'French',
+  'pt': 'Portuguese',
+  'de': 'German',
+  'ko': 'Korean',
+  'zh': 'Chinese (Simplified)',
+  'zh-TW': 'Chinese (Traditional)',
+  'ar': 'Arabic',
+  'fa': 'Persian (Farsi)',
+  'pl': 'Polish',
+  'uk': 'Ukrainian',
+  'it': 'Italian',
+  'ru': 'Russian',
+  'ja': 'Japanese'
+};
 
 const Library = () => {
   const { user, loading } = useAuth();
@@ -25,6 +44,7 @@ const Library = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   const [currentVariations, setCurrentVariations] = useState<Record<string, number>>({});
+  const [retranslating, setRetranslating] = useState(false);
 
   // Helper function to clean up Bible Study formatting
   const cleanBibleStudyFormatting = (content: string): string => {
@@ -56,7 +76,15 @@ const Library = () => {
     try {
       const { data, error } = await supabase
         .from('generated_content')
-        .select('*')
+        .select(`
+          *,
+          devotional_english,
+          bible_study_guide_english,
+          facebook_post_english,
+          instagram_post_english,
+          tiktok_post_english,
+          twitter_post_english
+        `)
         .eq('church_id', primaryChurch?.id)
         .order('generated_at', { ascending: false });
 
@@ -106,6 +134,127 @@ const Library = () => {
     });
   };
 
+  const handleRetranslate = async (editedEnglish: string, contentType: string, contentId: string, primaryLanguage: string) => {
+    if (!primaryChurch) return;
+
+    setRetranslating(true);
+
+    try {
+      // For retranslation, use the current primary language as target
+      const { data, error } = await supabase.functions.invoke(
+        'retranslate-content',
+        {
+          body: {
+            englishContent: editedEnglish,
+            targetLanguage: primaryLanguage,
+            contentType
+          }
+        }
+      );
+
+      if (error) throw error;
+
+      // Prepare database update object
+      let dbUpdateFields: any = {};
+      const normalizeToArray = (post: string | string[] | null) => {
+        if (!post) return null;
+        return Array.isArray(post) ? post : [post];
+      };
+
+      // Update the appropriate content based on contentType
+      const contentItem = content.find(c => c.id === contentId);
+      if (!contentItem) return;
+
+      if (contentType === 'bibleStudy') {
+        dbUpdateFields = {
+          bible_study_guide: data.translatedContent,
+          bible_study_guide_english: editedEnglish
+        };
+      } else if (contentType === 'devotional') {
+        dbUpdateFields = {
+          devotional: data.translatedContent,
+          devotional_english: editedEnglish
+        };
+      } else if (contentType.startsWith('facebook-')) {
+        const idx = parseInt(contentType.split('-')[1]);
+        const posts = Array.isArray(contentItem.facebook_post) 
+          ? [...contentItem.facebook_post] 
+          : [contentItem.facebook_post];
+        posts[idx] = data.translatedContent;
+        dbUpdateFields = {
+          facebook_post: normalizeToArray(posts),
+        };
+      } else if (contentType.startsWith('instagram-')) {
+        const idx = parseInt(contentType.split('-')[1]);
+        const posts = Array.isArray(contentItem.instagram_post)
+          ? [...contentItem.instagram_post]
+          : [contentItem.instagram_post];
+        posts[idx] = data.translatedContent;
+        dbUpdateFields = {
+          instagram_post: normalizeToArray(posts),
+        };
+      } else if (contentType.startsWith('tiktok-')) {
+        const idx = parseInt(contentType.split('-')[1]);
+        const posts = Array.isArray(contentItem.tiktok_post)
+          ? [...contentItem.tiktok_post]
+          : [contentItem.tiktok_post];
+        posts[idx] = data.translatedContent;
+        dbUpdateFields = {
+          tiktok_post: normalizeToArray(posts),
+        };
+      } else if (contentType.startsWith('twitter-')) {
+        const idx = parseInt(contentType.split('-')[1]);
+        const posts = Array.isArray(contentItem.twitter_post)
+          ? [...contentItem.twitter_post]
+          : [contentItem.twitter_post];
+        posts[idx] = data.translatedContent;
+        dbUpdateFields = {
+          twitter_post: normalizeToArray(posts),
+        };
+      }
+
+      // Update database with new content
+      if (Object.keys(dbUpdateFields).length > 0) {
+        const { error: updateError } = await supabase
+          .from('generated_content')
+          .update(dbUpdateFields)
+          .eq('id', contentId)
+          .eq('church_id', primaryChurch.id);
+
+        if (updateError) {
+          console.error('Database update error after retranslation:', updateError);
+          toast({
+            variant: "destructive",
+            title: "Save failed",
+            description: "Translation successful but failed to save to database."
+          });
+          return;
+        }
+
+        // Update local content state
+        setContent(prev => prev.map(item => 
+          item.id === contentId 
+            ? { ...item, ...dbUpdateFields }
+            : item
+        ));
+      }
+
+      toast({
+        title: "Content re-translated & saved",
+        description: "Your content has been translated and saved successfully."
+      });
+    } catch (error) {
+      console.error('Re-translation error:', error);
+      toast({
+        variant: "destructive",
+        title: "Re-translation failed",
+        description: "Failed to translate the content. Please try again."
+      });
+    } finally {
+      setRetranslating(false);
+    }
+  };
+
   const toggleSection = (key: string) => {
     setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
   };
@@ -123,12 +272,20 @@ const Library = () => {
   const renderPlatformSection = (
     itemId: string,
     platform: string,
-    posts: string[]
+    posts: string[],
+    item: any
   ) => {
     const sectionKey = `${itemId}-${platform}`;
     const currentIndex = currentVariations[sectionKey] || 0;
     const currentPost = posts[currentIndex] || "";
     const isExpanded = expandedSections[sectionKey];
+    
+    // Get English posts for re-translate functionality
+    const englishFieldName = `${platform.toLowerCase()}_post_english`;
+    const englishPosts = item[englishFieldName];
+    const englishPost = englishPosts 
+      ? (Array.isArray(englishPosts) ? englishPosts[currentIndex] : englishPosts)
+      : null;
 
     return (
       <Collapsible key={platform} open={isExpanded} onOpenChange={() => toggleSection(sectionKey)}>
@@ -181,6 +338,30 @@ const Library = () => {
                   <p className="text-sm whitespace-pre-wrap">{currentPost}</p>
                 </div>
               </ScrollArea>
+              {englishPost && primaryChurch?.primary_language !== 'en' && (
+                <div className="flex justify-end">
+                  <Button
+                    onClick={() => handleRetranslate(
+                      englishPost, 
+                      `${platform.toLowerCase()}-${currentIndex}`,
+                      item.id,
+                      primaryChurch?.primary_language || 'en'
+                    )}
+                    variant="outline"
+                    size="sm"
+                    disabled={retranslating}
+                  >
+                    {retranslating ? (
+                      <>
+                        <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                        Re-translating...
+                      </>
+                    ) : (
+                      'Re-translate from English'
+                    )}
+                  </Button>
+                </div>
+              )}
             </div>
           </CollapsibleContent>
         </div>
@@ -357,6 +538,30 @@ const Library = () => {
                                 <p className="text-sm whitespace-pre-wrap pr-4">{item.devotional}</p>
                               </ScrollArea>
                             </div>
+                            {(item as any).devotional_english && primaryChurch?.primary_language !== 'en' && (
+                              <div className="mt-3 flex justify-end">
+                                <Button
+                                  onClick={() => handleRetranslate(
+                                    (item as any).devotional_english, 
+                                    'devotional',
+                                    item.id,
+                                    primaryChurch?.primary_language || 'en'
+                                  )}
+                                  variant="outline"
+                                  size="sm"
+                                  disabled={retranslating}
+                                >
+                                  {retranslating ? (
+                                    <>
+                                      <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                                      Re-translating...
+                                    </>
+                                  ) : (
+                                    'Re-translate from English'
+                                  )}
+                                </Button>
+                              </div>
+                            )}
                           </div>
                         </CollapsibleContent>
                       </div>
@@ -367,28 +572,28 @@ const Library = () => {
                     const postsArray = Array.isArray(item.facebook_post) ? item.facebook_post : [item.facebook_post];
                     const posts = postsArray.filter((p): p is string => typeof p === "string" && p.length > 0);
                     if (posts.length === 0) return null;
-                    return renderPlatformSection(item.id, "Facebook", posts);
+                    return renderPlatformSection(item.id, "Facebook", posts, item);
                   })()}
 
                   {item.instagram_post && item.instagram_post.length > 0 && (() => {
                     const postsArray = Array.isArray(item.instagram_post) ? item.instagram_post : [item.instagram_post];
                     const posts = postsArray.filter((p): p is string => typeof p === "string" && p.length > 0);
                     if (posts.length === 0) return null;
-                    return renderPlatformSection(item.id, "Instagram", posts);
+                    return renderPlatformSection(item.id, "Instagram", posts, item);
                   })()}
 
                   {item.tiktok_post && item.tiktok_post.length > 0 && (() => {
                     const postsArray = Array.isArray(item.tiktok_post) ? item.tiktok_post : [item.tiktok_post];
                     const posts = postsArray.filter((p): p is string => typeof p === "string" && p.length > 0);
                     if (posts.length === 0) return null;
-                    return renderPlatformSection(item.id, "TikTok", posts);
+                    return renderPlatformSection(item.id, "TikTok", posts, item);
                   })()}
 
                   {item.twitter_post && item.twitter_post.length > 0 && (() => {
                     const postsArray = Array.isArray(item.twitter_post) ? item.twitter_post : [item.twitter_post];
                     const posts = postsArray.filter((p): p is string => typeof p === "string" && p.length > 0);
                     if (posts.length === 0) return null;
-                    return renderPlatformSection(item.id, "Twitter/X", posts);
+                    return renderPlatformSection(item.id, "Twitter/X", posts, item);
                   })()}
 
                   {item.bible_study_guide && (
@@ -433,6 +638,30 @@ const Library = () => {
                                 <ReactMarkdown>{cleanBibleStudyFormatting(item.bible_study_guide)}</ReactMarkdown>
                               </div>
                             </ScrollArea>
+                            {(item as any).bible_study_guide_english && primaryChurch?.primary_language !== 'en' && (
+                              <div className="mt-3 flex justify-end">
+                                <Button
+                                  onClick={() => handleRetranslate(
+                                    (item as any).bible_study_guide_english, 
+                                    'bibleStudy',
+                                    item.id,
+                                    primaryChurch?.primary_language || 'en'
+                                  )}
+                                  variant="outline"
+                                  size="sm"
+                                  disabled={retranslating}
+                                >
+                                  {retranslating ? (
+                                    <>
+                                      <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                                      Re-translating...
+                                    </>
+                                  ) : (
+                                    'Re-translate from English'
+                                  )}
+                                </Button>
+                              </div>
+                            )}
                           </div>
                         </CollapsibleContent>
                       </div>

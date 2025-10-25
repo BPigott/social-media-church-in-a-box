@@ -244,7 +244,7 @@ IMPORTANT:
 BIBLE STUDY GUIDE FORMAT:
 # Bible Study Guide
 
-## ${hasTranscript ? 'Sermon' : 'Event'} Summary
+## Summary
 [2-3 paragraph summary of the ${hasTranscript ? 'sermon\'s main message' : 'event\'s key themes'}]
 
 ## Scripture References
