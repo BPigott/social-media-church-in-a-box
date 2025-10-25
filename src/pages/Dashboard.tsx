@@ -611,13 +611,87 @@ const Dashboard = () => {
       return updated;
     });
 
+    // Save to database if we have an ID
+    if (generatedContent?.id && primaryChurch) {
+      try {
+        let dbUpdateFields: any = {};
+        const normalizeToArray = (post: string | string[] | null) => {
+          if (!post) return null;
+          return Array.isArray(post) ? post : [post];
+        };
+
+        if (contentKey === 'bibleStudyGuide') {
+          dbUpdateFields = { bible_study_guide: newContent };
+        } else if (contentKey === 'devotional') {
+          dbUpdateFields = { devotional: newContent };
+        } else if (contentKey.startsWith('facebook-')) {
+          const idx = parseInt(contentKey.split('-')[1]);
+          const currentPosts = Array.isArray(generatedContent.facebook)
+            ? [...generatedContent.facebook]
+            : [generatedContent.facebook];
+          currentPosts[idx] = newContent;
+          dbUpdateFields = { facebook_post: normalizeToArray(currentPosts) };
+        } else if (contentKey.startsWith('instagram-')) {
+          const idx = parseInt(contentKey.split('-')[1]);
+          const currentPosts = Array.isArray(generatedContent.instagram)
+            ? [...generatedContent.instagram]
+            : [generatedContent.instagram];
+          currentPosts[idx] = newContent;
+          dbUpdateFields = { instagram_post: normalizeToArray(currentPosts) };
+        } else if (contentKey.startsWith('tiktok-')) {
+          const idx = parseInt(contentKey.split('-')[1]);
+          const currentPosts = Array.isArray(generatedContent.tiktok)
+            ? [...generatedContent.tiktok]
+            : [generatedContent.tiktok];
+          currentPosts[idx] = newContent;
+          dbUpdateFields = { tiktok_post: normalizeToArray(currentPosts) };
+        } else if (contentKey.startsWith('twitter-')) {
+          const idx = parseInt(contentKey.split('-')[1]);
+          const currentPosts = Array.isArray(generatedContent.twitter)
+            ? [...generatedContent.twitter]
+            : [generatedContent.twitter];
+          currentPosts[idx] = newContent;
+          dbUpdateFields = { twitter_post: normalizeToArray(currentPosts) };
+        }
+
+        if (Object.keys(dbUpdateFields).length > 0) {
+          const { error: updateError } = await supabase
+            .from('generated_content')
+            .update(dbUpdateFields)
+            .eq('id', generatedContent.id)
+            .eq('church_id', primaryChurch.id);
+
+          if (updateError) {
+            console.error('Database update error:', updateError);
+            toast({
+              variant: "destructive",
+              title: "Save failed",
+              description: "Changes saved locally but failed to save to library."
+            });
+          } else {
+            toast({
+              title: "Content saved to library",
+              description: "Your changes have been saved to the library."
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Save error:', error);
+        toast({
+          variant: "destructive",
+          title: "Save failed",
+          description: "Failed to save changes to library."
+        });
+      }
+    } else {
+      toast({
+        title: "Content updated",
+        description: "Your edits have been saved locally."
+      });
+    }
+
     // Clear editing state
     setEditingContent(prev => ({ ...prev, [contentKey]: false }));
-
-    toast({
-      title: "Content updated",
-      description: "Your edits have been saved."
-    });
   };
 
   // Helper functions for multi-language support
@@ -674,6 +748,13 @@ const Dashboard = () => {
 
       if (error) throw error;
 
+      // Prepare database update object
+      let dbUpdateFields: any = {};
+      const normalizeToArray = (post: string | string[] | null) => {
+        if (!post) return null;
+        return Array.isArray(post) ? post : [post];
+      };
+
       // Update the appropriate content based on contentType
       setGeneratedContent((prev: any) => {
         const updated = { ...prev };
@@ -683,6 +764,21 @@ const Dashboard = () => {
           if (updated.englishVersions) {
             updated.englishVersions.bibleStudyGuide = editedEnglish;
           }
+          // Prepare DB update
+          dbUpdateFields = {
+            bible_study_guide: data.translatedContent,
+            bible_study_guide_english: editedEnglish
+          };
+        } else if (contentType === 'devotional') {
+          updated.devotional = data.translatedContent;
+          if (updated.englishVersions) {
+            updated.englishVersions.devotional = editedEnglish;
+          }
+          // Prepare DB update
+          dbUpdateFields = {
+            devotional: data.translatedContent,
+            devotional_english: editedEnglish
+          };
         } else if (contentType.startsWith('facebook-')) {
           const idx = parseInt(contentType.split('-')[1]);
           const posts = Array.isArray(updated.facebook)
@@ -698,6 +794,11 @@ const Dashboard = () => {
             engPosts[idx] = editedEnglish;
             updated.englishVersions.facebook = engPosts;
           }
+          // Prepare DB update
+          dbUpdateFields = {
+            facebook_post: normalizeToArray(posts),
+            facebook_post_english: updated.englishVersions?.facebook ? normalizeToArray(updated.englishVersions.facebook) : null
+          };
         } else if (contentType.startsWith('instagram-')) {
           const idx = parseInt(contentType.split('-')[1]);
           const posts = Array.isArray(updated.instagram)
@@ -713,6 +814,11 @@ const Dashboard = () => {
             engPosts[idx] = editedEnglish;
             updated.englishVersions.instagram = engPosts;
           }
+          // Prepare DB update
+          dbUpdateFields = {
+            instagram_post: normalizeToArray(posts),
+            instagram_post_english: updated.englishVersions?.instagram ? normalizeToArray(updated.englishVersions.instagram) : null
+          };
         } else if (contentType.startsWith('tiktok-')) {
           const idx = parseInt(contentType.split('-')[1]);
           const posts = Array.isArray(updated.tiktok)
@@ -728,6 +834,11 @@ const Dashboard = () => {
             engPosts[idx] = editedEnglish;
             updated.englishVersions.tiktok = engPosts;
           }
+          // Prepare DB update
+          dbUpdateFields = {
+            tiktok_post: normalizeToArray(posts),
+            tiktok_post_english: updated.englishVersions?.tiktok ? normalizeToArray(updated.englishVersions.tiktok) : null
+          };
         } else if (contentType.startsWith('twitter-')) {
           const idx = parseInt(contentType.split('-')[1]);
           const posts = Array.isArray(updated.twitter)
@@ -743,14 +854,38 @@ const Dashboard = () => {
             engPosts[idx] = editedEnglish;
             updated.englishVersions.twitter = engPosts;
           }
+          // Prepare DB update
+          dbUpdateFields = {
+            twitter_post: normalizeToArray(posts),
+            twitter_post_english: updated.englishVersions?.twitter ? normalizeToArray(updated.englishVersions.twitter) : null
+          };
         }
 
         return updated;
       });
 
+      // Update database with new content
+      if (Object.keys(dbUpdateFields).length > 0 && generatedContent?.id) {
+        const { error: updateError } = await supabase
+          .from('generated_content')
+          .update(dbUpdateFields)
+          .eq('id', generatedContent.id)
+          .eq('church_id', primaryChurch.id);
+
+        if (updateError) {
+          console.error('Database update error after retranslation:', updateError);
+          toast({
+            variant: "destructive",
+            title: "Save failed",
+            description: "Translation successful but failed to save to database."
+          });
+          return;
+        }
+      }
+
       toast({
-        title: "Content re-translated",
-        description: "Your edited English content has been translated successfully."
+        title: "Content re-translated & saved",
+        description: "Your edited English content has been translated and saved successfully."
       });
     } catch (error) {
       console.error('Re-translation error:', error);
@@ -1686,11 +1821,25 @@ const Dashboard = () => {
                                 </CollapsibleTrigger>
                                 <CollapsibleContent>
                                   <div className="p-4 border-l-2 border-muted-foreground/20 ml-4">
-                                    <ScrollArea className="border rounded-lg max-h-[400px]">
+                                    <ScrollArea className="border rounded-lg h-[400px] overflow-y-auto">
                                       <div className="prose prose-sm max-w-none p-4">
                                         <ReactMarkdown>{englishDevotional}</ReactMarkdown>
                                       </div>
                                     </ScrollArea>
+                                    <div className="mt-2 flex justify-end">
+                                      <Button
+                                        onClick={() => copyToClipboard(englishDevotional, "English devotional")}
+                                        variant="outline"
+                                        size="sm"
+                                      >
+                                        {copiedItem === "English devotional" ? (
+                                          <CheckCircle2 className="w-4 h-4 mr-2" />
+                                        ) : (
+                                          <Copy className="w-4 h-4 mr-2" />
+                                        )}
+                                        Copy
+                                      </Button>
+                                    </div>
                                   </div>
                                 </CollapsibleContent>
                               </Collapsible>
@@ -1711,11 +1860,25 @@ const Dashboard = () => {
                                   </CollapsibleTrigger>
                                   <CollapsibleContent>
                                     <div className="p-4 border-l-2 border-muted-foreground/20 ml-4">
-                                      <ScrollArea className="border rounded-lg max-h-[400px]">
+                                      <ScrollArea className="border rounded-lg h-[400px] overflow-y-auto">
                                         <div className="prose prose-sm max-w-none p-4">
                                           <ReactMarkdown>{langContent.devotional}</ReactMarkdown>
                                         </div>
                                       </ScrollArea>
+                                      <div className="mt-2 flex justify-end">
+                                        <Button
+                                          onClick={() => copyToClipboard(langContent.devotional, `${LANGUAGE_NAMES[langCode] || langCode} devotional`)}
+                                          variant="outline"
+                                          size="sm"
+                                        >
+                                          {copiedItem === `${LANGUAGE_NAMES[langCode] || langCode} devotional` ? (
+                                            <CheckCircle2 className="w-4 h-4 mr-2" />
+                                          ) : (
+                                            <Copy className="w-4 h-4 mr-2" />
+                                          )}
+                                          Copy
+                                        </Button>
+                                      </div>
                                     </div>
                                   </CollapsibleContent>
                                 </Collapsible>

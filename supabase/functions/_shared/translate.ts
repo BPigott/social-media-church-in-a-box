@@ -154,6 +154,94 @@ function getServiceAccountCredentials(): ServiceAccountCredentials {
 }
 
 /**
+ * Languages where hashtags should remain in English due to platform compatibility
+ */
+const HASHTAG_ENGLISH_LANGUAGES = ['zh', 'zh-TW', 'ja', 'ko', 'ar'];
+
+/**
+ * Extracts hashtags from text
+ */
+function extractHashtags(text: string): string[] {
+  const hashtagRegex = /#[\w\u00c0-\u017f\u0400-\u04ff\u0590-\u05ff\u0600-\u06ff\u4e00-\u9fff\uac00-\ud7af]+/g;
+  return text.match(hashtagRegex) || [];
+}
+
+/**
+ * Processes hashtags based on target language
+ */
+function processHashtags(text: string, targetLanguage: string, translatedHashtags: Map<string, string> = new Map()): string {
+  if (HASHTAG_ENGLISH_LANGUAGES.includes(targetLanguage)) {
+    // For these languages, keep hashtags in English
+    return text;
+  }
+
+  // For other languages, replace hashtags with translated versions if available
+  let processedText = text;
+  for (const [original, translated] of translatedHashtags.entries()) {
+    processedText = processedText.replace(new RegExp(original.replace('#', '\\#'), 'g'), translated);
+  }
+
+  return processedText;
+}
+
+/**
+ * Translates hashtags separately if the language supports it
+ */
+async function translateHashtagsIfSupported(
+  hashtags: string[],
+  targetLanguage: string,
+  sourceLanguage: string,
+  credentials: ServiceAccountCredentials,
+  accessToken: string
+): Promise<Map<string, string>> {
+  const hashtagTranslations = new Map<string, string>();
+
+  if (HASHTAG_ENGLISH_LANGUAGES.includes(targetLanguage) || hashtags.length === 0) {
+    return hashtagTranslations;
+  }
+
+  try {
+    // Remove # and translate just the text part
+    const hashtagTexts = hashtags.map(tag => tag.substring(1));
+    const projectId = credentials.project_id;
+    const url = `https://translation.googleapis.com/v3/projects/${projectId}/locations/global:translateText`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: hashtagTexts,
+        sourceLanguageCode: sourceLanguage,
+        targetLanguageCode: targetLanguage,
+        mimeType: 'text/plain',
+      }),
+    });
+
+    if (response.ok) {
+      const data: TranslationV3Response = await response.json();
+      
+      if (data.translations && data.translations.length === hashtags.length) {
+        hashtags.forEach((originalTag, index) => {
+          const translatedText = data.translations[index].translatedText;
+          // Clean up translated text and reconstruct hashtag
+          const cleanTranslatedText = translatedText.replace(/[^a-zA-Z0-9\u00c0-\u017f\u0400-\u04ff\u0590-\u05ff\u0600-\u06ff\u4e00-\u9fff\uac00-\ud7af]/g, '');
+          if (cleanTranslatedText) {
+            hashtagTranslations.set(originalTag, `#${cleanTranslatedText}`);
+          }
+        });
+      }
+    }
+  } catch (error) {
+    console.log('Hashtag translation failed, keeping original hashtags:', error);
+  }
+
+  return hashtagTranslations;
+}
+
+/**
  * Translates text using Google Cloud Translation API v3
  * @param text - The text to translate
  * @param targetLanguage - The target language code (e.g., 'es', 'fr', 'fa')
@@ -174,6 +262,9 @@ export async function translateText(
     const credentials = getServiceAccountCredentials();
     const accessToken = await getAccessToken(credentials);
     const projectId = credentials.project_id;
+
+    // Extract hashtags before translation
+    const hashtags = extractHashtags(text);
 
     // API v3 endpoint
     const url = `https://translation.googleapis.com/v3/projects/${projectId}/locations/global:translateText`;
@@ -204,7 +295,21 @@ export async function translateText(
       throw new Error('No translation returned from API');
     }
 
-    return data.translations[0].translatedText;
+    let translatedText = data.translations[0].translatedText;
+
+    // Handle hashtag translation based on language
+    if (hashtags.length > 0) {
+      const hashtagTranslations = await translateHashtagsIfSupported(
+        hashtags,
+        targetLanguage,
+        sourceLanguage,
+        credentials,
+        accessToken
+      );
+      translatedText = processHashtags(translatedText, targetLanguage, hashtagTranslations);
+    }
+
+    return translatedText;
   } catch (error) {
     console.error('Translation error:', error);
     throw new Error(`Failed to translate text: ${(error as Error).message}`);
@@ -231,6 +336,13 @@ export async function translateMultiple(
     const credentials = getServiceAccountCredentials();
     const accessToken = await getAccessToken(credentials);
     const projectId = credentials.project_id;
+
+    // Extract all hashtags from all texts
+    const allHashtags = new Set<string>();
+    texts.forEach(text => {
+      const hashtags = extractHashtags(text);
+      hashtags.forEach(tag => allHashtags.add(tag));
+    });
 
     // API v3 endpoint - can handle multiple texts in one request
     const url = `https://translation.googleapis.com/v3/projects/${projectId}/locations/global:translateText`;
@@ -261,7 +373,25 @@ export async function translateMultiple(
       throw new Error('No translations returned from API');
     }
 
-    return data.translations.map(t => t.translatedText);
+    // Handle hashtag translations for all texts
+    let hashtagTranslations = new Map<string, string>();
+    if (allHashtags.size > 0) {
+      hashtagTranslations = await translateHashtagsIfSupported(
+        Array.from(allHashtags),
+        targetLanguage,
+        sourceLanguage,
+        credentials,
+        accessToken
+      );
+    }
+
+    return data.translations.map(translation => {
+      let translatedText = translation.translatedText;
+      if (allHashtags.size > 0) {
+        translatedText = processHashtags(translatedText, targetLanguage, hashtagTranslations);
+      }
+      return translatedText;
+    });
   } catch (error) {
     console.error('Translation error:', error);
     throw new Error(`Failed to translate texts: ${(error as Error).message}`);
