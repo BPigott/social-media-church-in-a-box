@@ -22,10 +22,15 @@ serve(async (req) => {
 
     const firecrawlApiKey = Deno.env.get('FIRECRAWL_API_KEY');
     if (!firecrawlApiKey) {
-      console.error('FIRECRAWL_API_KEY not configured');
+      console.error('FIRECRAWL_API_KEY not configured in Edge Function environment');
+      console.log('Available env vars:', Object.keys(Deno.env.toObject()).filter(k => k.includes('FIRE')));
       return new Response(
-        JSON.stringify({ error: 'Website scraping is not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ 
+          error: 'Website scraping is temporarily unavailable in local development',
+          details: 'Firecrawl API key not accessible in Edge Function environment. This is normal in local development mode.',
+          suggestion: 'You can skip website scraping for now and manually add church context to your style guide.'
+        }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 

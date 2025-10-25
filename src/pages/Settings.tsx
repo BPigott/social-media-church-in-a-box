@@ -12,6 +12,7 @@ import { ChurchInfoForm } from "@/components/onboarding/ChurchInfoForm";
 import { AccountSettings } from "@/components/settings/AccountSettings";
 import { Textarea } from "@/components/ui/textarea";
 import { Download, LogOut, RefreshCw } from "lucide-react";
+import ApiHealthCheck from "@/components/ApiHealthCheck";
 import { signOut } from "@/lib/auth";
 import {
   AlertDialog,
@@ -251,10 +252,11 @@ const Settings = () => {
         </div>
 
         <Tabs defaultValue="church" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="church">Church Information</TabsTrigger>
             <TabsTrigger value="style">Style Guide</TabsTrigger>
             <TabsTrigger value="account">Account</TabsTrigger>
+            <TabsTrigger value="health">API Health</TabsTrigger>
           </TabsList>
 
           <TabsContent value="church" className="mt-6">
@@ -309,6 +311,21 @@ const Settings = () => {
 
           <TabsContent value="account" className="mt-6">
             <AccountSettings />
+          </TabsContent>
+
+          <TabsContent value="health" className="mt-6">
+            <div className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-playfair">API Health Monitoring</CardTitle>
+                  <CardDescription>
+                    Monitor the status of all integrated services including AI content generation, 
+                    translation, and web scraping capabilities.
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+              <ApiHealthCheck />
+            </div>
           </TabsContent>
         </Tabs>
 

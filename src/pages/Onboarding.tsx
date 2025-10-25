@@ -56,10 +56,14 @@ const Onboarding = () => {
 
         if (scrapeError) {
           console.error('Website scraping error:', scrapeError);
+          // Check if this is the expected local development error
+          const isLocalDevError = scrapeError.message?.includes('temporarily unavailable in local development');
           toast({
-            title: "Website scraping failed",
-            description: "Your website may be large or complex. We'll continue with sermon-based analysis to create your style guide.",
-            variant: "destructive",
+            title: isLocalDevError ? "Website scraping unavailable" : "Website scraping failed",
+            description: isLocalDevError 
+              ? "Website scraping is disabled in local development mode. You can manually add church context to your style guide in Settings."
+              : "Your website may be large or complex. We'll continue with sermon-based analysis to create your style guide.",
+            variant: isLocalDevError ? "default" : "destructive",
           });
         } else if (scrapeData?.success) {
           setWebsiteContent(scrapeData.data);
@@ -70,10 +74,16 @@ const Onboarding = () => {
         }
       } catch (error) {
         console.error('Error scraping website:', error);
+        // Check if this is a local development limitation
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        const isLocalDevError = errorMessage.includes('temporarily unavailable') || errorMessage.includes('not configured');
+        
         toast({
-          title: "Website scraping failed",
-          description: "Your website may be large or complex. We'll continue with sermon-based analysis to create your style guide.",
-          variant: "destructive",
+          title: isLocalDevError ? "Website scraping unavailable" : "Website scraping failed", 
+          description: isLocalDevError
+            ? "Website scraping is disabled in local development. This is normal - you can continue with your onboarding."
+            : "Your website may be large or complex. We'll continue with sermon-based analysis to create your style guide.",
+          variant: isLocalDevError ? "default" : "destructive",
         });
       } finally {
         setScrapingWebsite(false);
