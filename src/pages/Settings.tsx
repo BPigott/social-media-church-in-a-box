@@ -161,7 +161,7 @@ const Settings = () => {
       const { data: websiteData, error: scrapeError } = await supabase.functions.invoke(
         'scrape-church-website',
         {
-          body: { url: primaryChurch.website_url },
+          body: { websiteUrl: primaryChurch.website_url },
         }
       );
 
@@ -177,7 +177,11 @@ const Settings = () => {
       if (fetchError) throw fetchError;
 
       // Append website info to style guide
-      const updatedGuide = `${currentStyleGuide.guide_content}\n\n---\nWebsite Content (Updated ${new Date().toLocaleDateString()}):\n${websiteData.content || 'No content extracted'}`;
+      const websiteContent = websiteData.data?.content?.map((page: any) => 
+        `**${page.title}**\n${page.markdown}`
+      ).join('\n\n') || 'No content extracted';
+      
+      const updatedGuide = `${currentStyleGuide.guide_content}\n\n---\nWebsite Content (Updated ${new Date().toLocaleDateString()}):\nPages crawled: ${websiteData.data?.pagesScraped || 0}\n\n${websiteContent}`;
 
       const { error: updateError } = await supabase
         .from('style_guides')
@@ -198,10 +202,30 @@ const Settings = () => {
       });
     } catch (error) {
       console.error('Website recrawl error:', error);
+      
+      let errorMessage = "Failed to crawl website";
+      let errorTitle = "Error crawling website";
+      
+      // Handle specific error types
+      if (error instanceof Error) {
+        if (error.message.includes('503') || error.message.includes('temporarily unavailable')) {
+          errorTitle = "Service temporarily unavailable";
+          errorMessage = "Website scraping service is temporarily unavailable. This is normal in development mode.";
+        } else if (error.message.includes('400') || error.message.includes('Bad Request')) {
+          errorTitle = "Invalid request";
+          errorMessage = "Please check that your website URL is valid and accessible.";
+        } else if (error.message.includes('timeout')) {
+          errorTitle = "Crawl timed out";
+          errorMessage = "Your website is taking too long to crawl. Try again later.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       toast({
         variant: "destructive",
-        title: "Error crawling website",
-        description: error instanceof Error ? error.message : "Failed to crawl website",
+        title: errorTitle,
+        description: errorMessage,
       });
     } finally {
       setIsRecrawling(false);
