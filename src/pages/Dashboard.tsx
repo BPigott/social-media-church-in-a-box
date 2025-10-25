@@ -1371,7 +1371,7 @@ const Dashboard = () => {
                     const englishPosts = generatedContent.englishVersions?.[platform];
                     const englishPost = englishPosts ? (Array.isArray(englishPosts) ? englishPosts[activeIdx] : englishPosts) : null;
                     const multiLanguageVersions = generatedContent.multiLanguageVersions || {};
-                    const showMultiLanguage = Object.keys(multiLanguageVersions).length > 0 || (primaryLanguage !== 'en' && englishPost);
+                    const showMultiLanguage = Object.keys(multiLanguageVersions).length > 0 || (outputLanguages.length > 1 && englishPost);
 
                     // Platform-specific tips
                     const platformTips: Record<string, string> = {
@@ -1435,8 +1435,20 @@ const Dashboard = () => {
                                   preview="edit"
                                 />
                               </div>
-                              {primaryLanguage !== 'en' && englishPost && (
-                                <div className="flex justify-end">
+                              <div className="flex justify-end gap-2">
+                                <Button
+                                  onClick={() => copyToClipboard(displayContent, `${platform.charAt(0).toUpperCase() + platform.slice(1)} post (Primary)`)}
+                                  variant="outline"
+                                  size="sm"
+                                >
+                                  {copiedItem === `${platform.charAt(0).toUpperCase() + platform.slice(1)} post (Primary)` ? (
+                                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                                  ) : (
+                                    <Copy className="w-4 h-4 mr-2" />
+                                  )}
+                                  Copy
+                                </Button>
+                                {englishPost && outputLanguages.length > 1 && (
                                   <Button
                                     onClick={() => handleRetranslate(
                                       editedContent[contentKey] || displayContent, 
@@ -1455,12 +1467,12 @@ const Dashboard = () => {
                                       'Re-translate from English'
                                     )}
                                   </Button>
-                                </div>
-                              )}
+                                )}
+                              </div>
                             </div>
 
                             {/* Additional Language Versions */}
-                            {englishPost && primaryLanguage !== 'en' && (
+                            {englishPost && outputLanguages.length > 1 && (
                               <Collapsible>
                                 <CollapsibleTrigger className="w-full">
                                   <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border rounded-lg">
@@ -1477,6 +1489,20 @@ const Dashboard = () => {
                                         <ReactMarkdown>{englishPost}</ReactMarkdown>
                                       </div>
                                     </ScrollArea>
+                                    <div className="mt-2 flex justify-end">
+                                      <Button
+                                        onClick={() => copyToClipboard(englishPost, `English ${platform} post`)}
+                                        variant="outline"
+                                        size="sm"
+                                      >
+                                        {copiedItem === `English ${platform} post` ? (
+                                          <CheckCircle2 className="w-4 h-4 mr-2" />
+                                        ) : (
+                                          <Copy className="w-4 h-4 mr-2" />
+                                        )}
+                                        Copy English
+                                      </Button>
+                                    </div>
                                   </div>
                                 </CollapsibleContent>
                               </Collapsible>
@@ -1506,6 +1532,20 @@ const Dashboard = () => {
                                           <ReactMarkdown>{post}</ReactMarkdown>
                                         </div>
                                       </ScrollArea>
+                                      <div className="mt-2 flex justify-end">
+                                        <Button
+                                          onClick={() => copyToClipboard(post, `${LANGUAGE_NAMES[langCode] || langCode} ${platform} post`)}
+                                          variant="outline"
+                                          size="sm"
+                                        >
+                                          {copiedItem === `${LANGUAGE_NAMES[langCode] || langCode} ${platform} post` ? (
+                                            <CheckCircle2 className="w-4 h-4 mr-2" />
+                                          ) : (
+                                            <Copy className="w-4 h-4 mr-2" />
+                                          )}
+                                          Copy {LANGUAGE_NAMES[langCode] || langCode}
+                                        </Button>
+                                      </div>
                                     </div>
                                   </CollapsibleContent>
                                 </Collapsible>
@@ -1652,7 +1692,7 @@ const Dashboard = () => {
                       {/* Bible Study Tab */}
                       {generatedContent.bibleStudyGuide && (
                     <TabsContent value="bible-study" className="space-y-3">
-                      {(generatedContent.multiLanguageVersions && Object.keys(generatedContent.multiLanguageVersions).length > 0) || (primaryLanguage !== 'en' && generatedContent.englishVersions?.bibleStudyGuide) ? (
+                      {(generatedContent.multiLanguageVersions && Object.keys(generatedContent.multiLanguageVersions).length > 0) || (outputLanguages.length > 1 && generatedContent.englishVersions?.bibleStudyGuide) ? (
                         <>
                           <div className="text-xs text-muted-foreground mb-2">
                             📖 Bible Study Guide - Multi-Language View
@@ -1674,7 +1714,7 @@ const Dashboard = () => {
                                   preview="edit"
                                 />
                               </div>
-                              {primaryLanguage !== 'en' && generatedContent.englishVersions?.bibleStudyGuide && (
+                              {generatedContent.englishVersions?.bibleStudyGuide && outputLanguages.length > 1 && (
                                 <div className="flex justify-end">
                                   <Button
                                     onClick={() => handleRetranslate(
@@ -1699,7 +1739,7 @@ const Dashboard = () => {
                             </div>
 
                             {/* English Reference */}
-                            {generatedContent.englishVersions?.bibleStudyGuide && primaryLanguage !== 'en' && (
+                            {generatedContent.englishVersions?.bibleStudyGuide && outputLanguages.length > 1 && (
                               <Collapsible>
                                 <CollapsibleTrigger className="w-full">
                                   <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border rounded-lg">
@@ -1857,7 +1897,7 @@ const Dashboard = () => {
                       const currentDevotional = generatedContent.devotional;
                       const englishDevotional = generatedContent.englishVersions?.devotional;
                       const multiLanguageVersions = generatedContent.multiLanguageVersions || {};
-                      const showMultiLanguage = Object.keys(multiLanguageVersions).length > 0 || (primaryLanguage !== 'en' && englishDevotional);
+                      const showMultiLanguage = Object.keys(multiLanguageVersions).length > 0 || (outputLanguages.length > 1 && englishDevotional);
 
                       if (showMultiLanguage) {
                         return (
@@ -1878,7 +1918,7 @@ const Dashboard = () => {
                                   preview="edit"
                                 />
                               </div>
-                              {primaryLanguage !== 'en' && englishDevotional && (
+                              {englishDevotional && outputLanguages.length > 1 && (
                                 <div className="flex justify-end">
                                   <Button
                                     onClick={() => handleRetranslate(
@@ -1903,7 +1943,7 @@ const Dashboard = () => {
                             </div>
 
                             {/* English Reference */}
-                            {englishDevotional && primaryLanguage !== 'en' && (
+                            {englishDevotional && outputLanguages.length > 1 && (
                               <Collapsible>
                                 <CollapsibleTrigger className="w-full">
                                   <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border rounded-lg">
