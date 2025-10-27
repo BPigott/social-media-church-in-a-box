@@ -1714,8 +1714,20 @@ const Dashboard = () => {
                                   preview="edit"
                                 />
                               </div>
-                              {generatedContent.englishVersions?.bibleStudyGuide && ((generatedContent.multiLanguageVersions && Object.keys(generatedContent.multiLanguageVersions).length > 0) || outputLanguages.length > 1) && (
-                                <div className="flex justify-end">
+                              <div className="flex justify-end gap-2">
+                                <Button
+                                  onClick={() => copyToClipboard(editedContent['bibleStudyGuide'] || generatedContent.bibleStudyGuide, "Bible Study Guide")}
+                                  variant="outline"
+                                  size="sm"
+                                >
+                                  {copiedItem === "Bible Study Guide" ? (
+                                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                                  ) : (
+                                    <Copy className="w-4 h-4 mr-2" />
+                                  )}
+                                  Copy
+                                </Button>
+                                {((generatedContent.multiLanguageVersions && Object.keys(generatedContent.multiLanguageVersions).length > 0) || outputLanguages.length > 1) && (
                                   <Button
                                     onClick={() => handleRetranslate(
                                       editedContent['bibleStudyGuide'] || generatedContent.bibleStudyGuide, 
@@ -1734,8 +1746,8 @@ const Dashboard = () => {
                                       'Re-translate from English'
                                     )}
                                   </Button>
-                                </div>
-                              )}
+                                )}
+                              </div>
                             </div>
 
                             {/* English Reference */}
@@ -1918,8 +1930,20 @@ const Dashboard = () => {
                                   preview="edit"
                                 />
                               </div>
-                              {englishDevotional && ((multiLanguageVersions && Object.keys(multiLanguageVersions).length > 0) || outputLanguages.length > 1) && (
-                                <div className="flex justify-end">
+                              <div className="flex justify-end gap-2">
+                                <Button
+                                  onClick={() => copyToClipboard(editedContent['devotional'] || generatedContent.devotional, "Devotional")}
+                                  variant="outline"
+                                  size="sm"
+                                >
+                                  {copiedItem === "Devotional" ? (
+                                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                                  ) : (
+                                    <Copy className="w-4 h-4 mr-2" />
+                                  )}
+                                  Copy
+                                </Button>
+                                {((multiLanguageVersions && Object.keys(multiLanguageVersions).length > 0) || outputLanguages.length > 1) && (
                                   <Button
                                     onClick={() => handleRetranslate(
                                       editedContent['devotional'] || generatedContent.devotional, 
@@ -1938,8 +1962,8 @@ const Dashboard = () => {
                                       'Re-translate from English'
                                     )}
                                   </Button>
-                                </div>
-                              )}
+                                )}
+                              </div>
                             </div>
 
                             {/* English Reference */}
