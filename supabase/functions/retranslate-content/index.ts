@@ -31,37 +31,66 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    const { englishContent, targetLanguage, contentType } = await req.json();
+    const { englishContent, targetLanguage, targetLanguages, contentType } = await req.json();
 
-    if (!englishContent || !targetLanguage) {
+    if (!englishContent) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields: englishContent and targetLanguage' }),
+        JSON.stringify({ error: 'Missing required field: englishContent' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    if (targetLanguage === 'en') {
-      // No translation needed
+    const requestedLanguages: string[] = Array.isArray(targetLanguages)
+      ? targetLanguages
+      : (targetLanguage ? [targetLanguage] : []);
+    const languagesToTranslate = requestedLanguages
+      .filter((lang) => typeof lang === 'string' && lang.trim().length > 0)
+      .map((lang) => lang.trim())
+      .filter((lang, index, self) => lang !== 'en' && self.indexOf(lang) === index);
+
+    if (languagesToTranslate.length === 0) {
+      console.log('Re-translate called with no non-English target languages. Returning source content.');
       return new Response(
-        JSON.stringify({ translatedContent: englishContent }),
+        JSON.stringify({
+          translatedContents: {},
+          translatedContent: englishContent,
+        }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log(`Re-translating ${contentType} from English to ${targetLanguage}`);
+    console.log(`Re-translating ${contentType} from English to:`, languagesToTranslate);
     console.log(`Content length: ${englishContent.length} characters`);
 
-    // Translate the edited English content
-    const translatedContent = await translateText(
-      englishContent,
-      targetLanguage,
-      'en'
+    const translationResults = await Promise.all(
+      languagesToTranslate.map(async (language) => {
+        const translatedContent = await translateText(
+          englishContent,
+          language,
+          'en'
+        );
+
+        console.log(`Translation to ${language} completed. Length: ${translatedContent.length} characters`);
+        return [language, translatedContent] as const;
+      })
     );
 
-    console.log(`Translation completed. New length: ${translatedContent.length} characters`);
+    const translatedContents = Object.fromEntries(translationResults);
+
+    const responseBody: Record<string, unknown> = {
+      translatedContents,
+    };
+
+    if (languagesToTranslate.length === 1) {
+      const onlyLanguage = languagesToTranslate[0];
+      responseBody.translatedContent = translatedContents[onlyLanguage];
+      responseBody.targetLanguage = onlyLanguage;
+    } else {
+      responseBody.targetLanguages = languagesToTranslate;
+    }
 
     return new Response(
-      JSON.stringify({ translatedContent }),
+      JSON.stringify(responseBody),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {

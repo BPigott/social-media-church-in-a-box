@@ -323,6 +323,18 @@ const Dashboard = () => {
   const [editingContent, setEditingContent] = useState<Record<string, boolean>>({});
   const [editedContent, setEditedContent] = useState<Record<string, string>>({});
 
+  const hasNonEnglishLanguages = outputLanguages.some(code => code !== 'en');
+  const englishBibleSource = (generatedContent?.englishVersions?.bibleStudyGuide ??
+    editedContent['bibleStudyGuide'] ??
+    generatedContent?.bibleStudyGuide ??
+    '') as string;
+  const englishDevotionalSource = (generatedContent?.englishVersions?.devotional ??
+    editedContent['devotional'] ??
+    generatedContent?.devotional ??
+    '') as string;
+  const canRetranslateBible = hasNonEnglishLanguages && englishBibleSource.trim().length > 0;
+  const canRetranslateDevotional = hasNonEnglishLanguages && englishDevotionalSource.trim().length > 0;
+
   useEffect(() => {
     if (!loading && !user) {
       navigate("/login");
@@ -728,19 +740,52 @@ const Dashboard = () => {
     }
   };
 
-  const handleRetranslate = async (editedEnglish: string, contentType: string) => {
+  const handleRetranslate = async (englishSource: string, contentType: string) => {
     if (!primaryChurch) return;
+
+    const normalizeToArray = (post: string | string[] | null | undefined) => {
+      if (!post) return null;
+      return Array.isArray(post) ? post : [post];
+    };
+
+    const updateCollection = (existing: string | string[] | null | undefined, index: number, value: string) => {
+      if (Array.isArray(existing)) {
+        const arr = [...existing];
+        arr[index] = value;
+        return arr;
+      }
+      if (existing === null || existing === undefined) {
+        if (index === 0) {
+          return value;
+        }
+        const arr: string[] = [];
+        arr[index] = value;
+        return arr;
+      }
+      if (index === 0) {
+        return value;
+      }
+      const arr: string[] = [];
+      arr[0] = existing;
+      arr[index] = value;
+      return arr;
+    };
+
+    const nonEnglishLanguages = outputLanguages
+      .filter((code): code is string => typeof code === 'string' && code.trim().length > 0)
+      .map(code => code.trim())
+      .filter((code, index, self) => code !== 'en' && self.indexOf(code) === index);
 
     setRetranslating(true);
 
     try {
-      // For retranslation, use the current primary language as target
       const { data, error } = await supabase.functions.invoke(
         'retranslate-content',
         {
           body: {
-            englishContent: editedEnglish,
+            englishContent: englishSource,
             targetLanguage: primaryLanguage,
+            targetLanguages: nonEnglishLanguages,
             contentType
           }
         }
@@ -748,123 +793,117 @@ const Dashboard = () => {
 
       if (error) throw error;
 
-      // Prepare database update object
-      let dbUpdateFields: any = {};
-      const normalizeToArray = (post: string | string[] | null) => {
-        if (!post) return null;
-        return Array.isArray(post) ? post : [post];
-      };
+      const translatedContents: Record<string, string> = data?.translatedContents
+        ? data.translatedContents as Record<string, string>
+        : (data?.translatedContent && data?.targetLanguage
+            ? { [data.targetLanguage as string]: data.translatedContent as string }
+            : {});
 
-      // Update the appropriate content based on contentType
+      let dbUpdateFields: any = {};
+
       setGeneratedContent((prev: any) => {
+        if (!prev) return prev;
+
         const updated = { ...prev };
+        const englishVersions = { ...(prev?.englishVersions || {}) };
+        const existingMultiLanguage = prev?.multiLanguageVersions || null;
+        const multiLanguageVersions: Record<string, any> = existingMultiLanguage
+          ? Object.entries(existingMultiLanguage).reduce((acc: Record<string, any>, [lang, content]) => {
+              acc[lang] = { ...(content as Record<string, any>) };
+              return acc;
+            }, {})
+          : {};
 
         if (contentType === 'bibleStudy') {
-          updated.bibleStudyGuide = data.translatedContent;
-          if (updated.englishVersions) {
-            updated.englishVersions.bibleStudyGuide = editedEnglish;
+          englishVersions.bibleStudyGuide = englishSource;
+
+          if (primaryLanguage === 'en') {
+            updated.bibleStudyGuide = englishSource;
           }
-          // Prepare DB update
+
+          Object.entries(translatedContents).forEach(([lang, translated]) => {
+            const languageContent = { ...(multiLanguageVersions[lang] || {}) };
+            languageContent.bibleStudyGuide = translated;
+            multiLanguageVersions[lang] = languageContent;
+
+            if (lang === primaryLanguage) {
+              updated.bibleStudyGuide = translated;
+            }
+          });
+
           dbUpdateFields = {
-            bible_study_guide: data.translatedContent,
-            bible_study_guide_english: editedEnglish
+            bible_study_guide: updated.bibleStudyGuide,
+            bible_study_guide_english: englishSource,
+            multi_language_versions: Object.keys(multiLanguageVersions).length > 0 ? multiLanguageVersions : null
           };
         } else if (contentType === 'devotional') {
-          updated.devotional = data.translatedContent;
-          if (updated.englishVersions) {
-            updated.englishVersions.devotional = editedEnglish;
-          }
-          // Prepare DB update
-          dbUpdateFields = {
-            devotional: data.translatedContent,
-            devotional_english: editedEnglish
-          };
-        } else if (contentType.startsWith('facebook-')) {
-          const idx = parseInt(contentType.split('-')[1]);
-          const posts = Array.isArray(updated.facebook)
-            ? [...updated.facebook]
-            : [updated.facebook];
-          posts[idx] = data.translatedContent;
-          updated.facebook = posts;
+          englishVersions.devotional = englishSource;
 
-          if (updated.englishVersions?.facebook) {
-            const engPosts = Array.isArray(updated.englishVersions.facebook)
-              ? [...updated.englishVersions.facebook]
-              : [updated.englishVersions.facebook];
-            engPosts[idx] = editedEnglish;
-            updated.englishVersions.facebook = engPosts;
+          if (primaryLanguage === 'en') {
+            updated.devotional = englishSource;
           }
-          // Prepare DB update
-          dbUpdateFields = {
-            facebook_post: normalizeToArray(posts),
-            facebook_post_english: updated.englishVersions?.facebook ? normalizeToArray(updated.englishVersions.facebook) : null
-          };
-        } else if (contentType.startsWith('instagram-')) {
-          const idx = parseInt(contentType.split('-')[1]);
-          const posts = Array.isArray(updated.instagram)
-            ? [...updated.instagram]
-            : [updated.instagram];
-          posts[idx] = data.translatedContent;
-          updated.instagram = posts;
 
-          if (updated.englishVersions?.instagram) {
-            const engPosts = Array.isArray(updated.englishVersions.instagram)
-              ? [...updated.englishVersions.instagram]
-              : [updated.englishVersions.instagram];
-            engPosts[idx] = editedEnglish;
-            updated.englishVersions.instagram = engPosts;
-          }
-          // Prepare DB update
-          dbUpdateFields = {
-            instagram_post: normalizeToArray(posts),
-            instagram_post_english: updated.englishVersions?.instagram ? normalizeToArray(updated.englishVersions.instagram) : null
-          };
-        } else if (contentType.startsWith('tiktok-')) {
-          const idx = parseInt(contentType.split('-')[1]);
-          const posts = Array.isArray(updated.tiktok)
-            ? [...updated.tiktok]
-            : [updated.tiktok];
-          posts[idx] = data.translatedContent;
-          updated.tiktok = posts;
+          Object.entries(translatedContents).forEach(([lang, translated]) => {
+            const languageContent = { ...(multiLanguageVersions[lang] || {}) };
+            languageContent.devotional = translated;
+            multiLanguageVersions[lang] = languageContent;
 
-          if (updated.englishVersions?.tiktok) {
-            const engPosts = Array.isArray(updated.englishVersions.tiktok)
-              ? [...updated.englishVersions.tiktok]
-              : [updated.englishVersions.tiktok];
-            engPosts[idx] = editedEnglish;
-            updated.englishVersions.tiktok = engPosts;
-          }
-          // Prepare DB update
-          dbUpdateFields = {
-            tiktok_post: normalizeToArray(posts),
-            tiktok_post_english: updated.englishVersions?.tiktok ? normalizeToArray(updated.englishVersions.tiktok) : null
-          };
-        } else if (contentType.startsWith('twitter-')) {
-          const idx = parseInt(contentType.split('-')[1]);
-          const posts = Array.isArray(updated.twitter)
-            ? [...updated.twitter]
-            : [updated.twitter];
-          posts[idx] = data.translatedContent;
-          updated.twitter = posts;
+            if (lang === primaryLanguage) {
+              updated.devotional = translated;
+            }
+          });
 
-          if (updated.englishVersions?.twitter) {
-            const engPosts = Array.isArray(updated.englishVersions.twitter)
-              ? [...updated.englishVersions.twitter]
-              : [updated.englishVersions.twitter];
-            engPosts[idx] = editedEnglish;
-            updated.englishVersions.twitter = engPosts;
-          }
-          // Prepare DB update
           dbUpdateFields = {
-            twitter_post: normalizeToArray(posts),
-            twitter_post_english: updated.englishVersions?.twitter ? normalizeToArray(updated.englishVersions.twitter) : null
+            devotional: updated.devotional,
+            devotional_english: englishSource,
+            multi_language_versions: Object.keys(multiLanguageVersions).length > 0 ? multiLanguageVersions : null
+          };
+        } else if (contentType.startsWith('facebook-') ||
+                   contentType.startsWith('instagram-') ||
+                   contentType.startsWith('tiktok-') ||
+                   contentType.startsWith('twitter-')) {
+          const [platform, indexString] = contentType.split('-');
+          const idx = parseInt(indexString, 10);
+          const platformKey = platform as 'facebook' | 'instagram' | 'tiktok' | 'twitter';
+
+          englishVersions[platformKey] = updateCollection(englishVersions[platformKey], idx, englishSource);
+
+          if (primaryLanguage === 'en') {
+            updated[platformKey] = updateCollection(updated[platformKey], idx, englishSource);
+          }
+
+          Object.entries(translatedContents).forEach(([lang, translated]) => {
+            const languageContent = { ...(multiLanguageVersions[lang] || {}) };
+            languageContent[platformKey] = updateCollection(languageContent[platformKey], idx, translated);
+            multiLanguageVersions[lang] = languageContent;
+
+            if (lang === primaryLanguage) {
+              updated[platformKey] = updateCollection(updated[platformKey], idx, translated);
+            }
+          });
+
+          const platformColumnMap = {
+            facebook: 'facebook_post',
+            instagram: 'instagram_post',
+            tiktok: 'tiktok_post',
+            twitter: 'twitter_post'
+          } as const;
+
+          const platformColumn = platformColumnMap[platformKey];
+
+          dbUpdateFields = {
+            [platformColumn]: normalizeToArray(updated[platformKey]),
+            [`${platformColumn}_english`]: normalizeToArray(englishVersions[platformKey]),
+            multi_language_versions: Object.keys(multiLanguageVersions).length > 0 ? multiLanguageVersions : null
           };
         }
+
+        updated.englishVersions = Object.keys(englishVersions).length > 0 ? englishVersions : null;
+        updated.multiLanguageVersions = Object.keys(multiLanguageVersions).length > 0 ? multiLanguageVersions : null;
 
         return updated;
       });
 
-      // Update database with new content
       if (Object.keys(dbUpdateFields).length > 0 && generatedContent?.id) {
         const { error: updateError } = await supabase
           .from('generated_content')
@@ -1371,7 +1410,7 @@ const Dashboard = () => {
                     const englishPosts = generatedContent.englishVersions?.[platform];
                     const englishPost = englishPosts ? (Array.isArray(englishPosts) ? englishPosts[activeIdx] : englishPosts) : null;
                     const multiLanguageVersions = generatedContent.multiLanguageVersions || {};
-                    const showMultiLanguage = Object.keys(multiLanguageVersions).length > 0 || (outputLanguages.length > 1 && englishPost);
+                    const showMultiLanguage = Object.keys(multiLanguageVersions).length > 0 || hasNonEnglishLanguages;
 
                     // Platform-specific tips
                     const platformTips: Record<string, string> = {
@@ -1380,6 +1419,9 @@ const Dashboard = () => {
                       tiktok: '🎵 TikTok: Keep it short and punchy - under 150 characters',
                       twitter: '🐦 Twitter/X: Aim for 240-260 characters (leaves room for retweets with comments)'
                     };
+
+                    const englishSource = englishPost || editedContent[contentKey] || displayContent;
+                    const canRetranslate = hasNonEnglishLanguages && englishSource && englishSource.trim().length > 0;
 
                     return (
                       <div className="space-y-3">
@@ -1448,10 +1490,10 @@ const Dashboard = () => {
                                   )}
                                   Copy
                                 </Button>
-                                {englishPost && (Object.keys(multiLanguageVersions).length > 0 || (outputLanguages.length > 1 && englishPost)) && (
+                                {canRetranslate && (
                                   <Button
                                     onClick={() => handleRetranslate(
-                                      editedContent[contentKey] || displayContent, 
+                                      englishSource, 
                                       `${platform}-${activeIdx}`
                                     )}
                                     variant="outline"
@@ -1692,7 +1734,7 @@ const Dashboard = () => {
                       {/* Bible Study Tab */}
                       {generatedContent.bibleStudyGuide && (
                     <TabsContent value="bible-study" className="space-y-3">
-                      {(generatedContent.multiLanguageVersions && Object.keys(generatedContent.multiLanguageVersions).length > 0) || (outputLanguages.length > 1 && generatedContent.englishVersions?.bibleStudyGuide) ? (
+                      {(generatedContent.multiLanguageVersions && Object.keys(generatedContent.multiLanguageVersions).length > 0) || hasNonEnglishLanguages ? (
                         <>
                           <div className="text-xs text-muted-foreground mb-2">
                             📖 Bible Study Guide - Multi-Language View
@@ -1727,12 +1769,9 @@ const Dashboard = () => {
                                   )}
                                   Copy
                                 </Button>
-                                {((generatedContent.multiLanguageVersions && Object.keys(generatedContent.multiLanguageVersions).length > 0) || outputLanguages.length > 1) && (
+                                {canRetranslateBible && (
                                   <Button
-                                    onClick={() => handleRetranslate(
-                                      editedContent['bibleStudyGuide'] || generatedContent.bibleStudyGuide, 
-                                      'bibleStudy'
-                                    )}
+                                    onClick={() => handleRetranslate(englishBibleSource, 'bibleStudy')}
                                     variant="outline"
                                     size="sm"
                                     disabled={retranslating}
@@ -1751,7 +1790,7 @@ const Dashboard = () => {
                             </div>
 
                             {/* English Reference */}
-                            {generatedContent.englishVersions?.bibleStudyGuide && outputLanguages.length > 1 && (
+                            {generatedContent.englishVersions?.bibleStudyGuide && hasNonEnglishLanguages && (
                               <Collapsible>
                                 <CollapsibleTrigger className="w-full">
                                   <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border rounded-lg">
@@ -1906,10 +1945,9 @@ const Dashboard = () => {
                       {generatedContent.devotional && (
                   <TabsContent value="devotional" className="space-y-3">
                     {(() => {
-                      const currentDevotional = generatedContent.devotional;
                       const englishDevotional = generatedContent.englishVersions?.devotional;
                       const multiLanguageVersions = generatedContent.multiLanguageVersions || {};
-                      const showMultiLanguage = Object.keys(multiLanguageVersions).length > 0 || (outputLanguages.length > 1 && englishDevotional);
+                      const showMultiLanguage = Object.keys(multiLanguageVersions).length > 0 || hasNonEnglishLanguages;
 
                       if (showMultiLanguage) {
                         return (
@@ -1943,12 +1981,9 @@ const Dashboard = () => {
                                   )}
                                   Copy
                                 </Button>
-                                {((multiLanguageVersions && Object.keys(multiLanguageVersions).length > 0) || outputLanguages.length > 1) && (
+                                {canRetranslateDevotional && (
                                   <Button
-                                    onClick={() => handleRetranslate(
-                                      editedContent['devotional'] || generatedContent.devotional, 
-                                      'devotional'
-                                    )}
+                                    onClick={() => handleRetranslate(englishDevotionalSource, 'devotional')}
                                     variant="outline"
                                     size="sm"
                                     disabled={retranslating}
@@ -1967,7 +2002,7 @@ const Dashboard = () => {
                             </div>
 
                             {/* English Reference */}
-                            {englishDevotional && outputLanguages.length > 1 && (
+                            {englishDevotional && hasNonEnglishLanguages && (
                               <Collapsible>
                                 <CollapsibleTrigger className="w-full">
                                   <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border rounded-lg">
