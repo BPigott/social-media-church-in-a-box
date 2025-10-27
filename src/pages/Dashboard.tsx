@@ -324,14 +324,28 @@ const Dashboard = () => {
   const [editedContent, setEditedContent] = useState<Record<string, string>>({});
 
   const hasNonEnglishLanguages = outputLanguages.some(code => code !== 'en');
-  const englishBibleSource = (generatedContent?.englishVersions?.bibleStudyGuide ??
-    editedContent['bibleStudyGuide'] ??
-    generatedContent?.bibleStudyGuide ??
-    '') as string;
-  const englishDevotionalSource = (generatedContent?.englishVersions?.devotional ??
-    editedContent['devotional'] ??
-    generatedContent?.devotional ??
-    '') as string;
+
+  // Get English source for retranslation
+  // If primary language is English, use the edited/displayed content as the English source
+  // Otherwise, use the stored English reference version
+  const englishBibleSource = (() => {
+    if (primaryLanguage === 'en') {
+      return (editedContent['bibleStudyGuide'] ?? generatedContent?.bibleStudyGuide ?? '') as string;
+    }
+    return (generatedContent?.englishVersions?.bibleStudyGuide ??
+            generatedContent?.bibleStudyGuide ??
+            '') as string;
+  })();
+
+  const englishDevotionalSource = (() => {
+    if (primaryLanguage === 'en') {
+      return (editedContent['devotional'] ?? generatedContent?.devotional ?? '') as string;
+    }
+    return (generatedContent?.englishVersions?.devotional ??
+            generatedContent?.devotional ??
+            '') as string;
+  })();
+
   const canRetranslateBible = hasNonEnglishLanguages && englishBibleSource.trim().length > 0;
   const canRetranslateDevotional = hasNonEnglishLanguages && englishDevotionalSource.trim().length > 0;
 
@@ -779,6 +793,118 @@ const Dashboard = () => {
     setRetranslating(true);
 
     try {
+      // STEP 1: Save the English content to database FIRST (before translation)
+      // This ensures the edited English is persisted even if translation fails
+      if (generatedContent?.id) {
+        let englishSaveFields: any = {};
+
+        if (contentType === 'bibleStudy') {
+          // If primary language is English, save to main field; otherwise save to English reference field
+          if (primaryLanguage === 'en') {
+            englishSaveFields = {
+              bible_study_guide: englishSource
+            };
+          } else {
+            englishSaveFields = {
+              bible_study_guide_english: englishSource
+            };
+          }
+        } else if (contentType === 'devotional') {
+          if (primaryLanguage === 'en') {
+            englishSaveFields = {
+              devotional: englishSource
+            };
+          } else {
+            englishSaveFields = {
+              devotional_english: englishSource
+            };
+          }
+        } else if (contentType.startsWith('facebook-') ||
+                   contentType.startsWith('instagram-') ||
+                   contentType.startsWith('tiktok-') ||
+                   contentType.startsWith('twitter-')) {
+          const [platform, indexString] = contentType.split('-');
+          const idx = parseInt(indexString, 10);
+          const platformKey = platform as 'facebook' | 'instagram' | 'tiktok' | 'twitter';
+          const platformColumnMap = {
+            facebook: 'facebook_post',
+            instagram: 'instagram_post',
+            tiktok: 'tiktok_post',
+            twitter: 'twitter_post'
+          } as const;
+          const platformColumn = platformColumnMap[platformKey];
+
+          if (primaryLanguage === 'en') {
+            const currentPosts = generatedContent[platformKey];
+            englishSaveFields = {
+              [platformColumn]: normalizeToArray(updateCollection(currentPosts, idx, englishSource))
+            };
+          } else {
+            const currentEnglishPosts = generatedContent.englishVersions?.[platformKey];
+            englishSaveFields = {
+              [`${platformColumn}_english`]: normalizeToArray(updateCollection(currentEnglishPosts, idx, englishSource))
+            };
+          }
+        }
+
+        if (Object.keys(englishSaveFields).length > 0) {
+          const { error: saveError } = await supabase
+            .from('generated_content')
+            .update(englishSaveFields)
+            .eq('id', generatedContent.id)
+            .eq('church_id', primaryChurch.id);
+
+          if (saveError) {
+            console.error('Failed to save English content:', saveError);
+            toast({
+              variant: "destructive",
+              title: "Save failed",
+              description: "Failed to save your edited English content. Please try again."
+            });
+            setRetranslating(false);
+            return;
+          }
+
+          // Update local state with saved English content
+          setGeneratedContent((prev: any) => {
+            if (!prev) return prev;
+            const updated = { ...prev };
+            const englishVersions = { ...(prev?.englishVersions || {}) };
+
+            if (contentType === 'bibleStudy') {
+              if (primaryLanguage === 'en') {
+                updated.bibleStudyGuide = englishSource;
+              } else {
+                englishVersions.bibleStudyGuide = englishSource;
+              }
+            } else if (contentType === 'devotional') {
+              if (primaryLanguage === 'en') {
+                updated.devotional = englishSource;
+              } else {
+                englishVersions.devotional = englishSource;
+              }
+            } else if (contentType.startsWith('facebook-') ||
+                       contentType.startsWith('instagram-') ||
+                       contentType.startsWith('tiktok-') ||
+                       contentType.startsWith('twitter-')) {
+              const [platform, indexString] = contentType.split('-');
+              const idx = parseInt(indexString, 10);
+              const platformKey = platform as 'facebook' | 'instagram' | 'tiktok' | 'twitter';
+
+              if (primaryLanguage === 'en') {
+                updated[platformKey] = updateCollection(updated[platformKey], idx, englishSource);
+              } else {
+                englishVersions[platformKey] = updateCollection(englishVersions[platformKey], idx, englishSource);
+              }
+            }
+
+            updated.englishVersions = Object.keys(englishVersions).length > 0 ? englishVersions : null;
+            return updated;
+          });
+        }
+      }
+
+      // STEP 2: Call translation API with the saved English content
       const { data, error } = await supabase.functions.invoke(
         'retranslate-content',
         {
@@ -799,6 +925,7 @@ const Dashboard = () => {
             ? { [data.targetLanguage as string]: data.translatedContent as string }
             : {});
 
+      // STEP 3: Save translations to database
       let dbUpdateFields: any = {};
 
       setGeneratedContent((prev: any) => {
@@ -815,10 +942,9 @@ const Dashboard = () => {
           : {};
 
         if (contentType === 'bibleStudy') {
-          englishVersions.bibleStudyGuide = englishSource;
-
-          if (primaryLanguage === 'en') {
-            updated.bibleStudyGuide = englishSource;
+          // Only store English reference version if primary language is NOT English
+          if (primaryLanguage !== 'en') {
+            englishVersions.bibleStudyGuide = englishSource;
           }
 
           Object.entries(translatedContents).forEach(([lang, translated]) => {
@@ -833,14 +959,17 @@ const Dashboard = () => {
 
           dbUpdateFields = {
             bible_study_guide: updated.bibleStudyGuide,
-            bible_study_guide_english: englishSource,
             multi_language_versions: Object.keys(multiLanguageVersions).length > 0 ? multiLanguageVersions : null
           };
-        } else if (contentType === 'devotional') {
-          englishVersions.devotional = englishSource;
 
-          if (primaryLanguage === 'en') {
-            updated.devotional = englishSource;
+          // Only include English reference field if primary language is not English
+          if (primaryLanguage !== 'en') {
+            dbUpdateFields.bible_study_guide_english = englishSource;
+          }
+        } else if (contentType === 'devotional') {
+          // Only store English reference version if primary language is NOT English
+          if (primaryLanguage !== 'en') {
+            englishVersions.devotional = englishSource;
           }
 
           Object.entries(translatedContents).forEach(([lang, translated]) => {
@@ -855,9 +984,13 @@ const Dashboard = () => {
 
           dbUpdateFields = {
             devotional: updated.devotional,
-            devotional_english: englishSource,
             multi_language_versions: Object.keys(multiLanguageVersions).length > 0 ? multiLanguageVersions : null
           };
+
+          // Only include English reference field if primary language is not English
+          if (primaryLanguage !== 'en') {
+            dbUpdateFields.devotional_english = englishSource;
+          }
         } else if (contentType.startsWith('facebook-') ||
                    contentType.startsWith('instagram-') ||
                    contentType.startsWith('tiktok-') ||
@@ -866,10 +999,9 @@ const Dashboard = () => {
           const idx = parseInt(indexString, 10);
           const platformKey = platform as 'facebook' | 'instagram' | 'tiktok' | 'twitter';
 
-          englishVersions[platformKey] = updateCollection(englishVersions[platformKey], idx, englishSource);
-
-          if (primaryLanguage === 'en') {
-            updated[platformKey] = updateCollection(updated[platformKey], idx, englishSource);
+          // Only store English reference version if primary language is NOT English
+          if (primaryLanguage !== 'en') {
+            englishVersions[platformKey] = updateCollection(englishVersions[platformKey], idx, englishSource);
           }
 
           Object.entries(translatedContents).forEach(([lang, translated]) => {
@@ -893,9 +1025,13 @@ const Dashboard = () => {
 
           dbUpdateFields = {
             [platformColumn]: normalizeToArray(updated[platformKey]),
-            [`${platformColumn}_english`]: normalizeToArray(englishVersions[platformKey]),
             multi_language_versions: Object.keys(multiLanguageVersions).length > 0 ? multiLanguageVersions : null
           };
+
+          // Only include English reference field if primary language is not English
+          if (primaryLanguage !== 'en') {
+            dbUpdateFields[`${platformColumn}_english`] = normalizeToArray(englishVersions[platformKey]);
+          }
         }
 
         updated.englishVersions = Object.keys(englishVersions).length > 0 ? englishVersions : null;
@@ -1790,7 +1926,7 @@ const Dashboard = () => {
                             </div>
 
                             {/* English Reference */}
-                            {generatedContent.englishVersions?.bibleStudyGuide && hasNonEnglishLanguages && (
+                            {generatedContent.englishVersions?.bibleStudyGuide && primaryLanguage !== 'en' && (
                               <Collapsible>
                                 <CollapsibleTrigger className="w-full">
                                   <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border rounded-lg">
@@ -2002,7 +2138,7 @@ const Dashboard = () => {
                             </div>
 
                             {/* English Reference */}
-                            {englishDevotional && hasNonEnglishLanguages && (
+                            {englishDevotional && primaryLanguage !== 'en' && (
                               <Collapsible>
                                 <CollapsibleTrigger className="w-full">
                                   <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border rounded-lg">
