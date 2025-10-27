@@ -1448,7 +1448,7 @@ const Dashboard = () => {
                                   )}
                                   Copy
                                 </Button>
-                                {englishPost && outputLanguages.length > 1 && (
+                                {englishPost && (Object.keys(multiLanguageVersions).length > 0 || (outputLanguages.length > 1 && englishPost)) && (
                                   <Button
                                     onClick={() => handleRetranslate(
                                       editedContent[contentKey] || displayContent, 
@@ -1714,7 +1714,7 @@ const Dashboard = () => {
                                   preview="edit"
                                 />
                               </div>
-                              {generatedContent.englishVersions?.bibleStudyGuide && outputLanguages.length > 1 && (
+                              {generatedContent.englishVersions?.bibleStudyGuide && ((generatedContent.multiLanguageVersions && Object.keys(generatedContent.multiLanguageVersions).length > 0) || outputLanguages.length > 1) && (
                                 <div className="flex justify-end">
                                   <Button
                                     onClick={() => handleRetranslate(
@@ -1918,7 +1918,7 @@ const Dashboard = () => {
                                   preview="edit"
                                 />
                               </div>
-                              {englishDevotional && outputLanguages.length > 1 && (
+                              {englishDevotional && ((multiLanguageVersions && Object.keys(multiLanguageVersions).length > 0) || outputLanguages.length > 1) && (
                                 <div className="flex justify-end">
                                   <Button
                                     onClick={() => handleRetranslate(
