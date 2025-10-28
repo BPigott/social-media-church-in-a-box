@@ -33,6 +33,17 @@ serve(async (req) => {
 
     const { englishContent, targetLanguage, targetLanguages, contentType } = await req.json();
 
+    console.log('=== RETRANSLATE EDGE FUNCTION DEBUG ===');
+    console.log('Received parameters:', {
+      hasEnglishContent: !!englishContent,
+      englishContentLength: englishContent?.length || 0,
+      targetLanguage: targetLanguage,
+      targetLanguages: targetLanguages,
+      targetLanguagesType: typeof targetLanguages,
+      targetLanguagesIsArray: Array.isArray(targetLanguages),
+      contentType: contentType
+    });
+
     if (!englishContent) {
       return new Response(
         JSON.stringify({ error: 'Missing required field: englishContent' }),
@@ -48,7 +59,16 @@ serve(async (req) => {
       .map((lang) => lang.trim())
       .filter((lang, index, self) => lang !== 'en' && self.indexOf(lang) === index);
 
+    console.log('Processed languages:', {
+      requestedLanguages: requestedLanguages,
+      languagesToTranslate: languagesToTranslate
+    });
+
     if (languagesToTranslate.length === 0) {
+      console.error('WARNING: languagesToTranslate is empty!');
+      console.log('requestedLanguages was:', requestedLanguages);
+      console.log('targetLanguages was:', targetLanguages);
+      console.log('targetLanguage was:', targetLanguage);
       console.log('Re-translate called with no non-English target languages. Returning source content.');
       return new Response(
         JSON.stringify({
