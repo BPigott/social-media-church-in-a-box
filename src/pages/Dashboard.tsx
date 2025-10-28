@@ -1167,7 +1167,7 @@ const Dashboard = () => {
 
       // Step 3: Save generated content to database
       // Convert single posts to arrays for consistency
-      const normalizeToArray = (post: string | string[] | null) => {
+      const normalizeToArray = (post: string | string[] | null | undefined) => {
         if (!post) return null;
         return Array.isArray(post) ? post : [post];
       };

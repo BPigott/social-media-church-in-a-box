@@ -492,15 +492,24 @@ FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
     console.log('Content generated successfully in UK English');
     
     // Store the original UK English versions
-    const englishContent = {
-      facebook: generatedContent.facebook,
-      instagram: generatedContent.instagram,
-      tiktok: generatedContent.tiktok,
-      twitter: generatedContent.twitter,
-      bibleStudyGuide: generatedContent.bibleStudyGuide,
-      executiveSummary: generatedContent.executiveSummary,
-      devotional: generatedContent.devotional
-    };
+    // Only include fields that were actually requested
+    const englishContent: Record<string, any> = {};
+    
+    if (hasSocialMedia) {
+      if (generatedContent.facebook) englishContent.facebook = generatedContent.facebook;
+      if (generatedContent.instagram) englishContent.instagram = generatedContent.instagram;
+      if (generatedContent.tiktok) englishContent.tiktok = generatedContent.tiktok;
+      if (generatedContent.twitter) englishContent.twitter = generatedContent.twitter;
+      if (generatedContent.executiveSummary) englishContent.executiveSummary = generatedContent.executiveSummary;
+    }
+    
+    if (hasBibleStudy && generatedContent.bibleStudyGuide) {
+      englishContent.bibleStudyGuide = generatedContent.bibleStudyGuide;
+    }
+    
+    if (hasDevotional && generatedContent.devotional) {
+      englishContent.devotional = generatedContent.devotional;
+    }
 
     // Create response structure with content in all requested languages
     const multiLanguageContent: Record<string, any> = {};
@@ -528,30 +537,52 @@ FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
           };
 
           // Translate social media posts
-          if (hasSocialMedia) {
+          if (hasSocialMedia && platforms) {
             for (const platform of platforms){
-              if (generatedContent[platform]) {
-                if (Array.isArray(generatedContent[platform])) {
-                  translatedContent[platform] = await translateMultiple(generatedContent[platform], targetLang);
-                } else {
-                  translatedContent[platform] = await translateText(generatedContent[platform], targetLang);
+              const platformContent = generatedContent[platform];
+              if (platformContent) {
+                try {
+                  if (Array.isArray(platformContent)) {
+                    translatedContent[platform] = await translateMultiple(platformContent, targetLang);
+                  } else {
+                    translatedContent[platform] = await translateText(platformContent, targetLang);
+                  }
+                } catch (translateError) {
+                  console.error(`Error translating ${platform} to ${targetLang}:`, translateError);
+                  // If translation fails for one platform, keep going
+                  translatedContent[platform] = platformContent;
                 }
               }
             }
             // Translate executive summary if present
             if (generatedContent.executiveSummary) {
-              translatedContent.executiveSummary = await translateText(generatedContent.executiveSummary, targetLang);
+              try {
+                translatedContent.executiveSummary = await translateText(generatedContent.executiveSummary, targetLang);
+              } catch (translateError) {
+                console.error(`Error translating executive summary to ${targetLang}:`, translateError);
+                translatedContent.executiveSummary = generatedContent.executiveSummary;
+              }
             }
           }
 
           // Translate Bible study
           if (hasBibleStudy && generatedContent.bibleStudyGuide) {
-            translatedContent.bibleStudyGuide = await translateText(generatedContent.bibleStudyGuide, targetLang);
+            try {
+              translatedContent.bibleStudyGuide = await translateText(generatedContent.bibleStudyGuide, targetLang);
+            } catch (translateError) {
+              console.error(`Error translating Bible study to ${targetLang}:`, translateError);
+              translatedContent.bibleStudyGuide = generatedContent.bibleStudyGuide;
+            }
           }
 
           // Translate devotional
           if (hasDevotional && generatedContent.devotional) {
-            translatedContent.devotional = await translateText(generatedContent.devotional, targetLang);
+            try {
+              translatedContent.devotional = await translateText(generatedContent.devotional, targetLang);
+            } catch (translateError) {
+              console.error(`Error translating devotional to ${targetLang}:`, translateError);
+              translatedContent.devotional = generatedContent.devotional;
+            }
           }
 
           return { language: targetLang, content: translatedContent };
@@ -595,9 +626,20 @@ FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
       ? englishContent 
       : multiLanguageContent[primaryLanguage] || englishContent;
 
+    // Validate that we have at least one content field
+    const hasContent = Object.keys(responseContent).some(key => {
+      const value = responseContent[key];
+      return value !== null && value !== undefined && (typeof value === 'string' || Array.isArray(value));
+    });
+
+    if (!hasContent) {
+      console.error('No content generated - responseContent is empty or invalid');
+      throw new Error('Failed to generate any content. Please check your input and try again.');
+    }
+
     return new Response(JSON.stringify({
       ...responseContent,
-      englishVersions: primaryLanguage !== 'en' ? englishContent : null,
+      englishVersions: (primaryLanguage !== 'en' || outputLanguages.length > 1) ? englishContent : null,
       multiLanguageVersions: nonEnglishLanguages.length > 0 ? multiLanguageContent : null,
       outputLanguages,
       primaryLanguage
