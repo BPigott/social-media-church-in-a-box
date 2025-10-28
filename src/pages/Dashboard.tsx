@@ -362,11 +362,17 @@ const Dashboard = () => {
   useEffect(() => {
     if (generatedContent) {
       // Sync output languages and primary language from loaded content
-      if (generatedContent.outputLanguages && Array.isArray(generatedContent.outputLanguages)) {
-        setOutputLanguages(generatedContent.outputLanguages);
+      // Check both camelCase and snake_case field names for compatibility
+      const outputLangs = generatedContent.outputLanguages || generatedContent.output_languages;
+      const primaryLang = generatedContent.primaryLanguage || generatedContent.primary_language;
+
+      if (outputLangs && Array.isArray(outputLangs)) {
+        console.log('Syncing outputLanguages from generatedContent:', outputLangs);
+        setOutputLanguages(outputLangs);
       }
-      if (generatedContent.primaryLanguage) {
-        setPrimaryLanguage(generatedContent.primaryLanguage);
+      if (primaryLang) {
+        console.log('Syncing primaryLanguage from generatedContent:', primaryLang);
+        setPrimaryLanguage(primaryLang);
       }
 
       const defaultPlatform = generatedContent.facebook ? 'facebook' :
