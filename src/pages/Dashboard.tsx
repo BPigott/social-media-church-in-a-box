@@ -1265,7 +1265,15 @@ const Dashboard = () => {
         });
         throw new Error(`Failed to save generated content: ${insertError.message}`);
       }
-      setGeneratedContent(data);
+
+      // Merge API response with metadata so useEffect can sync language state
+      setGeneratedContent({
+        ...data,
+        output_languages: outputLanguages,
+        output_language: primaryLanguage,
+        content_types: contentTypes
+      });
+
       toast({
         title: "Content generated!",
         description: `Your ${contentTypes.includes('social_media') ? 'social media posts' : ''}${contentTypes.includes('social_media') && (contentTypes.includes('bible_study') || contentTypes.includes('devotional')) ? ', ' : ''}${contentTypes.includes('bible_study') ? 'Bible study guide' : ''}${contentTypes.includes('bible_study') && contentTypes.includes('devotional') ? ', and ' : ''}${contentTypes.includes('devotional') ? 'daily devotional' : ''} are ready.`
