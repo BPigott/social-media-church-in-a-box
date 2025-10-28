@@ -637,8 +637,16 @@ FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
       throw new Error('Failed to generate any content. Please check your input and try again.');
     }
 
+    // Clean up responseContent to remove undefined/null values before stringifying
+    const cleanResponseContent: Record<string, any> = {};
+    for (const [key, value] of Object.entries(responseContent)) {
+      if (value !== null && value !== undefined) {
+        cleanResponseContent[key] = value;
+      }
+    }
+
     return new Response(JSON.stringify({
-      ...responseContent,
+      ...cleanResponseContent,
       englishVersions: (primaryLanguage !== 'en' || outputLanguages.length > 1) ? englishContent : null,
       multiLanguageVersions: nonEnglishLanguages.length > 0 ? multiLanguageContent : null,
       outputLanguages,
@@ -650,9 +658,15 @@ FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
       }
     });
   } catch (error) {
-    console.error('Error in generate-social-posts:', error);
+    console.error('=== ERROR IN generate-social-posts ===');
+    console.error('Error type:', error instanceof Error ? error.constructor.name : typeof error);
+    console.error('Error message:', error instanceof Error ? error.message : String(error));
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    console.error('Full error:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    
     return new Response(JSON.stringify({
-      error: error.message || 'Internal server error'
+      error: error instanceof Error ? error.message : 'Internal server error',
+      errorType: error instanceof Error ? error.constructor.name : typeof error
     }), {
       status: 500,
       headers: {
