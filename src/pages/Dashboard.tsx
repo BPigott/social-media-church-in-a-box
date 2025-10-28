@@ -921,6 +921,24 @@ const Dashboard = () => {
             updated.englishVersions = Object.keys(englishVersions).length > 0 ? englishVersions : null;
             return updated;
           });
+
+          // Also update editedContent to preserve the edits in the MDEditor
+          setEditedContent((prev: Record<string, string>) => {
+            const updated = { ...prev };
+
+            if (contentType === 'bibleStudy') {
+              updated['bibleStudyGuide'] = englishSource;
+            } else if (contentType === 'devotional') {
+              updated['devotional'] = englishSource;
+            } else if (contentType.startsWith('facebook-') ||
+                       contentType.startsWith('instagram-') ||
+                       contentType.startsWith('tiktok-') ||
+                       contentType.startsWith('twitter-')) {
+              updated[contentType] = englishSource;
+            }
+
+            return updated;
+          });
         }
       }
 
