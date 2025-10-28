@@ -525,16 +525,8 @@ FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
         // Create promises for parallel translation to all languages
         const translationPromises = nonEnglishLanguages.map(async (targetLang) => {
           console.log(`Starting translation to ${LANGUAGE_NAMES[targetLang] || targetLang}...`);
-          
-          const translatedContent = {
-            facebook: null,
-            instagram: null,
-            tiktok: null,
-            twitter: null,
-            bibleStudyGuide: null,
-            executiveSummary: null,
-            devotional: null
-          };
+
+          const translatedContent: Record<string, any> = {};
 
           // Translate social media posts
           if (hasSocialMedia && platforms) {
