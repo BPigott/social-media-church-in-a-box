@@ -361,6 +361,14 @@ const Dashboard = () => {
   // Initialize active social platform and set editing mode for English content when content is generated
   useEffect(() => {
     if (generatedContent) {
+      // Sync output languages and primary language from loaded content
+      if (generatedContent.outputLanguages && Array.isArray(generatedContent.outputLanguages)) {
+        setOutputLanguages(generatedContent.outputLanguages);
+      }
+      if (generatedContent.primaryLanguage) {
+        setPrimaryLanguage(generatedContent.primaryLanguage);
+      }
+
       const defaultPlatform = generatedContent.facebook ? 'facebook' :
                              generatedContent.instagram ? 'instagram' :
                              generatedContent.tiktok ? 'tiktok' :
@@ -911,6 +919,13 @@ const Dashboard = () => {
       }
 
       // STEP 2: Call translation API with the saved English content
+      console.log('=== RETRANSLATE DEBUG ===');
+      console.log('outputLanguages:', outputLanguages);
+      console.log('nonEnglishLanguages:', nonEnglishLanguages);
+      console.log('primaryLanguage:', primaryLanguage);
+      console.log('englishSource length:', englishSource?.length || 0);
+      console.log('contentType:', contentType);
+
       const { data, error } = await supabase.functions.invoke(
         'retranslate-content',
         {
@@ -930,6 +945,14 @@ const Dashboard = () => {
         : (data?.translatedContent && data?.targetLanguage
             ? { [data.targetLanguage as string]: data.translatedContent as string }
             : {});
+
+      console.log('translatedContents:', translatedContents);
+      console.log('translatedContents keys:', Object.keys(translatedContents));
+
+      // Validate that we got translations back
+      if (Object.keys(translatedContents).length === 0) {
+        throw new Error('Translation returned no results. Check that you have multiple languages selected and that your content has been generated with those languages.');
+      }
 
       // STEP 3: Save translations to database
       let dbUpdateFields: any = {};
