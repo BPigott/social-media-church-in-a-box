@@ -323,6 +323,9 @@ const Dashboard = () => {
   const [editingContent, setEditingContent] = useState<Record<string, boolean>>({});
   const [editedContent, setEditedContent] = useState<Record<string, string>>({});
 
+  // Translation version tracker to force re-render of foreign language collapsibles
+  const [translationVersion, setTranslationVersion] = useState(0);
+
   const hasNonEnglishLanguages = outputLanguages.some(code => code !== 'en');
 
   // Get English source for retranslation
@@ -874,12 +877,14 @@ const Dashboard = () => {
             if (contentType === 'bibleStudy') {
               if (primaryLanguage === 'en') {
                 updated.bibleStudyGuide = englishSource;
+                delete englishVersions.bibleStudyGuide;
               } else {
                 englishVersions.bibleStudyGuide = englishSource;
               }
             } else if (contentType === 'devotional') {
               if (primaryLanguage === 'en') {
                 updated.devotional = englishSource;
+                delete englishVersions.devotional;
               } else {
                 englishVersions.devotional = englishSource;
               }
@@ -893,6 +898,7 @@ const Dashboard = () => {
 
               if (primaryLanguage === 'en') {
                 updated[platformKey] = updateCollection(updated[platformKey], idx, englishSource);
+                delete englishVersions[platformKey];
               } else {
                 englishVersions[platformKey] = updateCollection(englishVersions[platformKey], idx, englishSource);
               }
@@ -945,6 +951,8 @@ const Dashboard = () => {
           // Only store English reference version if primary language is NOT English
           if (primaryLanguage !== 'en') {
             englishVersions.bibleStudyGuide = englishSource;
+          } else {
+            delete englishVersions.bibleStudyGuide;
           }
 
           Object.entries(translatedContents).forEach(([lang, translated]) => {
@@ -970,6 +978,8 @@ const Dashboard = () => {
           // Only store English reference version if primary language is NOT English
           if (primaryLanguage !== 'en') {
             englishVersions.devotional = englishSource;
+          } else {
+            delete englishVersions.devotional;
           }
 
           Object.entries(translatedContents).forEach(([lang, translated]) => {
@@ -1002,6 +1012,8 @@ const Dashboard = () => {
           // Only store English reference version if primary language is NOT English
           if (primaryLanguage !== 'en') {
             englishVersions[platformKey] = updateCollection(englishVersions[platformKey], idx, englishSource);
+          } else {
+            delete englishVersions[platformKey];
           }
 
           Object.entries(translatedContents).forEach(([lang, translated]) => {
@@ -1062,6 +1074,9 @@ const Dashboard = () => {
         title: "Content re-translated & saved",
         description: "Your edited English content has been translated and saved successfully."
       });
+
+      // Increment translation version to force re-render of foreign language collapsibles
+      setTranslationVersion(prev => prev + 1);
     } catch (error) {
       console.error('Re-translation error:', error);
       toast({
@@ -1650,7 +1665,7 @@ const Dashboard = () => {
                             </div>
 
                             {/* Additional Language Versions */}
-                            {englishPost && outputLanguages.length > 1 && (
+                            {englishPost && outputLanguages.length > 1 && primaryLanguage !== 'en' && (
                               <Collapsible>
                                 <CollapsibleTrigger className="w-full">
                                   <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border rounded-lg">
@@ -1694,7 +1709,7 @@ const Dashboard = () => {
                               if (!post) return null;
 
                               return (
-                                <Collapsible key={langCode}>
+                                <Collapsible key={`${langCode}-${translationVersion}`}>
                                   <CollapsibleTrigger className="w-full">
                                     <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border rounded-lg">
                                       <div className="flex items-center gap-2">
@@ -1966,7 +1981,7 @@ const Dashboard = () => {
                             {generatedContent.multiLanguageVersions && Object.entries(generatedContent.multiLanguageVersions).map(([langCode, langContent]: [string, any]) => {
                               if (langCode === primaryLanguage || !langContent.bibleStudyGuide) return null;
                               return (
-                                <Collapsible key={langCode}>
+                                <Collapsible key={`${langCode}-${translationVersion}`}>
                                   <CollapsibleTrigger className="w-full">
                                     <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border rounded-lg">
                                       <div className="flex items-center gap-2">
@@ -2178,7 +2193,7 @@ const Dashboard = () => {
                             {Object.entries(multiLanguageVersions).map(([langCode, langContent]: [string, any]) => {
                               if (langCode === primaryLanguage || !langContent.devotional) return null;
                               return (
-                                <Collapsible key={langCode}>
+                                <Collapsible key={`${langCode}-${translationVersion}`}>
                                   <CollapsibleTrigger className="w-full">
                                     <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border rounded-lg">
                                       <div className="flex items-center gap-2">
