@@ -222,7 +222,9 @@ Also create an executive summary (400-500 words) that SUMMARIZES the ${hasTransc
 ${hasBibleStudy ? `
 # Bible Study Guide Generation Requirements
 ${hasTranscript ? `
-- Extract ALL scripture references from the sermon transcript
+- Extract the TOP 3 most emphasized scripture references from the sermon transcript
+- Focus on the primary passages that form the foundation of the sermon message
+- Prioritize passages that received the most explanation or application time
 - For each scripture, provide the NIV translation
 - Create 5 discussion questions designed for ~10 minutes each
 - Focus questions on application, not just comprehension
@@ -280,13 +282,13 @@ ${hasDevotional ? `
 ${hasTranscript ? `
 - Create a devotional based on the sermon transcript following the Blended Approach style guide
 - Extract the core spiritual truth from the sermon
-- Structure: Title → Anchor Verse → Hook (Story) → Truth → Practice → Reflection → Prayer
+- Structure: Title → Anchor Verse → Hook (Story) → Truth → Practice → Reflection
 - Make it personal, practical, and Spirit-expectant
 - Focus on moving from information to encounter with Jesus
 ` : `
 - Create a devotional based on the event/announcement following the Blended Approach style guide
 - Find the spiritual connection and practical application
-- Structure: Title → Anchor Verse → Hook (Story) → Truth → Practice → Reflection → Prayer
+- Structure: Title → Anchor Verse → Hook (Story) → Truth → Practice → Reflection
 - Make it relatable to the event's theme and purpose
 `}
 
@@ -309,9 +311,6 @@ DEVOTIONAL FORMAT REQUIREMENTS:
 
 **Reflection**
 [Single sharp question that cuts to the heart]
-
-**Prayer**
-[Short, first-person prayer the user can adopt as their own]
 
 TONE: Warm, relational (not "religious"), accessible language, story-driven, practical, hopeful
 ` : ''}
