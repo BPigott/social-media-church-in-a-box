@@ -360,7 +360,7 @@ const Dashboard = () => {
 
   // Initialize active social platform and set editing mode for English content when content is generated
   useEffect(() => {
-    if (generatedContent) {
+    if (generatedContent && !retranslating) {
       // Sync output languages and primary language from loaded content
       // Check both camelCase and snake_case field names for compatibility
       const outputLangs = generatedContent.outputLanguages || generatedContent.output_languages;
@@ -428,7 +428,7 @@ const Dashboard = () => {
         }
       }
     }
-  }, [generatedContent, primaryLanguage]);
+  }, [generatedContent, primaryLanguage, retranslating]);
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -776,9 +776,6 @@ const Dashboard = () => {
 
   const handleRetranslate = async (englishSource: string, contentType: string) => {
     if (!primaryChurch) return;
-
-    // Save current active platform to restore after re-translation
-    const savedActivePlatform = activeSocialPlatform;
 
     const normalizeToArray = (post: string | string[] | null | undefined) => {
       if (!post) return null;
@@ -1130,11 +1127,6 @@ const Dashboard = () => {
 
       // Increment translation version to force re-render of foreign language collapsibles
       setTranslationVersion(prev => prev + 1);
-
-      // Restore the active platform to prevent tab switching after re-translation
-      if (savedActivePlatform) {
-        setActiveSocialPlatform(savedActivePlatform);
-      }
     } catch (error) {
       console.error('Re-translation error:', error);
       toast({
