@@ -380,12 +380,7 @@ const Dashboard = () => {
                              generatedContent.tiktok ? 'tiktok' :
                              generatedContent.twitter ? 'twitter' : null;
 
-      // Only set default platform if current platform doesn't have content
-      // This prevents resetting to Facebook when re-translating Instagram/TikTok/Twitter
-      if (defaultPlatform && activeSocialPlatform && !generatedContent[activeSocialPlatform]) {
-        setActiveSocialPlatform(defaultPlatform as 'facebook' | 'instagram' | 'tiktok' | 'twitter');
-      } else if (defaultPlatform && !activeSocialPlatform) {
-        // Initial load - set to first available platform
+      if (defaultPlatform) {
         setActiveSocialPlatform(defaultPlatform as 'facebook' | 'instagram' | 'tiktok' | 'twitter');
       }
 
@@ -782,6 +777,9 @@ const Dashboard = () => {
   const handleRetranslate = async (englishSource: string, contentType: string) => {
     if (!primaryChurch) return;
 
+    // Save current active platform to restore after re-translation
+    const savedActivePlatform = activeSocialPlatform;
+
     const normalizeToArray = (post: string | string[] | null | undefined) => {
       if (!post) return null;
       return Array.isArray(post) ? post : [post];
@@ -1132,6 +1130,11 @@ const Dashboard = () => {
 
       // Increment translation version to force re-render of foreign language collapsibles
       setTranslationVersion(prev => prev + 1);
+
+      // Restore the active platform to prevent tab switching after re-translation
+      if (savedActivePlatform) {
+        setActiveSocialPlatform(savedActivePlatform);
+      }
     } catch (error) {
       console.error('Re-translation error:', error);
       toast({
