@@ -326,6 +326,9 @@ const Dashboard = () => {
   // Translation version tracker to force re-render of foreign language collapsibles
   const [translationVersion, setTranslationVersion] = useState(0);
 
+  // Ref to track if initial platform has been set (to prevent resetting during re-translation)
+  const initialPlatformSetRef = useRef(false);
+
   const hasNonEnglishLanguages = outputLanguages.some(code => code !== 'en');
 
   // Get English source for retranslation
@@ -358,9 +361,9 @@ const Dashboard = () => {
     }
   }, [user, loading, navigate]);
 
-  // Initialize active social platform and set editing mode for English content when content is generated
+  // Sync languages and set editing mode for English content when content is generated
   useEffect(() => {
-    if (generatedContent && !retranslating) {
+    if (generatedContent) {
       // Sync output languages and primary language from loaded content
       // Check both camelCase and snake_case field names for compatibility
       const outputLangs = generatedContent.outputLanguages || generatedContent.output_languages;
@@ -373,15 +376,6 @@ const Dashboard = () => {
       if (primaryLang) {
         console.log('Syncing primaryLanguage from generatedContent:', primaryLang);
         setPrimaryLanguage(primaryLang);
-      }
-
-      const defaultPlatform = generatedContent.facebook ? 'facebook' :
-                             generatedContent.instagram ? 'instagram' :
-                             generatedContent.tiktok ? 'tiktok' :
-                             generatedContent.twitter ? 'twitter' : null;
-
-      if (defaultPlatform) {
-        setActiveSocialPlatform(defaultPlatform as 'facebook' | 'instagram' | 'tiktok' | 'twitter');
       }
 
       // Auto-enable editing mode for all English content (MDEditor by default)
@@ -428,7 +422,23 @@ const Dashboard = () => {
         }
       }
     }
-  }, [generatedContent, primaryLanguage, retranslating]);
+  }, [generatedContent, primaryLanguage]);
+
+  // Separate useEffect to set initial active platform ONCE (prevents tab switching during re-translation)
+  useEffect(() => {
+    if (generatedContent && !initialPlatformSetRef.current) {
+      const defaultPlatform = generatedContent.facebook ? 'facebook' :
+                             generatedContent.instagram ? 'instagram' :
+                             generatedContent.tiktok ? 'tiktok' :
+                             generatedContent.twitter ? 'twitter' : null;
+
+      if (defaultPlatform) {
+        setActiveSocialPlatform(defaultPlatform as 'facebook' | 'instagram' | 'tiktok' | 'twitter');
+        initialPlatformSetRef.current = true;
+      }
+    }
+  }, [generatedContent]);
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
