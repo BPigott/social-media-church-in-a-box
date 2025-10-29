@@ -14,7 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Loader2, Copy, Download, Upload, CheckCircle2, ChevronDown } from "lucide-react";
+import { Loader2, Copy, Download, Upload, CheckCircle2, ChevronDown, RotateCcw } from "lucide-react";
 import type { Platform } from "@/types/database";
 import mammoth from "mammoth";
 import * as pdfjsLib from "pdfjs-dist";
@@ -1149,6 +1149,23 @@ const Dashboard = () => {
     }
   };
 
+  const handleStartFresh = () => {
+    // Clear all generated content and reset form
+    setGeneratedContent(null);
+    setTranscriptText('');
+    setTranscriptFile(null);
+    setCustomCTA('');
+    setEditedContent({});
+    setEditingContent({});
+    setTranslationVersion(0);
+    initialPlatformSetRef.current = false;
+
+    toast({
+      title: "Dashboard cleared",
+      description: "Ready to generate new content!"
+    });
+  };
+
   const handleGenerate = async () => {
     if (!primaryChurch) {
       toast({
@@ -1492,25 +1509,6 @@ const Dashboard = () => {
                       ))}
                     </div>
 
-                    {/* Primary Language Selection */}
-                    {outputLanguages.length > 1 && (
-                      <div className="space-y-2">
-                        <Label htmlFor="primary-language">Primary Language (displayed first)</Label>
-                        <select
-                          id="primary-language"
-                          value={primaryLanguage}
-                          onChange={(e) => handlePrimaryLanguageChange(e.target.value)}
-                          className="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
-                        >
-                          {outputLanguages.map(code => (
-                            <option key={code} value={code}>
-                              {LANGUAGE_NAMES[code] || code}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-
                     {/* Selected Languages Summary */}
                     <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
                       <p className="font-medium mb-1">Selected Languages ({outputLanguages.length}/3):</p>
@@ -1605,10 +1603,18 @@ const Dashboard = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="font-playfair">Generated Content</CardTitle>
-                {generatedContent && <Button onClick={downloadAll} variant="outline" size="sm">
-                    <Download className="w-4 h-4 mr-2" />
-                    Download All
-                  </Button>}
+                {generatedContent && (
+                  <div className="flex gap-2">
+                    <Button onClick={handleStartFresh} variant="outline" size="sm">
+                      <RotateCcw className="w-4 h-4 mr-2" />
+                      Start Fresh
+                    </Button>
+                    <Button onClick={downloadAll} variant="outline" size="sm">
+                      <Download className="w-4 h-4 mr-2" />
+                      Download All
+                    </Button>
+                  </div>
+                )}
               </div>
             </CardHeader>
             <CardContent>
@@ -1639,7 +1645,7 @@ const Dashboard = () => {
                       twitter: '🐦 Twitter/X: Aim for 240-260 characters (leaves room for retweets with comments)'
                     };
 
-                    const englishSource = englishPost || editedContent[contentKey] || displayContent;
+                    const englishSource = editedContent[contentKey] || englishPost || displayContent;
                     const canRetranslate = hasNonEnglishLanguages && englishSource && englishSource.trim().length > 0;
 
                     return (
