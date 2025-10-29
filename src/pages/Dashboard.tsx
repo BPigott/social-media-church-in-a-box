@@ -407,22 +407,25 @@ const Dashboard = () => {
         }
 
         setEditingContent(newEditingState);
-        
+
         // Initialize edited content with current content
-        const newEditedContent: Record<string, string> = {};
-        Object.keys(newEditingState).forEach(key => {
-          if (key === 'bibleStudyGuide') {
-            newEditedContent[key] = generatedContent.bibleStudyGuide || '';
-          } else if (key === 'devotional') {
-            newEditedContent[key] = generatedContent.devotional || '';
-          } else if (key.includes('-')) {
-            const [platform, idxStr] = key.split('-');
-            const idx = parseInt(idxStr);
-            const posts = Array.isArray(generatedContent[platform]) ? generatedContent[platform] : [generatedContent[platform]];
-            newEditedContent[key] = posts[idx] || '';
-          }
-        });
-        setEditedContent(newEditedContent);
+        // Only initialize if editedContent is empty to prevent overwriting user edits during re-translation
+        if (Object.keys(editedContent).length === 0) {
+          const newEditedContent: Record<string, string> = {};
+          Object.keys(newEditingState).forEach(key => {
+            if (key === 'bibleStudyGuide') {
+              newEditedContent[key] = generatedContent.bibleStudyGuide || '';
+            } else if (key === 'devotional') {
+              newEditedContent[key] = generatedContent.devotional || '';
+            } else if (key.includes('-')) {
+              const [platform, idxStr] = key.split('-');
+              const idx = parseInt(idxStr);
+              const posts = Array.isArray(generatedContent[platform]) ? generatedContent[platform] : [generatedContent[platform]];
+              newEditedContent[key] = posts[idx] || '';
+            }
+          });
+          setEditedContent(newEditedContent);
+        }
       }
     }
   }, [generatedContent, primaryLanguage]);
