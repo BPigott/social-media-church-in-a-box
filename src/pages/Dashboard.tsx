@@ -40,7 +40,14 @@ const LANGUAGE_NAMES: Record<string, string> = {
   'uk': 'Ukrainian',
   'it': 'Italian',
   'ru': 'Russian',
-  'ja': 'Japanese'
+  'ja': 'Japanese',
+  'ro': 'Romanian',
+  'pa': 'Punjabi',
+  'ur': 'Urdu',
+  'bn': 'Bengali',
+  'gu': 'Gujarati',
+  'cy': 'Welsh',
+  'lt': 'Lithuanian'
 };
 
 // Dual Language Display Component
@@ -1493,7 +1500,7 @@ const Dashboard = () => {
                     </p>
                     
                     {/* Language Selection Grid */}
-                    <div className="grid grid-cols-2 gap-2 mb-4">
+                    <div className="grid grid-cols-3 gap-2 mb-4">
                       {Object.entries(LANGUAGE_NAMES).map(([code, name]) => (
                         <div key={code} className="flex items-center space-x-2">
                           <Checkbox 
