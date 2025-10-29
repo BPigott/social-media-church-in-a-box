@@ -380,7 +380,12 @@ const Dashboard = () => {
                              generatedContent.tiktok ? 'tiktok' :
                              generatedContent.twitter ? 'twitter' : null;
 
-      if (defaultPlatform) {
+      // Only set default platform if current platform doesn't have content
+      // This prevents resetting to Facebook when re-translating Instagram/TikTok/Twitter
+      if (defaultPlatform && activeSocialPlatform && !generatedContent[activeSocialPlatform]) {
+        setActiveSocialPlatform(defaultPlatform as 'facebook' | 'instagram' | 'tiktok' | 'twitter');
+      } else if (defaultPlatform && !activeSocialPlatform) {
+        // Initial load - set to first available platform
         setActiveSocialPlatform(defaultPlatform as 'facebook' | 'instagram' | 'tiktok' | 'twitter');
       }
 
@@ -1541,7 +1546,7 @@ const Dashboard = () => {
               {/* Posts per Platform - Only show if Social Media is selected */}
               {contentTypes.includes('social_media') && (
                 <div className="space-y-2">
-                  <Label htmlFor="posts-per-platform">Posts per Platform</Label>
+                  <Label>Posts per Platform</Label>
                   <p className="text-sm text-muted-foreground mb-2">
                     Generate multiple variations to choose from or schedule throughout the week
                   </p>
