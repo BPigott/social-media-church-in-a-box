@@ -15,6 +15,9 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Loader2, Copy, Download, Upload, CheckCircle2, ChevronDown, RotateCcw } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { jsPDF } from "jspdf";
+import { Document, Packer, Paragraph, TextRun } from "docx";
 import type { Platform } from "@/types/database";
 import mammoth from "mammoth";
 import * as pdfjsLib from "pdfjs-dist";
@@ -48,6 +51,16 @@ const LANGUAGE_NAMES: Record<string, string> = {
   'gu': 'Gujarati',
   'cy': 'Welsh',
   'lt': 'Lithuanian'
+};
+
+// Sorted language entries with English first
+const getSortedLanguages = () => {
+  const entries = Object.entries(LANGUAGE_NAMES);
+  const english: [string, string][] = entries.filter(([code]) => code === 'en');
+  const others: [string, string][] = entries
+    .filter(([code]) => code !== 'en')
+    .sort((a, b) => a[1].localeCompare(b[1]));
+  return [...english, ...others];
 };
 
 // Dual Language Display Component
@@ -1353,43 +1366,99 @@ const Dashboard = () => {
     });
     setTimeout(() => setCopiedItem(null), 2000);
   };
-  const downloadAll = () => {
-    const content = [];
+  const buildAllContentSections = () => {
+    const sections: string[] = [];
     const formatPosts = (posts: string | string[], platformName: string) => {
       const postsArray = Array.isArray(posts) ? posts : [posts];
       if (postsArray.length === 1) {
-        return `=== ${platformName} ===\n${postsArray[0]}\n\nCharacters: ${postsArray[0].length}\n`;
+        return `=== ${platformName} ===\n${postsArray[0]}\n`;
       } else {
-        return postsArray.map((post, idx) => `=== ${platformName} (Variation ${idx + 1}) ===\n${post}\n\nCharacters: ${post.length}\n`).join('\n\n');
+        return postsArray.map((post, idx) => `=== ${platformName} (Variation ${idx + 1}) ===\n${post}\n`).join('\n\n');
       }
     };
-    if (generatedContent.facebook) {
-      content.push(formatPosts(generatedContent.facebook, 'FACEBOOK'));
+    if (generatedContent.facebook) sections.push(formatPosts(generatedContent.facebook, 'FACEBOOK'));
+    if (generatedContent.instagram) sections.push(formatPosts(generatedContent.instagram, 'INSTAGRAM'));
+    if (generatedContent.tiktok) sections.push(formatPosts(generatedContent.tiktok, 'TIKTOK'));
+    if (generatedContent.twitter) sections.push(formatPosts(generatedContent.twitter, 'TWITTER/X'));
+    if (generatedContent.bibleStudyGuide) sections.push(`=== BIBLE STUDY GUIDE ===\n${generatedContent.bibleStudyGuide}`);
+    if (generatedContent.devotional) sections.push(`=== DAILY DEVOTIONAL ===\n${generatedContent.devotional}`);
+    return sections;
+  };
+
+  const downloadAll = async (format: 'txt' | 'docx' | 'pdf' | 'html' = 'txt') => {
+    const filenameBase = `${primaryChurch?.name || 'church'}-content-${new Date().toISOString().split('T')[0]}`;
+    const sections = buildAllContentSections();
+
+    if (format === 'txt') {
+      const blob = new Blob([sections.join('\n\n')], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${filenameBase}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+      return;
     }
-    if (generatedContent.instagram) {
-      content.push(formatPosts(generatedContent.instagram, 'INSTAGRAM'));
+
+    if (format === 'html') {
+      const html = `<!doctype html><html><head><meta charset="utf-8"><title>${filenameBase}</title></head><body>${sections
+        .map(s => `<section><pre style="white-space:pre-wrap;">${s.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</pre></section>`)
+        .join('<hr/>')}</body></html>`;
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${filenameBase}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+      return;
     }
-    if (generatedContent.tiktok) {
-      content.push(formatPosts(generatedContent.tiktok, 'TIKTOK'));
+
+    if (format === 'docx') {
+      const paragraphs: Paragraph[] = [];
+      sections.forEach(section => {
+        section.split('\n').forEach(line => {
+          paragraphs.push(new Paragraph({ children: [new TextRun(line)] }));
+        });
+        paragraphs.push(new Paragraph(''));
+      });
+      const doc = new Document({ sections: [{ properties: {}, children: paragraphs }] });
+      const blob = await Packer.toBlob(doc);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${filenameBase}.docx`;
+      a.click();
+      URL.revokeObjectURL(url);
+      return;
     }
-    if (generatedContent.twitter) {
-      content.push(formatPosts(generatedContent.twitter, 'TWITTER/X'));
+
+    if (format === 'pdf') {
+      const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+      const pageWidth = doc.internal.pageSize.getWidth() - 72; // 1in margins
+      const marginLeft = 36;
+      let y = 48; // top margin
+      sections.forEach((section, idx) => {
+        const lines = doc.splitTextToSize(section, pageWidth);
+        lines.forEach(line => {
+          if (y > doc.internal.pageSize.getHeight() - 48) {
+            doc.addPage();
+            y = 48;
+          }
+          doc.text(line, marginLeft, y);
+          y += 16;
+        });
+        if (idx < sections.length - 1) {
+          if (y > doc.internal.pageSize.getHeight() - 48) {
+            doc.addPage();
+            y = 48;
+          }
+          y += 8;
+        }
+      });
+      doc.save(`${filenameBase}.pdf`);
+      return;
     }
-    if (generatedContent.bibleStudyGuide) {
-      content.push(`=== BIBLE STUDY GUIDE ===\n${generatedContent.bibleStudyGuide}\n`);
-    }
-    if (generatedContent.devotional) {
-      content.push(`=== DAILY DEVOTIONAL ===\n${generatedContent.devotional}\n`);
-    }
-    const blob = new Blob([content.join('\n\n')], {
-      type: 'text/plain'
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${primaryChurch?.name || 'church'}-content-${new Date().toISOString().split('T')[0]}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
   };
 
   const downloadBibleStudy = (bibleStudyContent: string) => {
@@ -1501,7 +1570,7 @@ const Dashboard = () => {
                     
                     {/* Language Selection Grid */}
                     <div className="grid grid-cols-3 gap-2 mb-4">
-                      {Object.entries(LANGUAGE_NAMES).map(([code, name]) => (
+                      {getSortedLanguages().map(([code, name]) => (
                         <div key={code} className="flex items-center space-x-2">
                           <Checkbox 
                             id={`lang-${code}`}
@@ -1616,10 +1685,20 @@ const Dashboard = () => {
                       <RotateCcw className="w-4 h-4 mr-2" />
                       Start Fresh
                     </Button>
-                    <Button onClick={downloadAll} variant="outline" size="sm">
-                      <Download className="w-4 h-4 mr-2" />
-                      Download All
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <Download className="w-4 h-4 mr-2" />
+                          Download All
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => downloadAll('txt')}>Text (.txt)</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => downloadAll('docx')}>Word (.docx)</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => downloadAll('pdf')}>PDF (.pdf)</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => downloadAll('html')}>HTML (.html)</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 )}
               </div>
