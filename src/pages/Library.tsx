@@ -11,6 +11,9 @@ import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Copy, Download, Trash2, Search, ChevronDown, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { jsPDF } from "jspdf";
+import { Document, Packer, Paragraph, TextRun } from "docx";
 import { useToast } from "@/hooks/use-toast";
 import type { GeneratedContent } from "@/types/database";
 import ReactMarkdown from "react-markdown";
@@ -457,47 +460,113 @@ const Library = () => {
     );
   };
 
-  const downloadContent = (item: GeneratedContent) => {
-    const content = [];
-    
+  const buildItemSections = (item: GeneratedContent) => {
+    const content: string[] = [];
     if (item.facebook_post && item.facebook_post.length > 0) {
       const posts = Array.isArray(item.facebook_post) ? item.facebook_post : [item.facebook_post];
       posts.forEach((post, idx) => {
-        content.push(`=== FACEBOOK ${posts.length > 1 ? `(Variation ${idx + 1})` : ''} ===\n${post}\n`);
+        content.push(`=== FACEBOOK ${posts.length > 1 ? `(Variation ${idx + 1})` : ''} ===\n${post}`);
       });
     }
     if (item.instagram_post && item.instagram_post.length > 0) {
       const posts = Array.isArray(item.instagram_post) ? item.instagram_post : [item.instagram_post];
       posts.forEach((post, idx) => {
-        content.push(`=== INSTAGRAM ${posts.length > 1 ? `(Variation ${idx + 1})` : ''} ===\n${post}\n`);
+        content.push(`=== INSTAGRAM ${posts.length > 1 ? `(Variation ${idx + 1})` : ''} ===\n${post}`);
       });
     }
     if (item.tiktok_post && item.tiktok_post.length > 0) {
       const posts = Array.isArray(item.tiktok_post) ? item.tiktok_post : [item.tiktok_post];
       posts.forEach((post, idx) => {
-        content.push(`=== TIKTOK ${posts.length > 1 ? `(Variation ${idx + 1})` : ''} ===\n${post}\n`);
+        content.push(`=== TIKTOK ${posts.length > 1 ? `(Variation ${idx + 1})` : ''} ===\n${post}`);
       });
     }
     if (item.twitter_post && item.twitter_post.length > 0) {
       const posts = Array.isArray(item.twitter_post) ? item.twitter_post : [item.twitter_post];
       posts.forEach((post, idx) => {
-        content.push(`=== TWITTER/X ${posts.length > 1 ? `(Variation ${idx + 1})` : ''} ===\n${post}\n`);
+        content.push(`=== TWITTER/X ${posts.length > 1 ? `(Variation ${idx + 1})` : ''} ===\n${post}`);
       });
     }
     if (item.bible_study_guide) {
-      content.push(`=== BIBLE STUDY GUIDE ${item.output_language && item.output_language !== 'en' ? `(${item.output_language.toUpperCase()})` : ''} ===\n${item.bible_study_guide}\n`);
+      content.push(`=== BIBLE STUDY GUIDE ${item.output_language && item.output_language !== 'en' ? `(${String(item.output_language).toUpperCase()})` : ''} ===\n${item.bible_study_guide}`);
     }
     if (item.devotional) {
-      content.push(`=== DAILY DEVOTIONAL ===\n${item.devotional}\n`);
+      content.push(`=== DAILY DEVOTIONAL ===\n${item.devotional}`);
+    }
+    return content;
+  };
+
+  const downloadContent = async (item: GeneratedContent, format: 'txt' | 'docx' | 'pdf' | 'html' = 'txt') => {
+    const base = `content-${new Date(item.generated_at).toISOString().split('T')[0]}`;
+    const sections = buildItemSections(item);
+
+    if (format === 'txt') {
+      const blob = new Blob([sections.join('\n\n')], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${base}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+      return;
     }
 
-    const blob = new Blob([content.join('\n\n')], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `content-${new Date(item.generated_at).toISOString().split('T')[0]}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+    if (format === 'html') {
+      const html = `<!doctype html><html><head><meta charset="utf-8"><title>${base}</title></head><body>${sections
+        .map(s => `<section><pre style="white-space:pre-wrap;">${s.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</pre></section>`)
+        .join('<hr/>')}</body></html>`;
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${base}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+      return;
+    }
+
+    if (format === 'docx') {
+      const paragraphs: Paragraph[] = [];
+      sections.forEach(section => {
+        section.split('\n').forEach(line => paragraphs.push(new Paragraph({ children: [new TextRun(line)] })));
+        paragraphs.push(new Paragraph(''));
+      });
+      const doc = new Document({ sections: [{ properties: {}, children: paragraphs }] });
+      const blob = await Packer.toBlob(doc);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${base}.docx`;
+      a.click();
+      URL.revokeObjectURL(url);
+      return;
+    }
+
+    if (format === 'pdf') {
+      const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+      const pageWidth = doc.internal.pageSize.getWidth() - 72;
+      const marginLeft = 36;
+      let y = 48;
+      sections.forEach((section, idx) => {
+        const lines = doc.splitTextToSize(section, pageWidth);
+        lines.forEach(line => {
+          if (y > doc.internal.pageSize.getHeight() - 48) {
+            doc.addPage();
+            y = 48;
+          }
+          doc.text(line, marginLeft, y);
+          y += 16;
+        });
+        if (idx < sections.length - 1) {
+          if (y > doc.internal.pageSize.getHeight() - 48) {
+            doc.addPage();
+            y = 48;
+          }
+          y += 8;
+        }
+      });
+      doc.save(`${base}.pdf`);
+      return;
+    }
   };
 
   const filteredContent = content.filter(item => {
@@ -573,13 +642,19 @@ const Library = () => {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => downloadContent(item)}
-                      >
-                        <Download className="w-4 h-4" />
-                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            <Download className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => downloadContent(item, 'txt')}>Text (.txt)</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => downloadContent(item, 'docx')}>Word (.docx)</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => downloadContent(item, 'pdf')}>PDF (.pdf)</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => downloadContent(item, 'html')}>HTML (.html)</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                       <Button
                         variant="outline"
                         size="sm"
