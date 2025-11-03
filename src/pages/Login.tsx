@@ -78,7 +78,15 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-md">
+      <div className="w-full max-w-md space-y-6">
+        <div className="flex justify-center">
+          <img 
+            src="/logo.png" 
+            alt="ivangel" 
+            className="h-24 w-auto"
+          />
+        </div>
+      <Card className="w-full">
         <CardHeader className="space-y-1">
           <CardTitle className="text-3xl font-playfair text-center">Welcome Back</CardTitle>
           <CardDescription className="text-center">
@@ -128,6 +136,7 @@ const Login = () => {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 };

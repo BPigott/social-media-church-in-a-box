@@ -11,6 +11,13 @@ const Index = () => {
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-20 md:py-32">
         <div className="max-w-5xl mx-auto text-center space-y-8">
+          <div className="flex justify-center mb-6">
+            <img 
+              src="/logo.png" 
+              alt="ivangel" 
+              className="h-32 md:h-40 w-auto"
+            />
+          </div>
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold mb-4">
             <Sparkles className="w-4 h-4" />
             <span>Beta</span>

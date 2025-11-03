@@ -33,8 +33,12 @@ export const Navigation = () => {
     <nav className="border-b bg-card">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link to="/dashboard" className="font-playfair text-2xl font-bold text-primary">
-            ivangel
+          <Link to="/dashboard" className="flex items-center">
+            <img 
+              src="/logo.png" 
+              alt="ivangel" 
+              className="h-8 w-auto"
+            />
           </Link>
           <div className="flex gap-2">
             {navItems.map((item) => {
