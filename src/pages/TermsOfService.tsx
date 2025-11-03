@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "phosphor-react";
 
 const TermsOfService = () => {
   return (
@@ -9,14 +9,14 @@ const TermsOfService = () => {
         <div className="max-w-4xl mx-auto">
           <Button asChild variant="ghost" className="mb-8">
             <Link to="/">
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft size={16} className="mr-2" />
               Back to Home
             </Link>
           </Button>
 
           <div className="prose prose-slate dark:prose-invert max-w-none">
             <h1 className="text-4xl md:text-5xl font-playfair font-bold mb-2">Terms of Service</h1>
-            <p className="text-muted-foreground mb-8">Last updated: January 2025</p>
+            <p className="text-muted-foreground mb-8">Last updated: October 2025</p>
 
             <div className="space-y-8 text-foreground">
               {/* Introduction */}
@@ -99,12 +99,17 @@ const TermsOfService = () => {
                 <h3 className="text-xl font-semibold mb-3">5.1 Free Trial</h3>
                 <p className="mb-4">
                   New users may be eligible for a free 10-day trial period ("Free Trial"). During the Free Trial, you will have full access to all 
-                  features of the Service. No payment information is required to start your Free Trial.
+                  features of the Service. To start your Free Trial, you must provide payment information (credit card, debit card, or other accepted 
+                  payment method); however, no payment will be charged during the Free Trial period.
                 </p>
                 <p className="mb-4">
-                  At the end of the Free Trial period, you will be required to subscribe to a paid plan to continue using the Service. If you do not 
-                  subscribe, your account access will be restricted, but your generated content will be retained for 30 days should you decide to 
-                  subscribe later.
+                  At the end of the Free Trial period, your subscription will automatically commence and you will be charged the Subscription Fee 
+                  unless you cancel before the trial ends. You may cancel your Free Trial at any time during the trial period through your account 
+                  settings or by contacting us at hello@infocusoperations.co.uk, and no charge will be made.
+                </p>
+                <p className="mb-4">
+                  If you cancel your Free Trial or do not subscribe, your account access will be restricted, but your generated content will be retained 
+                  for 30 days should you decide to subscribe later.
                 </p>
 
                 <h3 className="text-xl font-semibold mb-3 mt-6">5.2 Subscription Plans</h3>
@@ -156,6 +161,30 @@ const TermsOfService = () => {
                 </ul>
                 <p className="mb-4">
                   Violation of these acceptable use provisions may result in immediate termination of your account without refund.
+                </p>
+
+                <h3 className="text-xl font-semibold mb-3 mt-6">6.4 Fair Use Policy</h3>
+                <p className="mb-4">
+                  While we offer unlimited content generation as part of the Service, we reserve the right to monitor usage patterns and implement 
+                  reasonable usage limits to ensure fair access for all users and to maintain service quality. Fair use includes:
+                </p>
+                <ul className="list-disc pl-6 space-y-2 mb-4">
+                  <li>Using the Service for its intended purpose: generating content for your church or religious organisation</li>
+                  <li>Not engaging in excessive automated requests or usage that may impact service performance for other users</li>
+                  <li>Not attempting to circumvent or bypass any usage limits or technical restrictions</li>
+                  <li>Not using the Service in a manner that places an unreasonable burden on our infrastructure or resources</li>
+                </ul>
+                <p className="mb-4">
+                  If we determine that your usage exceeds fair use limits or violates this policy, we reserve the right to:
+                </p>
+                <ul className="list-disc pl-6 space-y-2 mb-4">
+                  <li>Request that you moderate your usage</li>
+                  <li>Temporarily throttle or limit your access to certain features</li>
+                  <li>Suspend or terminate your subscription immediately, without prior notice and without refund</li>
+                </ul>
+                <p className="mb-4">
+                  We will typically attempt to contact you before taking action, except in cases of extreme abuse or violation of these Terms. Our 
+                  determination of what constitutes fair use is final and at our sole discretion.
                 </p>
               </section>
 
@@ -633,7 +662,7 @@ const TermsOfService = () => {
                 </p>
                 <p className="text-sm text-muted-foreground">
                   In Focus Operations Limited Terms of Service Version 1.0<br />
-                  Last updated: January 2025<br />
+                  Last updated: October 2025<br />
                   © 2025 In Focus Operations Limited. All rights reserved.
                 </p>
               </section>
@@ -654,4 +683,5 @@ const TermsOfService = () => {
 };
 
 export default TermsOfService;
+
 

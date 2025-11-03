@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home, FileText, Settings as SettingsIcon, LogOut } from "lucide-react";
+import { House, FileText, Gear as SettingsIcon, SignOut } from "phosphor-react";
 import { cn } from "@/lib/utils";
 import { signOut } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
@@ -11,7 +11,7 @@ export const Navigation = () => {
   const { toast } = useToast();
 
   const navItems = [
-    { to: "/dashboard", label: "Dashboard", icon: Home },
+    { to: "/dashboard", label: "Dashboard", icon: House },
     { to: "/library", label: "Library", icon: FileText },
     { to: "/settings", label: "Settings", icon: SettingsIcon },
   ];
@@ -37,7 +37,7 @@ export const Navigation = () => {
             <img 
               src="/logo.png" 
               alt="ivangel" 
-              className="h-12 w-auto"
+              className="h-20 w-auto"
             />
           </Link>
           <div className="flex gap-2">
@@ -56,7 +56,7 @@ export const Navigation = () => {
                   )}
                 >
                   <Link to={item.to}>
-                    <Icon className="w-4 h-4" />
+                    <Icon size={16} />
                     <span className="hidden sm:inline">{item.label}</span>
                   </Link>
                 </Button>
@@ -67,7 +67,7 @@ export const Navigation = () => {
               onClick={handleSignOut}
               className="gap-2 text-muted-foreground hover:text-foreground"
             >
-              <LogOut className="w-4 h-4" />
+              <SignOut size={16} />
               <span className="hidden sm:inline">Logout</span>
             </Button>
           </div>

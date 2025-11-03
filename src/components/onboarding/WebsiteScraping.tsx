@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Progress } from "@/components/ui/progress";
-import { Loader2 } from "lucide-react";
+import { CircleNotch } from "phosphor-react";
 
 const SCRAPING_MESSAGES = [
   { progress: 10, message: "Reading your About Us page... 📖", subtitle: "Learning who you are" },
@@ -34,7 +34,7 @@ export const WebsiteScraping = () => {
   return (
     <div className="flex flex-col items-center justify-center py-12 space-y-6">
       <div className="relative">
-        <Loader2 className="w-16 h-16 animate-spin text-primary" />
+        <CircleNotch size={64} className="animate-spin text-primary" />
       </div>
       
       <div className="text-center space-y-2 max-w-md">

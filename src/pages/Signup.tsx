@@ -66,7 +66,7 @@ const Signup = () => {
           <img 
             src="/logo.png" 
             alt="ivangel" 
-            className="h-24 w-auto"
+            className="h-32 w-auto"
           />
         </div>
       <Card className="w-full">

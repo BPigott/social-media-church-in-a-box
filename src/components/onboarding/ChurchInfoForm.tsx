@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, X, RefreshCw } from "lucide-react";
+import { Plus, X, ArrowClockwise } from "phosphor-react";
 import type { Church } from "@/types/database";
 
 const DAYS_OF_WEEK = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -135,7 +135,7 @@ export const ChurchInfoForm = ({
               disabled={isRecrawling}
               className="whitespace-nowrap"
             >
-              <RefreshCw className={`w-4 h-4 mr-2 ${isRecrawling ? 'animate-spin' : ''}`} />
+              <ArrowClockwise size={16} className={`mr-2 ${isRecrawling ? 'animate-spin' : ''}`} />
               {isRecrawling ? "Updating..." : "Refresh"}
             </Button>
           )}
@@ -175,7 +175,7 @@ export const ChurchInfoForm = ({
         <div className="flex items-center justify-between">
           <Label>Service Times</Label>
           <Button type="button" onClick={addServiceTime} size="sm" variant="outline">
-            <Plus className="w-4 h-4 mr-1" />
+            <Plus size={16} className="mr-1" />
             Add Time
           </Button>
         </div>
@@ -209,7 +209,7 @@ export const ChurchInfoForm = ({
               size="icon"
               variant="ghost"
             >
-              <X className="w-4 h-4" />
+              <X size={16} />
             </Button>
           </div>
         ))}
