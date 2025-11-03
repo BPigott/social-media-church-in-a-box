@@ -1551,13 +1551,17 @@ const Dashboard = () => {
                   </div>}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="speaker-name">Who was preaching? (Optional)</Label>
-                <Input id="speaker-name" placeholder="e.g., Pastor John, Rob Smith, Sarah Johnson" value={speakerName} onChange={e => setSpeakerName(e.target.value)} />
-                <p className="text-xs text-muted-foreground">
-                  Adding the speaker's name helps personalise the content
-                </p>
-              </div>
+              <Card className="border-2 border-primary/30 bg-primary/5">
+                <CardContent className="pt-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="speaker-name">Who was preaching? (Optional)</Label>
+                    <Input id="speaker-name" placeholder="e.g., Pastor John, Rob Smith, Sarah Johnson" value={speakerName} onChange={e => setSpeakerName(e.target.value)} />
+                    <p className="text-xs text-muted-foreground">
+                      Adding the speaker's name helps personalise the content
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* Events, Announcements & Calls-to-Action - Prominent Section */}
               <Card className="border-2 border-primary/30 bg-primary/5">
