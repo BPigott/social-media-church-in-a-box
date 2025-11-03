@@ -220,6 +220,76 @@ supabase stop && supabase start
 
 ## Troubleshooting
 
+### Error: "Failed to send recovery email" or "Error sending recovery email"
+
+This error occurs when Supabase cannot send emails. Check these items in order:
+
+**1. Check if SMTP is Configured**
+- Go to **Project Settings** → **Auth** → **SMTP Settings** in Supabase Dashboard
+- If "Enable Custom SMTP" is OFF, you have two options:
+  - **Option A**: Enable Supabase's default email service (limited, may go to spam)
+    - Go to **Project Settings** → **Auth** → **SMTP Settings**
+    - Ensure email templates are configured (Step 2 above)
+    - Default emails have rate limits and lower deliverability
+  - **Option B**: Set up custom SMTP with Resend (recommended - see Step 5 above)
+    - Follow the Resend setup instructions in Step 5
+    - This provides better deliverability and no rate limits
+
+**2. Verify SMTP Configuration (if using custom SMTP)**
+- Double-check all SMTP fields:
+  - Host: `smtp.resend.com` (exact, no typos)
+  - Port: `465` or `587` (try both if one doesn't work)
+  - User: `resend` (lowercase, exact)
+  - Password: Your full Resend API key (starts with `re_`, no extra spaces)
+  - Sender Email: Must match a verified domain or use `onboarding@resend.dev`
+- Toggle "Enable Custom SMTP" OFF and ON again to refresh settings
+- Wait 1-2 minutes after saving for changes to propagate
+
+**3. Check Resend Dashboard (if using Resend)**
+- Go to https://resend.com/emails
+- Look for failed email attempts
+- Check for API key errors or rate limit issues
+- Verify your API key is active and has correct permissions
+
+**4. Verify Redirect URL is Whitelisted**
+- Go to **Project Settings** → **Auth** → **URL Configuration**
+- Under **Redirect URLs**, ensure these are added:
+  - Your production URL: `https://yourdomain.com/reset-password`
+  - Local dev: `http://localhost:5173/reset-password` (if testing locally)
+- Click **Save** after adding URLs
+
+**5. Check Supabase Auth Logs**
+- Go to **Project Settings** → **Logs** → **Auth Logs** (or **Logs** → **Auth** in left sidebar)
+- Look for recent password reset attempts
+- Check for specific error messages that might indicate the root cause
+
+**6. Test Email Templates**
+- Go to **Authentication** → **Email Templates**
+- For "Reset password" template, click **Send test email**
+- Enter your email address and send
+- If test email fails, the issue is with SMTP configuration
+- If test email succeeds but real emails fail, check redirect URLs
+
+**7. Common Issues and Fixes**
+
+**"Email rate limit exceeded":**
+- You're using Supabase's default email service (rate limited)
+- Solution: Set up custom SMTP with Resend
+
+**"Invalid SMTP credentials":**
+- Check API key is correct (no spaces, full key starting with `re_`)
+- Verify SMTP host is exactly `smtp.resend.com`
+- Ensure SMTP user is exactly `resend` (lowercase)
+
+**"Sender email not verified":**
+- If using Resend, ensure your sender email matches:
+  - A verified domain (if you verified one)
+  - OR use `onboarding@resend.dev` or `noreply@resend.dev` if no domain verified
+
+**"Redirect URL not whitelisted":**
+- Add the exact URL (including protocol and path) to Redirect URLs
+- Wait a minute after saving
+
 ### Emails still showing Supabase branding
 - Ensure you've saved the templates in the Dashboard
 - Clear browser cache and refresh the Dashboard
