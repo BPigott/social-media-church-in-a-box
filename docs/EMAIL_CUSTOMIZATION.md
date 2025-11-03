@@ -76,21 +76,97 @@ Ensure your password reset redirect URL is whitelisted:
 
 ### 5. Optional: Configure Custom SMTP (Recommended for Production)
 
-For better deliverability and full control over sender email addresses:
+For better deliverability and full control over sender email addresses, configure a custom SMTP provider. Below are detailed instructions for Resend.
 
-1. Go to **Authentication** → **Email Templates**
-2. Scroll to **SMTP Settings**
-3. Enable **Custom SMTP**
-4. Configure your SMTP provider (e.g., Resend, SendGrid, AWS SES)
-5. Set **From Email**: `no-reply@yourdomain.com` or `noreply@evangel.com`
-6. Set **From Name**: `ivangel`
+#### Setting Up Resend with Supabase
 
-#### Recommended SMTP Providers
+Resend is an excellent choice for transactional emails - it's developer-friendly, has great deliverability, and offers a generous free tier.
 
-- **Resend** - Easy setup, developer-friendly (https://resend.com)
+**Step 1: Get Your Resend API Key**
+
+1. Log in to your Resend account at https://resend.com
+2. Go to **API Keys** in the left sidebar (or visit https://resend.com/api-keys)
+3. Click **Create API Key**
+4. Give it a name (e.g., "Supabase Email")
+5. Copy the API key immediately (you won't be able to see it again!)
+6. Save it securely
+
+**Step 2: Verify Your Domain (Recommended)**
+
+For better deliverability, verify your domain:
+
+1. In Resend, go to **Domains** (or visit https://resend.com/domains)
+2. Click **Add Domain**
+3. Enter your domain (e.g., `yourdomain.com`)
+4. Add the DNS records Resend provides to your domain's DNS settings:
+   - SPF record (TXT record)
+   - DKIM records (CNAME records)
+   - DMARC record (optional but recommended)
+5. Wait for verification (usually a few minutes to an hour)
+
+**Note**: You can use Resend without domain verification by using `onboarding@resend.dev` or `noreply@resend.dev` as the sender email, but verified domains have much better deliverability.
+
+**Step 3: Configure SMTP in Supabase**
+
+1. In your Supabase Dashboard, go to **Authentication** → **Providers**
+2. Scroll down to find **SMTP Settings** (or go directly to **Project Settings** → **Auth** → **SMTP Settings**)
+3. Toggle **Enable Custom SMTP** to ON
+4. Fill in the Resend SMTP credentials:
+
+   **SMTP Host**: `smtp.resend.com`  
+   **SMTP Port**: `465` (or `587` for TLS)  
+   **SMTP User**: `resend`  
+   **SMTP Password**: Your Resend API key (the one you copied in Step 1)  
+   **Sender Email**: 
+   - If you verified a domain: `noreply@yourdomain.com` (use your verified domain)
+   - If not verified: `onboarding@resend.dev` or `noreply@resend.dev`  
+   **Sender Name**: `ivangel`
+
+5. Click **Save** or **Update**
+
+**Step 4: Test the Integration**
+
+1. In Supabase, go to **Authentication** → **Users**
+2. Try creating a test user or resetting a password
+3. Check your Resend dashboard at https://resend.com/emails to see if the email was sent
+4. Verify the email arrives in the inbox (check spam folder if needed)
+
+**Step 5: Configure Email Templates (Still Required)**
+
+Even with custom SMTP, you still need to configure the email templates as described in Step 2 above. The SMTP settings only control HOW emails are sent, not WHAT they contain.
+
+#### Troubleshooting Resend Setup
+
+**Emails not sending:**
+- Verify your API key is correct (no extra spaces)
+- Check that SMTP port is correct (465 or 587)
+- Ensure "Enable Custom SMTP" toggle is ON
+- Check Resend dashboard for error messages
+
+**Emails going to spam:**
+- Verify your domain with Resend and add all DNS records
+- Use a verified domain email address as sender
+- Ensure SPF, DKIM, and DMARC records are properly configured
+
+**API key issues:**
+- Make sure you're using the full API key (starts with `re_`)
+- Regenerate the API key if needed
+- Check that the API key hasn't been revoked
+
+**Still using Supabase default emails:**
+- Double-check that "Enable Custom SMTP" is toggled ON
+- Refresh the Supabase dashboard
+- Try disabling and re-enabling the SMTP toggle
+
+#### Other SMTP Provider Options
+
+If you prefer a different provider:
+
 - **SendGrid** - Reliable, enterprise-grade (https://sendgrid.com)
 - **AWS SES** - Cost-effective for high volume (https://aws.amazon.com/ses/)
 - **Postmark** - Great for transactional emails (https://postmarkapp.com)
+
+Each provider will have similar SMTP settings - you'll need their SMTP host, port, username, and password/API key.
 
 ## Template Customization
 
