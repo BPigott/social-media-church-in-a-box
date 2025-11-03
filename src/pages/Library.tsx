@@ -580,6 +580,38 @@ const Library = () => {
       igPosts.some(post => post?.toLowerCase().includes(query));
   });
 
+  // Group content by date
+  const groupContentByDate = (items: typeof filteredContent) => {
+    const groups: Record<string, typeof filteredContent> = {};
+    items.forEach(item => {
+      const date = new Date(item.generated_at);
+      const dateKey = date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+      if (!groups[dateKey]) {
+        groups[dateKey] = [];
+      }
+      groups[dateKey].push(item);
+    });
+    return groups;
+  };
+
+  const contentByDate = groupContentByDate(filteredContent);
+  // Sort items within each date group by time (most recent first)
+  Object.keys(contentByDate).forEach(dateKey => {
+    contentByDate[dateKey].sort((a, b) => {
+      return new Date(b.generated_at).getTime() - new Date(a.generated_at).getTime();
+    });
+  });
+  const sortedDates = Object.keys(contentByDate).sort((a, b) => {
+    // Sort by the most recent item in each date group
+    const dateA = contentByDate[a][0].generated_at;
+    const dateB = contentByDate[b][0].generated_at;
+    return new Date(dateB).getTime() - new Date(dateA).getTime();
+  });
+
   if (loading || churchLoading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -620,52 +652,99 @@ const Library = () => {
           </Card>
         ) : (
           <div className="space-y-4">
-            {filteredContent.map((item) => (
-              <Card key={item.id}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-2">
-                      <CardTitle className="text-xl font-playfair">
-                        {new Date(item.generated_at).toLocaleDateString('en-US', {
-                          weekday: 'long',
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                        })}
-                      </CardTitle>
-                      <div className="flex gap-2">
-                        {(item.platforms as string[]).map((platform) => (
-                          <Badge key={platform} variant="secondary" className="capitalize">
-                            {platform}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="sm">
-                            <Download className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => downloadContent(item, 'txt')}>Text (.txt)</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => downloadContent(item, 'docx')}>Word (.docx)</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => downloadContent(item, 'pdf')}>PDF (.pdf)</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => downloadContent(item, 'html')}>HTML (.html)</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => deleteContent(item.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
+            {sortedDates.map((dateKey) => {
+              const dateItems = contentByDate[dateKey];
+              const dateItem = dateItems[0];
+              const dateObj = new Date(dateItem.generated_at);
+              const dateDisplay = dateObj.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              });
+              const groupKey = `date-${dateKey}`;
+              const isExpanded = expandedSections[groupKey] ?? true;
+
+              return (
+                <Collapsible
+                  key={dateKey}
+                  open={isExpanded}
+                  onOpenChange={() => toggleSection(groupKey)}
+                >
+                  <Card>
+                    <CardHeader>
+                      <CollapsibleTrigger className="w-full">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <ChevronDown 
+                              className={`w-5 h-5 transition-transform ${
+                                isExpanded ? 'rotate-180' : ''
+                              }`}
+                            />
+                            <div>
+                              <CardTitle className="text-xl font-playfair text-left">
+                                {dateDisplay}
+                              </CardTitle>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                {dateItems.length} {dateItems.length === 1 ? 'generation' : 'generations'}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </CollapsibleTrigger>
+                    </CardHeader>
+                    <CollapsibleContent>
+                      <div className="space-y-4 px-6 pb-6">
+                        {dateItems.map((item) => {
+                          const timestamp = new Date(item.generated_at).toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true,
+                          });
+                          
+                          return (
+                            <Card key={item.id} className="border-l-4 border-l-primary">
+                              <CardHeader>
+                                <div className="flex items-start justify-between">
+                                  <div className="space-y-2">
+                                    <div className="flex items-center gap-3">
+                                      <CardTitle className="text-lg font-semibold">
+                                        {timestamp}
+                                      </CardTitle>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      {(item.platforms as string[]).map((platform) => (
+                                        <Badge key={platform} variant="secondary" className="capitalize">
+                                          {platform}
+                                        </Badge>
+                                      ))}
+                                    </div>
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                        <Button variant="outline" size="sm">
+                                          <Download className="w-4 h-4" />
+                                        </Button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent align="end">
+                                        <DropdownMenuItem onClick={() => downloadContent(item, 'txt')}>Text (.txt)</DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => downloadContent(item, 'docx')}>Word (.docx)</DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => downloadContent(item, 'pdf')}>PDF (.pdf)</DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => downloadContent(item, 'html')}>HTML (.html)</DropdownMenuItem>
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => deleteContent(item.id)}
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              </CardHeader>
+                              <CardContent className="space-y-3">
                   {item.devotional && (
                     <Collapsible
                       open={expandedSections[`${item.id}-devotional`]}
@@ -850,9 +929,16 @@ const Library = () => {
                       </div>
                     </Collapsible>
                   )}
-                </CardContent>
-              </Card>
-            ))}
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                    </CollapsibleContent>
+                  </Card>
+                </Collapsible>
+              );
+            })}
           </div>
         )}
       </div>
