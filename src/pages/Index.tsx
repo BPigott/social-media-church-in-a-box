@@ -10,7 +10,7 @@ const Index = () => {
   return <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-16 md:py-24">
-        <div className="max-w-5xl mx-auto text-center space-y-8">
+        <div className="max-w-5xl mx-auto text-center space-y-8 relative">
           <div className="flex justify-center mb-8 md:mb-12">
             <img 
               src="/logo.png" 
@@ -48,13 +48,13 @@ const Index = () => {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            {user ? <Button asChild size="lg" className="text-lg px-12 py-8 shadow-xl hover:shadow-2xl transition-all duration-200">
+            {user ? <Button asChild size="lg" className="text-lg px-12 py-8 shadow-xl hover:shadow-2xl transition-all duration-200 active:scale-95">
                 <Link to="/dashboard">Go to Dashboard →</Link>
               </Button> : <>
-                <Button asChild size="lg" className="text-lg px-12 py-8 shadow-xl hover:shadow-2xl transition-all duration-200">
+                <Button asChild size="lg" className="text-lg px-12 py-8 shadow-xl hover:shadow-2xl transition-all duration-200 active:scale-95">
                   <Link to="/signup">Start Free 10 Day Trial</Link>
                 </Button>
-                <Button asChild size="lg" className="text-lg px-12 py-8 shadow-xl hover:shadow-2xl transition-all duration-200 bg-primary text-primary-foreground hover:bg-primary/90">
+                <Button asChild size="lg" className="text-lg px-12 py-8 shadow-xl hover:shadow-2xl transition-all duration-200 bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95">
                   <Link to="/login">Sign In</Link>
                 </Button>
               </>}
@@ -63,7 +63,7 @@ const Index = () => {
       </div>
 
       {/* Social Proof Stats Bar */}
-      <section className="bg-primary/5 py-8 border-y border-border/50">
+      <section className="bg-gradient-to-r from-primary/5 via-primary/8 to-primary/5 py-8 border-y border-border/50">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 text-center">
             <div>
@@ -82,9 +82,9 @@ const Index = () => {
       <div className="container mx-auto px-4">
         {/* Core Features */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-48 md:mt-56 max-w-7xl mx-auto">
-          <div className="text-center space-y-4 p-8 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
-            <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-              <MessageSquare className="w-10 h-10 text-primary" />
+          <div className="text-center space-y-4 p-8 bg-gradient-to-br from-primary/5 to-primary/10 border border-border/50 rounded-lg shadow-md hover:-translate-y-2 hover:shadow-2xl hover:border-primary/50 transition-all duration-300 ease-out group">
+            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-purple-100 to-purple-50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <MessageSquare className="w-10 h-10 text-purple-600" />
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Social Media Excellence</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
@@ -92,9 +92,9 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="text-center space-y-4 p-8 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
-            <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-              <BookOpen className="w-10 h-10 text-primary" />
+          <div className="text-center space-y-4 p-8 bg-gradient-to-br from-primary/5 to-primary/10 border border-border/50 rounded-lg shadow-md hover:-translate-y-2 hover:shadow-2xl hover:border-primary/50 transition-all duration-300 ease-out group">
+            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-blue-100 to-blue-50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <BookOpen className="w-10 h-10 text-blue-600" />
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Bible Study Guides</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
@@ -102,9 +102,9 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="text-center space-y-4 p-8 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
-            <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-              <Heart className="w-10 h-10 text-primary" />
+          <div className="text-center space-y-4 p-8 bg-gradient-to-br from-primary/5 to-primary/10 border border-border/50 rounded-lg shadow-md hover:-translate-y-2 hover:shadow-2xl hover:border-primary/50 transition-all duration-300 ease-out group">
+            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-pink-100 to-pink-50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <Heart className="w-10 h-10 text-pink-600" />
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Daily Devotionals</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
@@ -112,9 +112,9 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="text-center space-y-4 p-8 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
-            <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-              <Languages className="w-10 h-10 text-primary" />
+          <div className="text-center space-y-4 p-8 bg-gradient-to-br from-primary/5 to-primary/10 border border-border/50 rounded-lg shadow-md hover:-translate-y-2 hover:shadow-2xl hover:border-primary/50 transition-all duration-300 ease-out group">
+            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-teal-100 to-teal-50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <Languages className="w-10 h-10 text-teal-600" />
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Multi-Language Ministry</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
@@ -122,9 +122,9 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="text-center space-y-4 p-8 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
-            <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-              <Search className="w-10 h-10 text-primary" />
+          <div className="text-center space-y-4 p-8 bg-gradient-to-br from-primary/5 to-primary/10 border border-border/50 rounded-lg shadow-md hover:-translate-y-2 hover:shadow-2xl hover:border-primary/50 transition-all duration-300 ease-out group">
+            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-amber-100 to-amber-50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <Search className="w-10 h-10 text-amber-600" />
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Content Library</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
@@ -132,9 +132,9 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="text-center space-y-4 p-8 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
-            <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-              <Globe className="w-10 h-10 text-primary" />
+          <div className="text-center space-y-4 p-8 bg-gradient-to-br from-primary/5 to-primary/10 border border-border/50 rounded-lg shadow-md hover:-translate-y-2 hover:shadow-2xl hover:border-primary/50 transition-all duration-300 ease-out group">
+            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-cyan-100 to-cyan-50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <Globe className="w-10 h-10 text-cyan-600" />
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Website Analysis</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
@@ -142,9 +142,9 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="text-center space-y-4 p-8 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
-            <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-              <Palette className="w-10 h-10 text-primary" />
+          <div className="text-center space-y-4 p-8 bg-gradient-to-br from-primary/5 to-primary/10 border border-border/50 rounded-lg shadow-md hover:-translate-y-2 hover:shadow-2xl hover:border-primary/50 transition-all duration-300 ease-out group">
+            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-violet-100 to-violet-50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <Palette className="w-10 h-10 text-violet-600" />
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Your Church's Voice</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
@@ -152,9 +152,9 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="text-center space-y-4 p-8 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
-            <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-              <FileText className="w-10 h-10 text-primary" />
+          <div className="text-center space-y-4 p-8 bg-gradient-to-br from-primary/5 to-primary/10 border border-border/50 rounded-lg shadow-md hover:-translate-y-2 hover:shadow-2xl hover:border-primary/50 transition-all duration-300 ease-out group">
+            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-indigo-100 to-indigo-50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <FileText className="w-10 h-10 text-indigo-600" />
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Easy Upload</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
@@ -173,8 +173,8 @@ const Index = () => {
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-card border border-border rounded-lg p-8 space-y-6">
-              <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
+            <div className="bg-card border border-border rounded-lg p-8 space-y-6 shadow-md hover:-translate-y-3 hover:shadow-2xl transition-all duration-300 ease-out group">
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
                 <MessageSquare className="w-10 h-10 text-blue-600" />
               </div>
               <h3 className="text-2xl font-playfair font-bold text-center">Social Media Posts</h3>
@@ -198,8 +198,8 @@ const Index = () => {
               </ul>
             </div>
 
-            <div className="bg-card border border-border rounded-lg p-8 space-y-6">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+            <div className="bg-card border border-border rounded-lg p-8 space-y-6 shadow-md hover:-translate-y-3 hover:shadow-2xl transition-all duration-300 ease-out group">
+              <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
                 <BookOpen className="w-10 h-10 text-green-600" />
               </div>
               <h3 className="text-2xl font-playfair font-bold text-center">Bible Study Guides</h3>
@@ -223,8 +223,8 @@ const Index = () => {
               </ul>
             </div>
 
-            <div className="bg-card border border-border rounded-lg p-8 space-y-6">
-              <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto">
+            <div className="bg-card border border-border rounded-lg p-8 space-y-6 shadow-md hover:-translate-y-3 hover:shadow-2xl transition-all duration-300 ease-out group">
+              <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
                 <Heart className="w-10 h-10 text-purple-600" />
               </div>
               <h3 className="text-2xl font-playfair font-bold text-center">Daily Devotionals</h3>
@@ -269,7 +269,7 @@ const Index = () => {
                   "Persian (Farsi)", "Polish", "Portuguese", "Punjabi", "Romanian", "Russian",
                   "Spanish", "Ukrainian", "Urdu", "Welsh"
                 ].map((language) => (
-                  <div key={language} className="bg-background/80 backdrop-blur-sm border border-border/50 rounded-lg py-3 px-4 font-medium whitespace-nowrap">
+                  <div key={language} className="bg-background/80 backdrop-blur-sm border border-border/50 rounded-lg py-3 px-4 font-medium whitespace-nowrap hover:scale-105 hover:shadow-md transition-all duration-300">
                     {language}
                   </div>
                 ))}
@@ -284,31 +284,31 @@ const Index = () => {
                 "Persian (Farsi)", "Polish", "Portuguese", "Punjabi", "Romanian", "Russian",
                 "Spanish", "Ukrainian", "Urdu", "Welsh"
               ].map((language) => (
-                <div key={language} className="bg-background/80 backdrop-blur-sm border border-border/50 rounded-lg py-3 px-2 font-medium text-center">
+                <div key={language} className="bg-background/80 backdrop-blur-sm border border-border/50 rounded-lg py-3 px-2 font-medium text-center hover:scale-105 hover:shadow-md transition-all duration-300">
                   {language}
                 </div>
               ))}
             </div>
 
             <div className="grid md:grid-cols-3 gap-6 text-left">
-              <div className="bg-background/50 backdrop-blur-sm rounded-lg p-6 border border-border/50">
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+              <div className="bg-background/50 backdrop-blur-sm rounded-lg p-6 border border-border/50 shadow-md hover:-translate-y-2 hover:shadow-lg transition-all duration-300 ease-out group">
+                <div className="w-12 h-12 bg-gradient-to-br from-primary/10 to-primary/20 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                   <Languages className="w-6 h-6 text-primary" />
                 </div>
                 <h4 className="font-playfair font-semibold mb-2">Cultural Sensitivity</h4>
                 <p className="text-muted-foreground text-sm">Content adapts to cultural nuances and linguistic preferences, not just direct translations</p>
               </div>
               
-              <div className="bg-background/50 backdrop-blur-sm rounded-lg p-6 border border-border/50">
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+              <div className="bg-background/50 backdrop-blur-sm rounded-lg p-6 border border-border/50 shadow-md hover:-translate-y-2 hover:shadow-lg transition-all duration-300 ease-out group">
+                <div className="w-12 h-12 bg-gradient-to-br from-primary/10 to-primary/20 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                   <Zap className="w-6 h-6 text-primary" />
                 </div>
                 <h4 className="font-playfair font-semibold mb-2">Real-Time Editing</h4>
                 <p className="text-muted-foreground text-sm">Edit English content and instantly re-translate to your target languages with one click</p>
               </div>
               
-              <div className="bg-background/50 backdrop-blur-sm rounded-lg p-6 border border-border/50">
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+              <div className="bg-background/50 backdrop-blur-sm rounded-lg p-6 border border-border/50 shadow-md hover:-translate-y-2 hover:shadow-lg transition-all duration-300 ease-out group">
+                <div className="w-12 h-12 bg-gradient-to-br from-primary/10 to-primary/20 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                   <Globe className="w-6 h-6 text-primary" />
                 </div>
                 <h4 className="font-playfair font-semibold mb-2">Ministry Impact</h4>
@@ -322,19 +322,19 @@ const Index = () => {
         <div className="mt-48 md:mt-56 max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl lg:text-4xl font-playfair font-bold text-center mb-16">How It Works</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center space-y-4 p-6 bg-card border border-border rounded-lg">
-              <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center relative">
+            <div className="text-center space-y-4 p-6 bg-card border border-border rounded-lg shadow-md hover:-translate-y-2 hover:shadow-2xl hover:border-primary/50 transition-all duration-300 ease-out group">
+              <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary/10 to-primary/20 rounded-full flex items-center justify-center relative group-hover:scale-110 transition-transform duration-300">
                 <Settings className="w-8 h-8 text-primary" />
-                <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold shadow-lg">1</span>
               </div>
               <h3 className="text-xl font-playfair font-bold">Complete Church Setup</h3>
               <p className="text-muted-foreground text-sm">Enter your church profile, vision statement, service times, and social handles. Optionally share your website for automatic context analysis and style guide enhancement.</p>
             </div>
 
-            <div className="text-center space-y-4 p-6 bg-card border border-border rounded-lg">
-              <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center relative">
+            <div className="text-center space-y-4 p-6 bg-card border border-border rounded-lg shadow-md hover:-translate-y-2 hover:shadow-2xl hover:border-primary/50 transition-all duration-300 ease-out group">
+              <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary/10 to-primary/20 rounded-full flex items-center justify-center relative group-hover:scale-110 transition-transform duration-300">
                 <Brain className="w-8 h-8 text-primary" />
-                <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold shadow-lg">2</span>
               </div>
               <h3 className="text-xl font-playfair font-bold">AI Learning & Style Guide</h3>
               <p className="text-muted-foreground text-sm">
@@ -342,10 +342,10 @@ const Index = () => {
               </p>
             </div>
 
-            <div className="text-center space-y-4 p-6 bg-card border border-border rounded-lg">
-              <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center relative">
+            <div className="text-center space-y-4 p-6 bg-card border border-border rounded-lg shadow-md hover:-translate-y-2 hover:shadow-2xl hover:border-primary/50 transition-all duration-300 ease-out group">
+              <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary/10 to-primary/20 rounded-full flex items-center justify-center relative group-hover:scale-110 transition-transform duration-300">
                 <Zap className="w-8 h-8 text-primary" />
-                <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">3</span>
+                <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold shadow-lg">3</span>
               </div>
               <h3 className="text-xl font-playfair font-bold">Comprehensive Generation</h3>
               <p className="text-muted-foreground text-sm">
@@ -353,10 +353,10 @@ const Index = () => {
               </p>
             </div>
 
-            <div className="text-center space-y-4 p-6 bg-card border border-border rounded-lg">
-              <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center relative">
+            <div className="text-center space-y-4 p-6 bg-card border border-border rounded-lg shadow-md hover:-translate-y-2 hover:shadow-2xl hover:border-primary/50 transition-all duration-300 ease-out group">
+              <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary/10 to-primary/20 rounded-full flex items-center justify-center relative group-hover:scale-110 transition-transform duration-300">
                 <Database className="w-8 h-8 text-primary" />
-                <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">4</span>
+                <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold shadow-lg">4</span>
               </div>
               <h3 className="text-xl font-playfair font-bold">Manage & Deploy</h3>
               <p className="text-muted-foreground text-sm">
@@ -491,7 +491,7 @@ const Index = () => {
                 Professional ministry tools that fit your church budget
               </p>
             </div>
-            <div className="bg-background rounded-xl shadow-xl p-8 md:p-12 max-w-md mx-auto">
+            <div className="bg-background rounded-xl shadow-xl p-8 md:p-12 max-w-md mx-auto hover:-translate-y-4 hover:shadow-2xl transition-all duration-300 ease-out">
               <div className="text-center mb-6">
                 <div className="text-5xl md:text-6xl font-bold mb-2">
                   £50<span className="text-2xl text-muted-foreground">/month</span>
@@ -524,7 +524,7 @@ const Index = () => {
                   <span>Download in multiple formats (TXT, DOCX, PDF, HTML)</span>
                 </li>
               </ul>
-              <Button asChild size="lg" className="w-full mb-4 text-lg px-12 py-8 shadow-xl hover:shadow-2xl transition-all duration-200">
+              <Button asChild size="lg" className="w-full mb-4 text-lg px-12 py-8 shadow-xl hover:shadow-2xl transition-all duration-200 active:scale-95">
                 <Link to="/signup">Start Free 10 Day Trial</Link>
               </Button>
               <p className="text-sm text-muted-foreground text-center">
