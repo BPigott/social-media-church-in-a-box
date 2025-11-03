@@ -23,11 +23,11 @@ const Index = () => {
             <span>Beta</span>
           </div>
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-playfair font-bold text-foreground leading-tight">
-            Complete Church Content &
+            Church Content &
             <span className="block text-primary mt-2">Multi-Language Ministry Platform</span>
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Transform sermons into social posts, Bible studies, and devotionals in 22 languages, saving 5+ hours weekly with AI that learns your church's unique voice.
+            Transform sermons into written social posts, Bible studies, and devotionals in 22 languages, saving 5+ hours weekly with AI that learns your church's unique voice. <span className="font-semibold text-foreground">Written content only — no images, photos, or videos.</span>
           </p>
           <div className="grid grid-cols-2 md:flex md:flex-wrap justify-center gap-4 text-sm text-muted-foreground mb-8 max-w-2xl mx-auto">
             <div className="flex items-center gap-2 justify-center md:justify-start">
@@ -88,7 +88,7 @@ const Index = () => {
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Social Media Excellence</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Platform-optimised posts for Facebook, Instagram, TikTok, and Twitter with character limits and formatting guidance.
+              Platform-optimised written posts for Facebook, Instagram, TikTok, and Twitter with character limits and formatting guidance. Text content only.
             </p>
           </div>
 
@@ -118,7 +118,7 @@ const Index = () => {
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Multi-Language Ministry</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Generate content in up to 22 languages including Spanish, French, Korean, Chinese, Arabic, Punjabi, Urdu, and more.
+              Generate written content in up to 22 languages including Spanish, French, Korean, Chinese, Arabic, Punjabi, Urdu, and more.
             </p>
           </div>
 
@@ -128,7 +128,7 @@ const Index = () => {
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Content Library</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Organise, search, and manage all your generated content with real-time editing and easy sharing capabilities.
+              Organise, search, and manage all your generated written content with real-time editing and easy sharing capabilities.
             </p>
           </div>
 
@@ -181,7 +181,7 @@ const Index = () => {
               <ul className="space-y-3 text-muted-foreground">
                 <li className="flex items-start gap-2">
                   <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span>Facebook, Instagram, TikTok, and Twitter/X optimisation</span>
+                  <span>Written text posts for Facebook, Instagram, TikTok, and Twitter/X optimisation</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
@@ -349,7 +349,7 @@ const Index = () => {
               </div>
               <h3 className="text-xl font-playfair font-bold">Comprehensive Generation</h3>
               <p className="text-muted-foreground text-sm">
-                Generate social media posts, Bible study guides, and devotionals in up to 3 languages simultaneously. Platform optimised with multiple variations and cultural adaptation.
+                Generate written social media posts, Bible study guides, and devotionals in up to 3 languages simultaneously. Platform optimised with multiple variations and cultural adaptation. Written content only — no images, videos, or photos.
               </p>
             </div>
 
@@ -496,12 +496,12 @@ const Index = () => {
                 <div className="text-5xl md:text-6xl font-bold mb-2">
                   £50<span className="text-2xl text-muted-foreground">/month</span>
                 </div>
-                <p className="text-muted-foreground">Unlimited content generation</p>
+                <p className="text-muted-foreground">Unlimited written content generation</p>
               </div>
               <ul className="space-y-4 mb-8 text-left">
                 <li className="flex items-start gap-3">
                   <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Social media posts for all platforms</span>
+                  <span>Written social media posts for all platforms (text only)</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
@@ -546,23 +546,32 @@ const Index = () => {
           <Accordion type="single" collapsible className="w-full space-y-4">
             <AccordionItem value="item-1" className="border border-border rounded-lg px-6">
               <AccordionTrigger className="text-left font-semibold hover:no-underline">
-                How long does content generation take?
+                What type of content does the platform generate?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                Typically 2 to 3 minutes. Upload your sermon, select your languages, and receive comprehensive content across all platforms almost instantly. Most churches complete the entire process during their Monday morning coffee.
+                Our platform generates written content only. This includes social media posts, Bible study guides, and daily devotionals as text. We do not generate images, photos, videos, or any visual media. All content is written text that you can copy, edit, and use as needed. You'll need to add your own images or visuals to your social media posts if desired.
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-2" className="border border-border rounded-lg px-6">
               <AccordionTrigger className="text-left font-semibold hover:no-underline">
-                Can I edit the generated content?
+                How long does content generation take?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                Absolutely! You have full editing control with real time markdown support. Edit your English content and re-translate to all languages with one click. Every piece of content is customizable to match your exact needs.
+                Typically 2 to 3 minutes. Upload your sermon, select your languages, and receive comprehensive written content across all platforms almost instantly. Most churches complete the entire process during their Monday morning coffee.
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-3" className="border border-border rounded-lg px-6">
+              <AccordionTrigger className="text-left font-semibold hover:no-underline">
+                Can I edit the generated content?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Absolutely! You have full editing control with real time markdown support. Edit your English content and re-translate to all languages with one click. Every piece of written content is customizable to match your exact needs.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-5" className="border border-border rounded-lg px-6">
               <AccordionTrigger className="text-left font-semibold hover:no-underline">
                 Is my sermon content kept private and secure?
               </AccordionTrigger>
@@ -571,16 +580,16 @@ const Index = () => {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-4" className="border border-border rounded-lg px-6">
+            <AccordionItem value="item-6" className="border border-border rounded-lg px-6">
               <AccordionTrigger className="text-left font-semibold hover:no-underline">
                 Do I need technical skills or social media expertise?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                Not at all. Our platform is designed for church leaders, not marketers. Simple 3 step process: upload your sermon, select languages, and download your content. If you can use email, you can use our platform.
+                Not at all. Our platform is designed for church leaders, not marketers. Simple 3 step process: upload your sermon, select languages, and download your written content. If you can use email, you can use our platform.
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-5" className="border border-border rounded-lg px-6">
+            <AccordionItem value="item-7" className="border border-border rounded-lg px-6">
               <AccordionTrigger className="text-left font-semibold hover:no-underline">
                 What if the content doesn't match our theology or voice?
               </AccordionTrigger>
@@ -589,30 +598,30 @@ const Index = () => {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-6" className="border border-border rounded-lg px-6">
+            <AccordionItem value="item-7" className="border border-border rounded-lg px-6">
               <AccordionTrigger className="text-left font-semibold hover:no-underline">
                 Which social media platforms do you support?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                Facebook, Instagram, TikTok, and Twitter/X. Content is optimized for each platform's character limits, formatting, and best practices. You'll receive multiple variations per platform for scheduling flexibility.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-7" className="border border-border rounded-lg px-6">
-              <AccordionTrigger className="text-left font-semibold hover:no-underline">
-                Can I try the platform before committing?
-              </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground">
-                Yes! Start with a free 10 day trial. Generate unlimited content and explore all features risk free. Experience the time savings firsthand before making any financial commitment.
+                Facebook, Instagram, TikTok, and Twitter/X. Written text content is optimized for each platform's character limits, formatting, and best practices. You'll receive multiple text variations per platform for scheduling flexibility. Remember, we generate text only — you'll need to add images separately if desired.
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-8" className="border border-border rounded-lg px-6">
               <AccordionTrigger className="text-left font-semibold hover:no-underline">
+                Can I try the platform before committing?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Yes! Start with a free 10 day trial. Generate unlimited written content and explore all features risk free. Experience the time savings firsthand before making any financial commitment.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-9" className="border border-border rounded-lg px-6">
+              <AccordionTrigger className="text-left font-semibold hover:no-underline">
                 What happens after my trial ends?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                Plans start at £50 per month with unlimited content generation. Cancel anytime, no long term contracts required. Continue enjoying the time savings and professional content, or cancel with no questions asked.
+                Plans start at £50 per month with unlimited written content generation. Cancel anytime, no long term contracts required. Continue enjoying the time savings and professional written content, or cancel with no questions asked.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -634,6 +643,11 @@ const Index = () => {
               <p className="text-xs text-muted-foreground pt-2">
                 This product is currently in beta. Features and functionality may change as we continue to improve the service.
               </p>
+              <div className="flex flex-wrap justify-center gap-4 pt-4">
+                <Link to="/terms" className="text-xs text-muted-foreground hover:text-foreground underline">
+                  Terms of Service
+                </Link>
+              </div>
             </div>
           </div>
         </div>
