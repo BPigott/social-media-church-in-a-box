@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useChurch } from "@/hooks/useChurch";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,12 +30,22 @@ const Settings = () => {
   const { primaryChurch, loading: churchLoading } = useChurch(user?.id);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "church");
   const [styleGuide, setStyleGuide] = useState("");
   const [isLoadingGuide, setIsLoadingGuide] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isRecrawling, setIsRecrawling] = useState(false);
   const [showRecrawlDialog, setShowRecrawlDialog] = useState(false);
   const [websiteLastCrawled, setWebsiteLastCrawled] = useState<string | null>(null);
+
+  // Update active tab when URL changes
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && ["church", "style", "account"].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -274,7 +284,7 @@ const Settings = () => {
           </Button>
         </div>
 
-        <Tabs defaultValue="church" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="church">Church Information</TabsTrigger>
             <TabsTrigger value="style">Style Guide</TabsTrigger>

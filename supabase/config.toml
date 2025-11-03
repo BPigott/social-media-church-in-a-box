@@ -1,5 +1,24 @@
 project_id = "gxgijxmwipnurubqupbt"
 
+# Authentication Configuration
+[auth]
+# Site URL is the base URL for your application
+site_url = "http://localhost:5173"
+
+# Additional redirect URLs that are allowed for email confirmations and password resets
+# These URLs must be whitelisted for security
+additional_redirect_urls = [
+  "http://localhost:5173/reset-password",
+  "http://127.0.0.1:5173/reset-password",
+  "http://localhost:5173/onboarding",
+  "http://127.0.0.1:5173/onboarding"
+]
+
+# Enable email-based authentication
+[auth.email]
+enable_signup = true
+double_confirm_changes_email_enabled = true
+
 [functions.generate-style-guide]
 verify_jwt = true
 

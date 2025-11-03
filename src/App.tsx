@@ -39,16 +39,18 @@ const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
-  const { hasChurch, loading: churchLoading } = useChurch(user?.id);
+  const { hasChurch, loading: churchLoading, error: churchError } = useChurch(user?.id);
 
   console.log('🛡️ ProtectedRoute check:', {
     user: !!user,
     loading,
     churchLoading,
     hasChurch,
+    churchError: churchError?.message,
     userId: user?.id
   });
 
+  // Wait for both auth and church data to finish loading
   if (loading || churchLoading) {
     console.log('⏳ ProtectedRoute: Loading auth or church data...');
     return (
@@ -63,7 +65,15 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/login" replace />;
   }
 
-  // If user doesn't have a church, redirect to onboarding
+  // If there was an error loading church data, allow access anyway
+  // This prevents users from being locked out due to temporary database issues
+  if (churchError) {
+    console.warn('⚠️ ProtectedRoute: Error loading church data, allowing access:', churchError.message);
+    return <>{children}</>;
+  }
+
+  // Only redirect to onboarding if we're certain the user has no church
+  // (not during loading state or error state)
   if (!hasChurch) {
     console.log('⚠️ ProtectedRoute: No church found, redirecting to onboarding');
     return <Navigate to="/onboarding" replace />;

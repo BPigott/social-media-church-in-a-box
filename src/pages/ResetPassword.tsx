@@ -28,20 +28,34 @@ const ResetPassword = () => {
   const [errors, setErrors] = useState<Partial<Record<keyof ResetPasswordFormData, string>>>({});
 
   useEffect(() => {
-    // Check if user has a recovery session (from password reset link)
+    // Check if this is a password recovery session
     const checkRecoverySession = async () => {
       try {
+        console.log('🔍 ResetPassword: Checking for recovery session...');
+
+        // Check URL hash for recovery token (format: #access_token=...&type=recovery)
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const tokenType = hashParams.get('type');
+        const hasRecoveryToken = tokenType === 'recovery';
+
+        console.log('📋 ResetPassword: URL hash type:', tokenType);
+        console.log('🔑 ResetPassword: Has recovery token:', hasRecoveryToken);
+
+        // Get current session
         const { data: { session } } = await supabase.auth.getSession();
-        
-        // When user clicks password reset link, Supabase sets the session
-        // The session will exist when they arrive from the email link
-        if (session?.user) {
+
+        // Only accept as recovery session if:
+        // 1. There's a session AND
+        // 2. The URL has type=recovery in the hash
+        if (session?.user && hasRecoveryToken) {
+          console.log('✅ ResetPassword: Valid recovery session detected');
           setHasRecoverySession(true);
         } else {
+          console.log('❌ ResetPassword: No valid recovery session (session:', !!session?.user, ', recovery token:', hasRecoveryToken, ')');
           setHasRecoverySession(false);
         }
       } catch (error) {
-        console.error("Error checking session:", error);
+        console.error("❌ ResetPassword: Error checking session:", error);
         setHasRecoverySession(false);
       } finally {
         setCheckingSession(false);
@@ -53,18 +67,24 @@ const ResetPassword = () => {
 
     // Listen for auth state changes (in case session is set up asynchronously from email link)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'PASSWORD_RECOVERY' || (session?.user && !checkingSession)) {
+      console.log('🔔 ResetPassword: Auth state changed:', event);
+
+      // Only accept PASSWORD_RECOVERY events, not regular logins
+      if (event === 'PASSWORD_RECOVERY') {
+        console.log('✅ ResetPassword: PASSWORD_RECOVERY event received');
         setHasRecoverySession(true);
         setCheckingSession(false);
-      } else if (event === 'SIGNED_OUT' || (!session?.user && !checkingSession)) {
+      } else if (event === 'SIGNED_OUT') {
+        console.log('🚪 ResetPassword: User signed out');
         setHasRecoverySession(false);
       }
+      // Ignore other auth events (SIGNED_IN, TOKEN_REFRESHED, etc.)
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [checkingSession]);
+  }, []);
 
   const passwordStrength = getPasswordStrength(formData.password);
 
@@ -104,14 +124,12 @@ const ResetPassword = () => {
 
       toast({
         title: "Password reset successful",
-        description: "Your password has been updated. Please sign in with your new password.",
+        description: "Your password has been updated successfully.",
       });
 
-      // Sign out the recovery session
-      await supabase.auth.signOut();
-
-      // Redirect to login
-      navigate("/login", { replace: true });
+      // Instead of signing out, navigate to settings where user can manage their account
+      // This provides a better UX - user is already authenticated after password reset
+      navigate("/settings?tab=account", { replace: true });
     } catch (error: any) {
       toast({
         variant: "destructive",
