@@ -46,7 +46,45 @@ serve(async (req) => {
     console.log('Website content provided:', !!websiteContent);
 
     // Build the comprehensive prompt for style guide generation
-    const systemPrompt = `You are an expert church communications specialist. Your task is to analyze sermon content and church information to create a comprehensive style guide that captures the unique voice, tone, and branding of the church.`;
+    const systemPrompt = `You are an expert church communications specialist. Your task is to analyze sermon content and church information to create a comprehensive style guide that captures the unique voice, tone, and branding of the church.
+
+CRITICAL CONTENT SAFETY GUARDRAILS:
+- ABSOLUTELY PROHIBITED: Including any erotic, sexual, or explicit content in the style guide
+- ABSOLUTELY PROHIBITED: Reflecting racist, discriminatory, or hateful language in the voice and tone
+- ABSOLUTELY PROHIBITED: Recommending gambling-related content or references
+- ABSOLUTELY PROHIBITED: Suggesting blasphemous, irreverent, or mocking language
+- REQUIRED: The style guide must maintain respectful, appropriate Christian values
+- REQUIRED: Filter out any inappropriate content from source materials before analyzing them
+- REQUIRED: If source materials contain inappropriate content, focus only on wholesome aspects
+
+CRITICAL WRITING GUIDELINES:
+- Write in a natural, conversational tone that avoids AI-like patterns
+- Vary sentence structure and length for natural flow
+- Use straightforward, clear language
+- Avoid overly complex sentence constructions
+
+DASH USAGE RULES:
+- Avoid using em dashes (—) and en dashes (–) for parenthetical remarks, explanations, or asides
+- Instead of dashes for parenthetical information, use commas, parentheses, or restructure sentences
+- Instead of dashes to introduce explanations, use colons or create separate sentences
+- Only use dashes in compound words (e.g., "well-known," "state-of-the-art") where grammatically necessary
+
+PREFERRED PUNCTUATION STRATEGIES:
+- Use commas to set off non-essential information
+- Use periods to create clear, separate sentences rather than complex constructions
+- Use colons to introduce lists or explanations
+- Use parentheses sparingly for truly parenthetical remarks
+- Structure sentences to flow naturally without requiring heavy punctuation breaks
+
+EXAMPLES OF NATURAL VS. AI-LIKE WRITING:
+- Instead of: "The solution — which took months to develop — finally worked"
+- Write: "The solution, which took months to develop, finally worked"
+
+- Instead of: "We need three things — time, money, and patience"
+- Write: "We need three things: time, money, and patience"
+
+- Instead of: "The project was successful — beyond our expectations"
+- Write: "The project was successful. It exceeded our expectations."`;
 
     const userPrompt = `
 # Church Information Analysis
@@ -106,6 +144,47 @@ FORMATTING RULES:
 - Use # for main title, ## for sections, ### for subsections
 - Blank lines between all sections
 - **bold** for emphasis, bullet points (-) for lists
+
+CRITICAL WRITING GUIDELINES:
+Before writing the style guide, do your planning work in <content_planning> tags inside your thinking block (if your model supports thinking blocks):
+- Analyze the content request to understand the type of writing needed
+- Identify specific areas where AI writing patterns (especially dashes) might naturally occur
+- Plan alternative sentence structures and punctuation strategies you'll use instead
+- Outline your overall approach to structure and tone
+
+**Dash Usage Rules:**
+- Avoid using em dashes (—) and en dashes (–) for parenthetical remarks, explanations, or asides
+- Instead of dashes for parenthetical information, use commas, parentheses, or restructure sentences
+- Instead of dashes to introduce explanations, use colons or create separate sentences
+- Only use dashes in compound words (e.g., "well-known," "state-of-the-art") where grammatically necessary
+
+**Preferred Punctuation Strategies:**
+- Use commas to set off non-essential information
+- Use periods to create clear, separate sentences rather than complex constructions
+- Use colons to introduce lists or explanations
+- Use parentheses sparingly for truly parenthetical remarks
+- Structure sentences to flow naturally without requiring heavy punctuation breaks
+
+**Examples of Natural vs. AI-like Writing:**
+- Instead of: "The solution — which took months to develop — finally worked"
+- Write: "The solution, which took months to develop, finally worked"
+
+- Instead of: "We need three things — time, money, and patience"
+- Write: "We need three things: time, money, and patience"
+
+- Instead of: "The project was successful — beyond our expectations"
+- Write: "The project was successful. It exceeded our expectations."
+
+**Additional Requirements:**
+- Write in a natural, conversational tone
+- Vary sentence structure and length
+- Use straightforward, clear language
+- Avoid overly complex sentence constructions that require multiple punctuation breaks
+- Ensure smooth flow between ideas
+- The style guide itself must follow these writing guidelines throughout
+
+**Output Format:**
+Your final response should contain only the style guide content, written according to the guidelines above. Do not include explanations, commentary, or any markup in your final output, and do not duplicate or rehash any of the planning work you did in the thinking block.
 `;
 
     const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');

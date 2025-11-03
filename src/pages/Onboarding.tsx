@@ -362,7 +362,7 @@ const Onboarding = () => {
       <div className="max-w-4xl mx-auto relative">
         <div className="mb-8">
           <h1 className="text-4xl font-playfair font-bold text-center mb-2">
-            Welcome to Church Social Media Generator
+            Welcome to ivangel
           </h1>
           <p className="text-center text-muted-foreground mb-6">
             Step {step} of 4

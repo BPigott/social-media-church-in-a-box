@@ -1,4 +1,4 @@
-// Database types for Church Social Media Generator
+// Database types for ivangel
 
 export type AppRole = 'owner' | 'admin' | 'editor' | 'viewer';
 

@@ -1,4 +1,4 @@
-# Social Media Church in a Box
+# ivangel
 
 An AI-powered content generation platform for churches, creating social media posts, devotionals, and Bible study guides from sermon transcripts.
 
@@ -36,8 +36,8 @@ An AI-powered content generation platform for churches, creating social media po
 ### 1. Clone and Install
 
 ```bash
-git clone https://github.com/BPigott/church-content-craft.git
-cd church-content-craft
+git clone https://github.com/BPigott/ivangel.git
+cd ivangel
 npm install
 ```
 
@@ -162,7 +162,7 @@ Typical costs per generation:
 
 - [Supabase Documentation](https://supabase.com/docs)
 - [Anthropic Claude Documentation](https://docs.anthropic.com/)
-- [Project Repository](https://github.com/BPigott/church-content-craft)
+- [Project Repository](https://github.com/BPigott/ivangel)
 
 ## License
 
