@@ -15,6 +15,55 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Helper function to check if user has a church with retry logic
+  const checkUserChurch = async (userId: string, retries = 3): Promise<boolean> => {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      console.log(`🔍 Login: Checking for user churches (attempt ${attempt}/${retries})...`);
+
+      try {
+        // Try using the RPC function first
+        const { data: churchesData, error: rpcError } = await supabase
+          .rpc('get_user_churches', { _user_id: userId });
+
+        if (!rpcError && churchesData) {
+          console.log('📊 Login: RPC found', churchesData.length, 'churches');
+          return churchesData.length > 0;
+        }
+
+        // If RPC fails, fall back to direct query
+        console.warn('⚠️ Login: RPC failed, trying direct query...', rpcError?.message);
+        const { data: directData, error: directError } = await supabase
+          .from('churches')
+          .select('id')
+          .eq('user_id', userId)
+          .limit(1);
+
+        if (!directError && directData) {
+          console.log('📊 Login: Direct query found', directData.length, 'churches');
+          return directData.length > 0;
+        }
+
+        console.error('❌ Login: Both RPC and direct query failed:', directError?.message);
+
+        // If this isn't the last retry, wait before trying again
+        if (attempt < retries) {
+          const delay = Math.min(1000 * Math.pow(2, attempt - 1), 3000); // Exponential backoff: 1s, 2s, 3s
+          console.log(`⏳ Login: Waiting ${delay}ms before retry...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      } catch (error) {
+        console.error('❌ Login: Exception checking churches:', error);
+        if (attempt === retries) {
+          throw error;
+        }
+      }
+    }
+
+    // If all retries failed, return false (will redirect to onboarding, which is safer than dashboard)
+    console.error('❌ Login: All retries exhausted, defaulting to hasChurch=false');
+    return false;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -41,30 +90,33 @@ const Login = () => {
       description: "You've been successfully logged in.",
     });
 
-    // Check if user has a church profile
+    // Check if user has a church profile with retry logic
     if (data?.user) {
-      console.log('🔍 Login: Checking for user churches...');
-      
-      const { data: churchesData, error: churchError } = await supabase
-        .rpc('get_user_churches', { _user_id: data.user.id });
+      try {
+        // Small delay to ensure auth state has propagated
+        await new Promise(resolve => setTimeout(resolve, 100));
 
-      if (churchError) {
-        console.error('❌ Login: Error fetching churches:', churchError);
-      }
+        const hasChurch = await checkUserChurch(data.user.id);
 
-      console.log('📊 Login: Found', churchesData?.length || 0, 'churches');
-
-      // Small delay to ensure auth state has propagated
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      if (churchesData && churchesData.length > 0) {
-        // User has a church, redirect to dashboard
-        console.log('🚀 Login: Redirecting to dashboard with replace...');
+        if (hasChurch) {
+          // User has a church, redirect to dashboard
+          console.log('🚀 Login: User has church, redirecting to dashboard...');
+          navigate("/dashboard", { replace: true });
+        } else {
+          // User doesn't have a church, redirect to onboarding
+          console.log('🚀 Login: User has no church, redirecting to onboarding...');
+          navigate("/onboarding", { replace: true });
+        }
+      } catch (error) {
+        console.error('❌ Login: Critical error checking church status:', error);
+        // On critical error, redirect to dashboard and let ProtectedRoute handle it
+        console.log('🚀 Login: Defaulting to dashboard due to error...');
+        toast({
+          variant: "destructive",
+          title: "Warning",
+          description: "There was an issue loading your church data. Please refresh if you experience issues.",
+        });
         navigate("/dashboard", { replace: true });
-      } else {
-        // User doesn't have a church, redirect to onboarding
-        console.log('🚀 Login: Redirecting to onboarding with replace...');
-        navigate("/onboarding", { replace: true });
       }
     } else {
       // Fallback to dashboard if user data is missing
