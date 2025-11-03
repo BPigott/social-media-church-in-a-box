@@ -148,7 +148,7 @@ const Index = () => {
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Your Church's Voice</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              AI learns your unique style, values, and communication preferences—never generic templates, always authentically you.
+              AI learns your unique style, values, and communication preferences. Never generic templates, always authentically you.
             </p>
           </div>
 
@@ -158,7 +158,7 @@ const Index = () => {
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Easy Upload</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Support for PDF, DOCX, and TXT files with intelligent text extraction—even works with announcement-only content.
+              Support for PDF, DOCX, and TXT files with intelligent text extraction. Even works with announcement only content.
             </p>
           </div>
         </div>
@@ -264,10 +264,10 @@ const Index = () => {
             <div className="md:hidden overflow-x-auto mb-8">
               <div className="flex gap-3 pb-4 min-w-max text-sm">
                 {[
-                  "English", "Spanish", "French", "Portuguese", "German", "Korean", 
-                  "Chinese (Simplified)", "Chinese (Traditional)", "Arabic", "Persian (Farsi)",
-                  "Polish", "Ukrainian", "Italian", "Russian", "Japanese", "Romanian",
-                  "Punjabi", "Urdu", "Bengali", "Gujarati", "Welsh", "Lithuanian"
+                  "English", "Arabic", "Bengali", "Chinese (Simplified)", "Chinese (Traditional)", 
+                  "French", "German", "Gujarati", "Italian", "Japanese", "Korean", "Lithuanian",
+                  "Persian (Farsi)", "Polish", "Portuguese", "Punjabi", "Romanian", "Russian",
+                  "Spanish", "Ukrainian", "Urdu", "Welsh"
                 ].map((language) => (
                   <div key={language} className="bg-background/80 backdrop-blur-sm border border-border/50 rounded-lg py-3 px-4 font-medium whitespace-nowrap">
                     {language}
@@ -279,10 +279,10 @@ const Index = () => {
             {/* Tablet+: Grid */}
             <div className="hidden md:grid md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8 text-sm">
               {[
-                "English", "Spanish", "French", "Portuguese", "German", "Korean", 
-                "Chinese (Simplified)", "Chinese (Traditional)", "Arabic", "Persian (Farsi)",
-                "Polish", "Ukrainian", "Italian", "Russian", "Japanese", "Romanian",
-                "Punjabi", "Urdu", "Bengali", "Gujarati", "Welsh", "Lithuanian"
+                "English", "Arabic", "Bengali", "Chinese (Simplified)", "Chinese (Traditional)", 
+                "French", "German", "Gujarati", "Italian", "Japanese", "Korean", "Lithuanian",
+                "Persian (Farsi)", "Polish", "Portuguese", "Punjabi", "Romanian", "Russian",
+                "Spanish", "Ukrainian", "Urdu", "Welsh"
               ].map((language) => (
                 <div key={language} className="bg-background/80 backdrop-blur-sm border border-border/50 rounded-lg py-3 px-2 font-medium text-center">
                   {language}
