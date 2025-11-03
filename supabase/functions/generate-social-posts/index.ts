@@ -246,8 +246,37 @@ EXAMPLES OF NATURAL VS. AI-LIKE WRITING:
 - Instead of: "The project was successful — beyond our expectations"
 - Write: "The project was successful. It exceeded our expectations."
 
+CRITICAL WRITING RULE - DASH PROHIBITION:
+- ABSOLUTELY FORBIDDEN: Using em dashes (—) or en dashes (–) for explanations, clarifications, or parenthetical remarks
+- MANDATORY ALTERNATIVE: Use colons for explanations, commas for parentheticals, separate sentences when appropriate
+- EXAMPLE OF FORBIDDEN PATTERN: "series—a season" (WRONG)
+- CORRECT ALTERNATIVES: "series: a season" OR "series. It's a season"
+- Before generating ANY content, mentally check: "Would I use a dash here? If yes, use colon or comma instead"
+
 CRITICAL: Your response must be ONLY valid JSON with no preamble, explanation, or additional text. Do not write "Here is the JSON:" or any other introduction. Start directly with the opening brace {`;
     const userPrompt = `
+# CRITICAL: MANDATORY WRITING RULES (READ FIRST)
+
+**ABSOLUTE DASH PROHIBITION:**
+- NEVER use em dashes (—) or en dashes (–) for ANY purpose except compound words
+- NEVER use dashes for explanations, clarifications, parenthetical remarks, or asides
+- This is a HARD RULE: If you write a dash, you have FAILED the task
+
+**YOU MUST USE THESE ALTERNATIVES:**
+- Explanations/clarifications after a phrase: Use colon (:) or separate sentence
+  - WRONG: "our Advent series—a season about waiting"
+  - CORRECT: "our Advent series: a season about waiting" OR "our Advent series. It's a season about waiting"
+- Parenthetical information: Use commas or parentheses
+  - WRONG: "The solution — which took months — finally worked"
+  - CORRECT: "The solution, which took months, finally worked"
+- Lists/explanations: Use colons
+  - WRONG: "We need three things — time, money, patience"
+  - CORRECT: "We need three things: time, money, patience"
+
+**FINAL CHECK: Before returning JSON, scan EVERY piece of text for em dashes (—) and en dashes (–). If you find ANY, rewrite that section without dashes.**
+
+---
+
 # Content Generation Task
 ${hasTranscript ? 'Generate content based on the sermon transcript provided below.' : 'Generate content based on the church event/announcement information provided below.'}
 ${hasSocialMedia ? 'Create social media posts optimized for each platform.' : ''}
@@ -311,6 +340,40 @@ Also create an executive summary (400-500 words) that SUMMARIZES the ${hasTransc
 - **Writing Style**: Write in third person about what was covered
 - **End with "Key Takeaways:"** followed by 3-5 bullet points
 ` : ''}
+
+---
+
+# MANDATORY WRITING REQUIREMENTS (CRITICAL - MUST FOLLOW)
+
+**ABSOLUTE PROHIBITION ON DASHES:**
+- NEVER use em dashes (—) or en dashes (–) for parenthetical remarks, explanations, clarifications, or asides
+- NEVER use dashes to introduce explanations, definitions, or additional context
+- This applies to ALL content: social media posts, summaries, Bible studies, devotionals, everything
+- If you catch yourself about to write a dash, STOP and use one of these alternatives instead
+
+**REQUIRED ALTERNATIVES TO DASHES:**
+- For explanations/clarifications: Use colons (:) or create separate sentences
+  - Instead of: "Our Advent series—a season about waiting"
+  - Write: "Our Advent series: a season about waiting" OR "Our Advent series. It's a season about waiting"
+- For parenthetical information: Use commas, parentheses, or restructure
+  - Instead of: "The solution — which took months — finally worked"
+  - Write: "The solution, which took months, finally worked"
+- For lists/explanations: Use colons
+  - Instead of: "We need three things — time, money, patience"
+  - Write: "We need three things: time, money, patience"
+
+**ADDITIONAL WRITING REQUIREMENTS:**
+- Write in natural, conversational tone
+- Vary sentence structure and length
+- Use straightforward, clear language
+- Avoid overly complex constructions requiring heavy punctuation
+
+**VALIDATION:**
+Before returning your JSON response, review EVERY piece of content and verify:
+- Zero em dashes (—) used anywhere
+- Zero en dashes (–) used for explanations/clarifications
+- All parenthetical information uses commas or parentheses
+- All explanations use colons or separate sentences
 
 ---
 
@@ -518,10 +581,12 @@ FINAL LENGTH CHECK (VALIDATE BEFORE RETURNING):
 - Social handles count toward character limits
 
 FINAL WRITING STYLE CHECK (VALIDATE BEFORE RETURNING):
-- Verify no em dashes (—) or en dashes (–) used for parenthetical remarks or explanations
+- MANDATORY: Scan every word of every post and verify ZERO em dashes (—) or en dashes (–) exist
+- If you find ANY dash, you MUST rewrite that sentence without it
+- Common dash patterns to check: "word—explanation", "phrase—clarification", "thing—additional info"
+- Replace with: colons (:) for explanations, commas for parentheticals, periods for separate sentences
 - Ensure natural sentence flow without heavy punctuation breaks
 - Confirm conversational, natural tone throughout
-- Check that punctuation follows guidelines (commas for parentheticals, colons for lists, periods for clarity)
 ` : ''}
 
 ${hasBibleStudy ? `
@@ -530,7 +595,8 @@ FINAL VALIDATION (CHECK BEFORE RETURNING):
 - Confirm no hashtags or asterisks used for emphasis
 - Ensure clean markdown formatting with proper spacing
 - Use natural, clear UK English that translates well
-- Verify no em dashes (—) or en dashes (–) used for parenthetical remarks or explanations
+- MANDATORY: Search entire content for em dashes (—) and en dashes (–). If ANY found, rewrite those sentences
+- Common patterns to fix: "word—explanation", "phrase—clarification" → replace with colon or separate sentence
 - Ensure natural sentence flow and conversational tone
 - Check that punctuation follows guidelines (commas for parentheticals, colons for lists, periods for clarity)
 ` : ''}
@@ -543,7 +609,8 @@ FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
 - Check that reflection question cuts to the heart
 - Verify prayer is personal and adoptable
 - Use warm, relational tone throughout
-- Verify no em dashes (—) or en dashes (–) used for parenthetical remarks or explanations
+- MANDATORY: Search entire devotional for em dashes (—) and en dashes (–). If ANY found, rewrite those sentences
+- Common patterns to fix: "word—explanation", "phrase—clarification" → replace with colon or separate sentence
 - Ensure natural sentence flow and conversational tone throughout
 - Check that punctuation follows guidelines (commas for parentheticals, colons for lists, periods for clarity)
 ` : ''}
