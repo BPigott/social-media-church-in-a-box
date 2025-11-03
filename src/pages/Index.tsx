@@ -9,13 +9,13 @@ const Index = () => {
   } = useAuth();
   return <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <div className="container mx-auto px-4 py-20 md:py-32">
+      <div className="container mx-auto px-4 py-16 md:py-24">
         <div className="max-w-5xl mx-auto text-center space-y-8">
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-8 md:mb-12">
             <img 
               src="/logo.png" 
               alt="ivangel" 
-              className="h-32 md:h-40 w-auto"
+              className="h-48 md:h-64 lg:h-80 w-auto drop-shadow-lg"
             />
           </div>
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold mb-4">
@@ -26,8 +26,8 @@ const Index = () => {
             Complete Church Content &
             <span className="block text-primary mt-2">Multi-Language Ministry Platform</span>
           </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto">
-            Transform your sermons into comprehensive ministry resources. Social media posts, Bible study guides, and daily devotionals in up to 14 languages. Our AI learns your church's unique voice to create professional content that extends your ministry reach while saving you hours every week.
+          <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            Transform sermons into social posts, Bible studies, and devotionals in 14 languages—saving 5+ hours weekly with AI that learns your church's unique voice.
           </p>
           <div className="grid grid-cols-2 md:flex md:flex-wrap justify-center gap-4 text-sm text-muted-foreground mb-8 max-w-2xl mx-auto">
             <div className="flex items-center gap-2 justify-center md:justify-start">
@@ -48,13 +48,13 @@ const Index = () => {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            {user ? <Button asChild size="lg" className="text-lg px-10 py-6 shadow-lg hover:shadow-xl transition-all duration-200">
+            {user ? <Button asChild size="lg" className="text-lg px-12 py-8 shadow-xl hover:shadow-2xl transition-all duration-200">
                 <Link to="/dashboard">Go to Dashboard →</Link>
               </Button> : <>
-                <Button asChild size="lg" className="text-lg px-10 py-6 shadow-lg hover:shadow-xl transition-all duration-200">
+                <Button asChild size="lg" className="text-lg px-12 py-8 shadow-xl hover:shadow-2xl transition-all duration-200">
                   <Link to="/signup">Start Free 10 Day Trial</Link>
                 </Button>
-                <Button asChild variant="ghost" size="lg" className="text-lg px-10 py-6">
+                <Button asChild variant="ghost" size="lg" className="text-lg px-12 py-8">
                   <Link to="/login">Sign In</Link>
                 </Button>
               </>}
@@ -86,92 +86,92 @@ const Index = () => {
 
       <div className="container mx-auto px-4">
         {/* Core Features */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-32 max-w-7xl mx-auto">
-          <div className="text-center space-y-4 p-6 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
-            <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-              <MessageSquare className="w-8 h-8 text-primary" />
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-48 md:mt-56 max-w-7xl mx-auto">
+          <div className="text-center space-y-4 p-8 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
+            <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+              <MessageSquare className="w-10 h-10 text-primary" />
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Social Media Excellence</h3>
-            <p className="text-muted-foreground text-sm">
-              Platform-optimised posts for Facebook, Instagram, TikTok, and Twitter with character limits and formatting guidance
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Platform-optimised posts for Facebook, Instagram, TikTok, and Twitter with character limits and formatting guidance.
             </p>
           </div>
 
-          <div className="text-center space-y-4 p-6 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
-            <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-              <BookOpen className="w-8 h-8 text-primary" />
+          <div className="text-center space-y-4 p-8 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
+            <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+              <BookOpen className="w-10 h-10 text-primary" />
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Bible Study Guides</h3>
-            <p className="text-muted-foreground text-sm">
-              Comprehensive study materials with discussion questions, application points, and downloadable resources for small groups
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Comprehensive study materials with discussion questions, application points, and downloadable resources for small groups.
             </p>
           </div>
 
-          <div className="text-center space-y-4 p-6 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
-            <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-              <Heart className="w-8 h-8 text-primary" />
+          <div className="text-center space-y-4 p-8 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
+            <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+              <Heart className="w-10 h-10 text-primary" />
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Daily Devotionals</h3>
-            <p className="text-muted-foreground text-sm">
-              Short, inspirational content perfect for daily social media posts, newsletters, or spiritual reflection materials
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Short, inspirational content perfect for daily social media posts, newsletters, or spiritual reflection materials.
             </p>
           </div>
 
-          <div className="text-center space-y-4 p-6 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
-            <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-              <Languages className="w-8 h-8 text-primary" />
+          <div className="text-center space-y-4 p-8 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
+            <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+              <Languages className="w-10 h-10 text-primary" />
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Multi-Language Ministry</h3>
-            <p className="text-muted-foreground text-sm">
-              Generate content in up to 14 languages including Spanish, French, Korean, Chinese, Arabic, and more. Reach every community.
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Generate content in up to 14 languages including Spanish, French, Korean, Chinese, Arabic, and more.
             </p>
           </div>
 
-          <div className="text-center space-y-4 p-6 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
-            <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-              <Search className="w-8 h-8 text-primary" />
+          <div className="text-center space-y-4 p-8 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
+            <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+              <Search className="w-10 h-10 text-primary" />
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Content Library</h3>
-            <p className="text-muted-foreground text-sm">
-              Organise, search, and manage all your generated content with real-time editing and easy sharing capabilities
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Organise, search, and manage all your generated content with real-time editing and easy sharing capabilities.
             </p>
           </div>
 
-          <div className="text-center space-y-4 p-6 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
-            <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-              <Globe className="w-8 h-8 text-primary" />
+          <div className="text-center space-y-4 p-8 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
+            <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+              <Globe className="w-10 h-10 text-primary" />
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Website Integration</h3>
-            <p className="text-muted-foreground text-sm">
-              Automatically analyse your church website to understand your mission, values, and communication style for better content
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Automatically analyse your church website to understand your mission, values, and communication style for better content.
             </p>
           </div>
 
-          <div className="text-center space-y-4 p-6 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
-            <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-              <Palette className="w-8 h-8 text-primary" />
+          <div className="text-center space-y-4 p-8 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
+            <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+              <Palette className="w-10 h-10 text-primary" />
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Your Church's Voice</h3>
-            <p className="text-muted-foreground text-sm">
-              AI learns your unique style, values, and communication preferences. Never generic templates, always authentically you.
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              AI learns your unique style, values, and communication preferences—never generic templates, always authentically you.
             </p>
           </div>
 
-          <div className="text-center space-y-4 p-6 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
-            <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-              <FileText className="w-8 h-8 text-primary" />
+          <div className="text-center space-y-4 p-8 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
+            <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+              <FileText className="w-10 h-10 text-primary" />
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Easy Upload</h3>
-            <p className="text-muted-foreground text-sm">
-              Support for PDF, DOCX, and TXT files with intelligent text extraction. Even works with announcement only content.
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Support for PDF, DOCX, and TXT files with intelligent text extraction—even works with announcement-only content.
             </p>
           </div>
         </div>
 
         {/* Content Types Showcase */}
-        <div className="mt-32 max-w-7xl mx-auto">
+        <div className="mt-48 md:mt-56 max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-playfair font-bold mb-4">Three Powerful Content Types</h2>
+            <h2 className="text-3xl md:text-4xl lg:text-4xl font-playfair font-bold mb-4">Three Powerful Content Types</h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               From one sermon, create everything you need to engage your community throughout the week
             </p>
@@ -256,9 +256,9 @@ const Index = () => {
         </div>
 
         {/* Multi-Language Ministry Section */}
-        <div className="mt-32 max-w-6xl mx-auto text-center">
+        <div className="mt-48 md:mt-56 max-w-6xl mx-auto text-center">
           <div className="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 rounded-2xl p-12 border border-primary/20">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-playfair font-bold mb-6 text-foreground">
+            <h2 className="text-3xl md:text-4xl lg:text-4xl font-playfair font-bold mb-6 text-foreground">
               Reach Every Community in Their Own Language
             </h2>
             <p className="text-xl text-muted-foreground mb-8 max-w-4xl mx-auto">
@@ -320,15 +320,15 @@ const Index = () => {
         </div>
 
         {/* How It Works */}
-        <div className="mt-32 max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-playfair font-bold text-center mb-16">How It Works</h2>
+        <div className="mt-48 md:mt-56 max-w-6xl mx-auto">
+          <h2 className="text-3xl md:text-4xl lg:text-4xl font-playfair font-bold text-center mb-16">How It Works</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center space-y-4 p-6 bg-card border border-border rounded-lg">
               <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center relative">
                 <Settings className="w-8 h-8 text-primary" />
                 <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">1</span>
               </div>
-              <h3 className="text-xl font-playfair font-semibold">Complete Church Setup</h3>
+              <h3 className="text-xl font-playfair font-bold">Complete Church Setup</h3>
               <p className="text-muted-foreground text-sm">Enter your church profile, vision statement, service times, and social handles. Optionally share your website for automatic context analysis and style guide enhancement.</p>
             </div>
 
@@ -337,7 +337,7 @@ const Index = () => {
                 <Brain className="w-8 h-8 text-primary" />
                 <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">2</span>
               </div>
-              <h3 className="text-xl font-playfair font-semibold">AI Learning & Style Guide</h3>
+              <h3 className="text-xl font-playfair font-bold">AI Learning & Style Guide</h3>
               <p className="text-muted-foreground text-sm">
                 Upload multiple sermons for analysis. Our AI creates a comprehensive style guide capturing your church's unique voice, theology, and communication patterns for authentic content generation.
               </p>
@@ -348,7 +348,7 @@ const Index = () => {
                 <Zap className="w-8 h-8 text-primary" />
                 <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">3</span>
               </div>
-              <h3 className="text-xl font-playfair font-semibold">Comprehensive Generation</h3>
+              <h3 className="text-xl font-playfair font-bold">Comprehensive Generation</h3>
               <p className="text-muted-foreground text-sm">
                 Generate social media posts, Bible study guides, and devotionals in up to 3 languages simultaneously. Platform optimised with multiple variations and cultural adaptation.
               </p>
@@ -359,7 +359,7 @@ const Index = () => {
                 <Database className="w-8 h-8 text-primary" />
                 <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">4</span>
               </div>
-              <h3 className="text-xl font-playfair font-semibold">Manage & Deploy</h3>
+              <h3 className="text-xl font-playfair font-bold">Manage & Deploy</h3>
               <p className="text-muted-foreground text-sm">
                 Access your content library with search and organisation tools. Edit content with real-time markdown support, re-translate between languages, and download or copy for easy deployment.
               </p>
@@ -368,9 +368,9 @@ const Index = () => {
         </div>
 
         {/* Benefits */}
-        <div className="mt-32 max-w-7xl mx-auto">
+        <div className="mt-48 md:mt-56 max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-playfair font-bold mb-4">Why Churches Choose Our Platform</h2>
+            <h2 className="text-3xl md:text-4xl lg:text-4xl font-playfair font-bold mb-4">Why Churches Choose Our Platform</h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Designed specifically for church leaders, growing congregations, and efficient ministry management
             </p>
@@ -482,10 +482,10 @@ const Index = () => {
         </div>
 
         {/* Pricing Section */}
-        <div className="mt-32 max-w-5xl mx-auto">
+        <div className="mt-48 md:mt-56 max-w-5xl mx-auto">
           <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-2xl p-12 md:p-16 border border-primary/20">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-playfair font-bold mb-6">
+              <h2 className="text-3xl md:text-4xl lg:text-4xl font-playfair font-bold mb-6">
                 Simple, Transparent Pricing
               </h2>
               <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
@@ -525,66 +525,20 @@ const Index = () => {
                   <span>Download in multiple formats (TXT, DOCX, PDF, HTML)</span>
                 </li>
               </ul>
-              <Button asChild size="lg" className="w-full mb-4 text-lg py-6 shadow-lg hover:shadow-xl transition-all duration-200">
+              <Button asChild size="lg" className="w-full mb-4 text-lg px-12 py-8 shadow-xl hover:shadow-2xl transition-all duration-200">
                 <Link to="/signup">Start Free 10 Day Trial</Link>
               </Button>
               <p className="text-sm text-muted-foreground text-center">
-                No credit card required • Cancel anytime
+                Cancel anytime
               </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Platform Reliability Section */}
-        <div className="mt-32 max-w-6xl mx-auto">
-          <div className="bg-muted/30 rounded-2xl p-12 border border-border">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-playfair font-bold mb-4">Built for Reliability</h2>
-              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-                Professional-grade infrastructure and AI technology you can depend on for your ministry needs
-              </p>
-            </div>
-            
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="text-center space-y-3">
-                <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-                  <Brain className="w-8 h-8 text-primary" />
-                </div>
-                <h4 className="font-semibold">Claude 4.5 Haiku AI</h4>
-                <p className="text-sm text-muted-foreground">Advanced AI model for high-quality, contextual content generation</p>
-              </div>
-              
-              <div className="text-center space-y-3">
-                <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-                  <Languages className="w-8 h-8 text-primary" />
-                </div>
-                <h4 className="font-semibold">Google Translate Integration</h4>
-                <p className="text-sm text-muted-foreground">Professional translation services for accurate multilingual content</p>
-              </div>
-              
-              <div className="text-center space-y-3">
-                <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-                  <Globe className="w-8 h-8 text-primary" />
-                </div>
-                <h4 className="font-semibold">Website Analysis</h4>
-                <p className="text-sm text-muted-foreground">Intelligent web scraping to understand your church's unique context and mission</p>
-              </div>
-              
-              <div className="text-center space-y-3">
-                <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-                  <Shield className="w-8 h-8 text-primary" />
-                </div>
-                <h4 className="font-semibold">Health Monitoring</h4>
-                <p className="text-sm text-muted-foreground">Continuous monitoring of all services to ensure consistent availability and performance</p>
-              </div>
             </div>
           </div>
         </div>
 
         {/* FAQ Section */}
-        <div className="mt-32 max-w-4xl mx-auto">
+        <div className="mt-48 md:mt-56 max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-playfair font-bold mb-4">Frequently Asked Questions</h2>
+            <h2 className="text-3xl md:text-4xl lg:text-4xl font-playfair font-bold mb-4">Frequently Asked Questions</h2>
             <p className="text-xl text-muted-foreground">
               Everything you need to know about our platform
             </p>
@@ -650,7 +604,7 @@ const Index = () => {
                 Can I try the platform before committing?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                Yes! Start with a free 10 day trial. No credit card required. Generate unlimited content and explore all features risk free. Experience the time savings firsthand before making any financial commitment.
+                Yes! Start with a free 10 day trial. Generate unlimited content and explore all features risk free. Experience the time savings firsthand before making any financial commitment.
               </AccordionContent>
             </AccordionItem>
 
@@ -666,7 +620,7 @@ const Index = () => {
         </div>
 
         {/* Footer */}
-        <div className="mt-32 border-t border-border">
+        <div className="mt-48 md:mt-56 border-t border-border">
           <div className="container mx-auto px-4 py-12">
             <div className="max-w-4xl mx-auto text-center space-y-4">
               <h3 className="text-lg font-semibold">IN FOCUS OPERATIONS LIMITED</h3>
