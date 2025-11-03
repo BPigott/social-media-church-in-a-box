@@ -27,7 +27,7 @@ const Index = () => {
             <span className="block text-primary mt-2">Multi-Language Ministry Platform</span>
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Transform sermons into social posts, Bible studies, and devotionals in 14 languages, saving 5+ hours weekly with AI that learns your church's unique voice.
+            Transform sermons into social posts, Bible studies, and devotionals in 22 languages, saving 5+ hours weekly with AI that learns your church's unique voice.
           </p>
           <div className="grid grid-cols-2 md:flex md:flex-wrap justify-center gap-4 text-sm text-muted-foreground mb-8 max-w-2xl mx-auto">
             <div className="flex items-center gap-2 justify-center md:justify-start">
@@ -44,7 +44,7 @@ const Index = () => {
             </div>
             <div className="flex items-center gap-2 justify-center md:justify-start">
               <Languages className="w-4 h-4 text-primary flex-shrink-0" />
-              <span>14 Languages</span>
+              <span>22 Languages</span>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -67,12 +67,7 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 text-center">
             <div>
-              <div className="text-3xl font-bold text-foreground">Weekly</div>
-              <div className="text-sm text-muted-foreground">Content Updates</div>
-            </div>
-            <div className="hidden md:block w-px h-12 bg-border"></div>
-            <div>
-              <div className="text-3xl font-bold text-foreground">14 Languages</div>
+              <div className="text-3xl font-bold text-foreground">22 Languages</div>
               <div className="text-sm text-muted-foreground">Supported</div>
             </div>
             <div className="hidden md:block w-px h-12 bg-border"></div>
@@ -123,7 +118,7 @@ const Index = () => {
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Multi-Language Ministry</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Generate content in up to 14 languages including Spanish, French, Korean, Chinese, Arabic, and more.
+              Generate content in up to 22 languages including Spanish, French, Korean, Chinese, Arabic, Punjabi, Urdu, and more.
             </p>
           </div>
 
@@ -141,7 +136,7 @@ const Index = () => {
             <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
               <Globe className="w-10 h-10 text-primary" />
             </div>
-            <h3 className="text-xl md:text-2xl font-playfair font-semibold">Website Integration</h3>
+            <h3 className="text-xl md:text-2xl font-playfair font-semibold">Website Analysis</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
               Automatically analyse your church website to understand your mission, values, and communication style for better content.
             </p>
@@ -262,15 +257,17 @@ const Index = () => {
               Reach Every Community in Their Own Language
             </h2>
             <p className="text-xl text-muted-foreground mb-8 max-w-4xl mx-auto">
-              Break down language barriers and extend your ministry's reach with support for 14 languages. Generate up to 3 languages per session with real-time editing and cultural sensitivity built in.
+              Break down language barriers and extend your ministry's reach with support for 22 languages. Generate up to 3 languages per session with real-time editing and cultural sensitivity built in.
             </p>
             
             {/* Mobile: Horizontal Scroll */}
             <div className="md:hidden overflow-x-auto mb-8">
               <div className="flex gap-3 pb-4 min-w-max text-sm">
                 {[
-                  "English", "Spanish", "French", "Portuguese", "German", "Korean", "Chinese",
-                  "Arabic", "Persian", "Polish", "Ukrainian", "Italian", "Russian", "Japanese"
+                  "English", "Spanish", "French", "Portuguese", "German", "Korean", 
+                  "Chinese (Simplified)", "Chinese (Traditional)", "Arabic", "Persian (Farsi)",
+                  "Polish", "Ukrainian", "Italian", "Russian", "Japanese", "Romanian",
+                  "Punjabi", "Urdu", "Bengali", "Gujarati", "Welsh", "Lithuanian"
                 ].map((language) => (
                   <div key={language} className="bg-background/80 backdrop-blur-sm border border-border/50 rounded-lg py-3 px-4 font-medium whitespace-nowrap">
                     {language}
@@ -280,10 +277,12 @@ const Index = () => {
             </div>
 
             {/* Tablet+: Grid */}
-            <div className="hidden md:grid md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8 text-sm">
+            <div className="hidden md:grid md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8 text-sm">
               {[
-                "English", "Spanish", "French", "Portuguese", "German", "Korean", "Chinese",
-                "Arabic", "Persian", "Polish", "Ukrainian", "Italian", "Russian", "Japanese"
+                "English", "Spanish", "French", "Portuguese", "German", "Korean", 
+                "Chinese (Simplified)", "Chinese (Traditional)", "Arabic", "Persian (Farsi)",
+                "Polish", "Ukrainian", "Italian", "Russian", "Japanese", "Romanian",
+                "Punjabi", "Urdu", "Bengali", "Gujarati", "Welsh", "Lithuanian"
               ].map((language) => (
                 <div key={language} className="bg-background/80 backdrop-blur-sm border border-border/50 rounded-lg py-3 px-2 font-medium text-center">
                   {language}
@@ -510,7 +509,7 @@ const Index = () => {
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Up to 14 languages per generation</span>
+                  <span>Up to 22 languages per generation</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
