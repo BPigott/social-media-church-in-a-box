@@ -1,6 +1,6 @@
 # Email Template Customization Guide
 
-This guide explains how to customize the email templates sent by Supabase to appear as though they're from Evangel instead of the generic Supabase branding.
+This guide explains how to customize the email templates sent by Supabase to appear as though they're from ivangel instead of the generic Supabase branding.
 
 ## Overview
 
@@ -32,8 +32,8 @@ For each email template (Signup, Password Reset, Email Change), follow these ste
 1. Click on **"Confirm signup"** template
 2. Copy the content from `supabase/templates/confirm-signup.html`
 3. Paste it into the template editor
-4. **Subject Line**: `Welcome to Evangel - Confirm Your Email`
-5. **Sender Name**: `Evangel` (or your preferred name)
+4. **Subject Line**: `Welcome to ivangel - Confirm Your Email`
+5. **Sender Name**: `ivangel` (or your preferred name)
 6. Click **Save**
 
 #### Password Reset Email
@@ -41,8 +41,8 @@ For each email template (Signup, Password Reset, Email Change), follow these ste
 1. Click on **"Reset password"** template
 2. Copy the content from `supabase/templates/reset-password.html`
 3. Paste it into the template editor
-4. **Subject Line**: `Reset Your Evangel Password`
-5. **Sender Name**: `Evangel`
+4. **Subject Line**: `Reset Your ivangel Password`
+5. **Sender Name**: `ivangel`
 6. Click **Save**
 
 #### Email Change Confirmation
@@ -50,8 +50,8 @@ For each email template (Signup, Password Reset, Email Change), follow these ste
 1. Click on **"Change email address"** template
 2. Copy the content from `supabase/templates/change-email.html`
 3. Paste it into the template editor
-4. **Subject Line**: `Confirm Your New Email Address - Evangel`
-5. **Sender Name**: `Evangel`
+4. **Subject Line**: `Confirm Your New Email Address - ivangel`
+5. **Sender Name**: `ivangel`
 6. Click **Save**
 
 ### 3. Template Variables
@@ -83,7 +83,7 @@ For better deliverability and full control over sender email addresses:
 3. Enable **Custom SMTP**
 4. Configure your SMTP provider (e.g., Resend, SendGrid, AWS SES)
 5. Set **From Email**: `no-reply@yourdomain.com` or `noreply@evangel.com`
-6. Set **From Name**: `Evangel`
+6. Set **From Name**: `ivangel`
 
 #### Recommended SMTP Providers
 
@@ -97,7 +97,7 @@ For better deliverability and full control over sender email addresses:
 ### Branding Elements
 
 The templates include:
-- **Logo/Name**: "Evangel" (can be customized in the HTML)
+- **Logo/Name**: "ivangel" (can be customized in the HTML)
 - **Color Scheme**: Blue (#2563eb) - can be changed to match your brand
 - **Tone**: Friendly and professional
 
@@ -114,7 +114,7 @@ To customize the templates further:
 1. Use Supabase's **"Send test email"** feature in the Email Templates section
 2. Or create a test user account and trigger each email type
 3. Verify that:
-   - Emails appear to come from "Evangel"
+   - Emails appear to come from "ivangel"
    - Links work correctly
    - Styling renders properly in email clients
 
@@ -124,15 +124,15 @@ For local development, templates can be configured in `supabase/config.toml`:
 
 ```toml
 [auth.email.template.confirm_signup]
-subject = "Welcome to Evangel - Confirm Your Email"
+subject = "Welcome to ivangel - Confirm Your Email"
 content_path = "./supabase/templates/confirm-signup.html"
 
 [auth.email.template.reset_password]
-subject = "Reset Your Evangel Password"
+subject = "Reset Your ivangel Password"
 content_path = "./supabase/templates/reset-password.html"
 
 [auth.email.template.change_email]
-subject = "Confirm Your New Email Address - Evangel"
+subject = "Confirm Your New Email Address - ivangel"
 content_path = "./supabase/templates/change-email.html"
 ```
 
