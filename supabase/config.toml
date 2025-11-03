@@ -8,3 +8,16 @@ verify_jwt = true
 
 [functions.scrape-church-website]
 verify_jwt = true
+
+# Email Templates for Local Development
+[auth.email.template.confirm_signup]
+subject = "Welcome to Evangel - Confirm Your Email"
+content_path = "./supabase/templates/confirm-signup.html"
+
+[auth.email.template.reset_password]
+subject = "Reset Your Evangel Password"
+content_path = "./supabase/templates/reset-password.html"
+
+[auth.email.template.change_email]
+subject = "Confirm Your New Email Address - Evangel"
+content_path = "./supabase/templates/change-email.html"

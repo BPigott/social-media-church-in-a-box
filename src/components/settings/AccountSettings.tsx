@@ -6,22 +6,10 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Eye, EyeSlash, Shield, Envelope } from "phosphor-react";
-import { z } from "zod";
+import { passwordChangeSchema, getPasswordStrength, passwordRequirements } from "@/lib/passwordValidation";
+import type { z } from "zod";
 
-const passwordSchema = z.object({
-  currentPassword: z.string().min(1, "Current password is required"),
-  newPassword: z.string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number"),
-  confirmPassword: z.string().min(1, "Please confirm your password"),
-}).refine((data) => data.newPassword === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
-
-type PasswordFormData = z.infer<typeof passwordSchema>;
+type PasswordFormData = z.infer<typeof passwordChangeSchema>;
 
 export const AccountSettings = () => {
   const { toast } = useToast();
@@ -48,22 +36,6 @@ export const AccountSettings = () => {
     };
     loadUserEmail();
   }, []);
-
-  const getPasswordStrength = (password: string): { strength: number; label: string; color: string } => {
-    if (password.length === 0) return { strength: 0, label: "", color: "" };
-    
-    let strength = 0;
-    if (password.length >= 8) strength++;
-    if (password.length >= 12) strength++;
-    if (/[A-Z]/.test(password)) strength++;
-    if (/[a-z]/.test(password)) strength++;
-    if (/[0-9]/.test(password)) strength++;
-    if (/[^A-Za-z0-9]/.test(password)) strength++;
-
-    if (strength <= 2) return { strength: 33, label: "Weak", color: "bg-destructive" };
-    if (strength <= 4) return { strength: 66, label: "Medium", color: "bg-yellow-500" };
-    return { strength: 100, label: "Strong", color: "bg-green-500" };
-  };
 
   const passwordStrength = getPasswordStrength(formData.newPassword);
 
@@ -120,7 +92,7 @@ export const AccountSettings = () => {
     setErrors({});
 
     // Validate form
-    const result = passwordSchema.safeParse(formData);
+    const result = passwordChangeSchema.safeParse(formData);
     if (!result.success) {
       const fieldErrors: Partial<Record<keyof PasswordFormData, string>> = {};
       result.error.errors.forEach((error) => {
@@ -301,6 +273,14 @@ export const AccountSettings = () => {
               {errors.newPassword && (
                 <p className="text-sm text-destructive">{errors.newPassword}</p>
               )}
+              <div className="text-xs text-muted-foreground space-y-1 mt-2">
+                <p className="font-medium">Password requirements:</p>
+                <ul className="list-disc list-inside space-y-0.5">
+                  {passwordRequirements.map((req, index) => (
+                    <li key={index}>{req}</li>
+                  ))}
+                </ul>
+              </div>
             </div>
 
             <div className="space-y-2">

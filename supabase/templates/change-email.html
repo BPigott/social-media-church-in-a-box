@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirm Email Change - Evangel</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333333;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      background-color: #ffffff;
+      border-radius: 8px;
+      padding: 40px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .logo {
+      font-size: 28px;
+      font-weight: bold;
+      color: #2563eb;
+      margin-bottom: 10px;
+    }
+    .title {
+      font-size: 24px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 20px;
+    }
+    .content {
+      color: #4b5563;
+      margin-bottom: 30px;
+    }
+    .button {
+      display: inline-block;
+      background-color: #2563eb;
+      color: #ffffff;
+      text-decoration: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-weight: 600;
+      margin: 20px 0;
+      text-align: center;
+    }
+    .button:hover {
+      background-color: #1d4ed8;
+    }
+    .footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e7eb;
+      font-size: 14px;
+      color: #6b7280;
+      text-align: center;
+    }
+    .link {
+      color: #2563eb;
+      word-break: break-all;
+    }
+    .info-box {
+      background-color: #eff6ff;
+      border-left: 4px solid #2563eb;
+      padding: 12px;
+      margin: 20px 0;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">Evangel</div>
+    </div>
+    
+    <h1 class="title">Confirm Your New Email Address</h1>
+    
+    <div class="content">
+      <p>You've requested to change the email address associated with your Evangel account.</p>
+      
+      <p>To complete this change, please confirm your new email address by clicking the button below:</p>
+      
+      <div style="text-align: center;">
+        <a href="{{ .ConfirmationURL }}" class="button">Confirm Email Change</a>
+      </div>
+      
+      <p>Or copy and paste this link into your browser:</p>
+      <p class="link">{{ .ConfirmationURL }}</p>
+      
+      <div class="info-box">
+        <strong>Note:</strong> Your email address will only be changed after you confirm using the link above. If you didn't request this change, you can safely ignore this email.
+      </div>
+      
+      <p>If you have any questions or concerns, please contact our support team.</p>
+    </div>
+    
+    <div class="footer">
+      <p>This email was sent by Evangel - Your AI-Powered Content Platform for Churches</p>
+      <p>If you have any questions, please contact our support team.</p>
+    </div>
+  </div>
+</body>
+</html>
+
