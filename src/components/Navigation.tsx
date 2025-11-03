@@ -34,7 +34,7 @@ export const Navigation = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link to="/dashboard" className="font-playfair text-2xl font-bold text-primary">
-            Church Content
+            ivangel
           </Link>
           <div className="flex gap-2">
             {navItems.map((item) => {

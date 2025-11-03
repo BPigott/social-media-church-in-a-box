@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { translateText, translateMultiple } from '../_shared/translate.ts';
+import { validateInput, validateGeneratedContent } from '../_shared/content-safety.ts';
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
@@ -138,6 +139,53 @@ serve(async (req)=>{
         }
       });
     }
+    
+    // Validate input content for inappropriate material
+    if (transcript) {
+      const transcriptValidation = validateInput(transcript);
+      if (!transcriptValidation.isSafe) {
+        return new Response(JSON.stringify({
+          error: `Your sermon transcript contains inappropriate content: ${transcriptValidation.violations.join(', ')}. Please review and remove inappropriate content before generating.`
+        }), {
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          }
+        });
+      }
+    }
+
+    if (customCTA) {
+      const ctaValidation = validateInput(customCTA);
+      if (!ctaValidation.isSafe) {
+        return new Response(JSON.stringify({
+          error: `Your event/announcement contains inappropriate content: ${ctaValidation.violations.join(', ')}. Please review and remove inappropriate content before generating.`
+        }), {
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          }
+        });
+      }
+    }
+
+    if (speakerName) {
+      const speakerValidation = validateInput(speakerName);
+      if (!speakerValidation.isSafe) {
+        return new Response(JSON.stringify({
+          error: `Speaker name contains inappropriate content. Please use an appropriate name.`
+        }), {
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          }
+        });
+      }
+    }
+    
     console.log('Generating content for church:', churchId);
     console.log('Content types:', contentTypes);
     console.log('Output languages:', outputLanguages);
@@ -152,6 +200,51 @@ serve(async (req)=>{
     // Build platform-specific guidelines (only for social media)
     const selectedGuidelines = hasSocialMedia && platforms ? platforms.map((platform)=>PLATFORM_GUIDELINES[platform]).join('\n\n') : '';
     const systemPrompt = `You are an expert church communications specialist. Create engaging content that captures the essence of sermons and church events while maintaining the church's unique voice and style.
+
+CRITICAL CONTENT SAFETY GUARDRAILS:
+- ABSOLUTELY PROHIBITED: Any erotic, sexual, or explicit content of any kind
+- ABSOLUTELY PROHIBITED: Racist, discriminatory, or hateful language or references
+- ABSOLUTELY PROHIBITED: References to gambling, betting, casinos, or gambling-related activities
+- ABSOLUTELY PROHIBITED: Blasphemous, irreverent, or mocking references to God, Jesus, the Holy Spirit, Scripture, or sacred matters
+- ABSOLUTELY PROHIBITED: Violence, profanity, or offensive language
+- REQUIRED: All content must be respectful, appropriate for a church audience, and aligned with Christian values
+- REQUIRED: If you encounter any input that could lead to inappropriate content, focus on positive, edifying alternatives instead
+- REQUIRED: All references to Scripture must be respectful and accurate
+- REQUIRED: Maintain a tone that honors God and encourages the faith community
+
+If any input material contains inappropriate content, you must:
+1. Filter it out completely
+2. Refuse to generate content based on that material
+3. Focus only on wholesome, faith-building content
+
+CRITICAL WRITING GUIDELINES:
+- Write in a natural, conversational tone that avoids AI-like patterns
+- Vary sentence structure and length for natural flow
+- Use straightforward, clear language
+- Avoid overly complex sentence constructions
+
+DASH USAGE RULES:
+- Avoid using em dashes (—) and en dashes (–) for parenthetical remarks, explanations, or asides
+- Instead of dashes for parenthetical information, use commas, parentheses, or restructure sentences
+- Instead of dashes to introduce explanations, use colons or create separate sentences
+- Only use dashes in compound words (e.g., "well-known," "state-of-the-art") where grammatically necessary
+
+PREFERRED PUNCTUATION STRATEGIES:
+- Use commas to set off non-essential information
+- Use periods to create clear, separate sentences rather than complex constructions
+- Use colons to introduce lists or explanations
+- Use parentheses sparingly for truly parenthetical remarks
+- Structure sentences to flow naturally without requiring heavy punctuation breaks
+
+EXAMPLES OF NATURAL VS. AI-LIKE WRITING:
+- Instead of: "The solution — which took months to develop — finally worked"
+- Write: "The solution, which took months to develop, finally worked"
+
+- Instead of: "We need three things — time, money, and patience"
+- Write: "We need three things: time, money, and patience"
+
+- Instead of: "The project was successful — beyond our expectations"
+- Write: "The project was successful. It exceeded our expectations."
 
 CRITICAL: Your response must be ONLY valid JSON with no preamble, explanation, or additional text. Do not write "Here is the JSON:" or any other introduction. Start directly with the opening brace {`;
     const userPrompt = `
@@ -218,6 +311,51 @@ Also create an executive summary (400-500 words) that SUMMARIZES the ${hasTransc
 - **Writing Style**: Write in third person about what was covered
 - **End with "Key Takeaways:"** followed by 3-5 bullet points
 ` : ''}
+
+---
+
+# Critical Writing Guidelines
+
+Before writing your content, do your planning work in <content_planning> tags inside your thinking block (if your model supports thinking blocks):
+- Analyze the content request to understand the type of writing needed (informational, persuasive, creative, etc.)
+- Identify specific areas where AI writing patterns (especially dashes) might naturally occur in this type of content
+- Plan alternative sentence structures and punctuation strategies you'll use instead
+- Outline your overall approach to structure and tone
+
+**Dash Usage Rules:**
+- Avoid using em dashes (—) and en dashes (–) for parenthetical remarks, explanations, or asides
+- Instead of dashes for parenthetical information, use commas, parentheses, or restructure sentences
+- Instead of dashes to introduce explanations, use colons or create separate sentences
+- Only use dashes in compound words (e.g., "well-known," "state-of-the-art") where grammatically necessary
+
+**Preferred Punctuation Strategies:**
+- Use commas to set off non-essential information
+- Use periods to create clear, separate sentences rather than complex constructions
+- Use colons to introduce lists or explanations
+- Use parentheses sparingly for truly parenthetical remarks
+- Structure sentences to flow naturally without requiring heavy punctuation breaks
+
+**Examples of Natural vs. AI-like Writing:**
+- Instead of: "The solution — which took months to develop — finally worked"
+- Write: "The solution, which took months to develop, finally worked"
+
+- Instead of: "We need three things — time, money, and patience"
+- Write: "We need three things: time, money, and patience"
+
+- Instead of: "The project was successful — beyond our expectations"
+- Write: "The project was successful. It exceeded our expectations."
+
+**Additional Requirements:**
+- Write in a natural, conversational tone
+- Vary sentence structure and length
+- Use straightforward, clear language
+- Avoid overly complex sentence constructions that require multiple punctuation breaks
+- Ensure smooth flow between ideas
+
+**Output Format:**
+Your final response should contain only the requested content, written according to the guidelines above. Do not include explanations, commentary, or any markup in your final output, and do not duplicate or rehash any of the planning work you did in the thinking block.
+
+---
 
 ${hasBibleStudy ? `
 # Bible Study Guide Generation Requirements
@@ -378,6 +516,12 @@ FINAL LENGTH CHECK (VALIDATE BEFORE RETURNING):
 - Twitter: Must be under 280 characters total
 - TikTok: Must be under 150 characters total
 - Social handles count toward character limits
+
+FINAL WRITING STYLE CHECK (VALIDATE BEFORE RETURNING):
+- Verify no em dashes (—) or en dashes (–) used for parenthetical remarks or explanations
+- Ensure natural sentence flow without heavy punctuation breaks
+- Confirm conversational, natural tone throughout
+- Check that punctuation follows guidelines (commas for parentheticals, colons for lists, periods for clarity)
 ` : ''}
 
 ${hasBibleStudy ? `
@@ -386,6 +530,9 @@ FINAL VALIDATION (CHECK BEFORE RETURNING):
 - Confirm no hashtags or asterisks used for emphasis
 - Ensure clean markdown formatting with proper spacing
 - Use natural, clear UK English that translates well
+- Verify no em dashes (—) or en dashes (–) used for parenthetical remarks or explanations
+- Ensure natural sentence flow and conversational tone
+- Check that punctuation follows guidelines (commas for parentheticals, colons for lists, periods for clarity)
 ` : ''}
 
 ${hasDevotional ? `
@@ -396,6 +543,9 @@ FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
 - Check that reflection question cuts to the heart
 - Verify prayer is personal and adoptable
 - Use warm, relational tone throughout
+- Verify no em dashes (—) or en dashes (–) used for parenthetical remarks or explanations
+- Ensure natural sentence flow and conversational tone throughout
+- Check that punctuation follows guidelines (commas for parentheticals, colons for lists, periods for clarity)
 ` : ''}
 `;
     const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
@@ -489,6 +639,29 @@ FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
       }
     }
     console.log('Content generated successfully in UK English');
+    
+    // Validate generated content for safety
+    console.log('Validating generated content for safety...');
+    const contentToValidate = [
+      ...(hasSocialMedia ? [
+        generatedContent.facebook,
+        generatedContent.instagram,
+        generatedContent.tiktok,
+        generatedContent.twitter,
+        generatedContent.executiveSummary
+      ].filter(Boolean) : []),
+      ...(hasBibleStudy ? [generatedContent.bibleStudyGuide].filter(Boolean) : []),
+      ...(hasDevotional ? [generatedContent.devotional].filter(Boolean) : []),
+    ];
+
+    for (const content of contentToValidate) {
+      const validation = validateGeneratedContent(content);
+      if (!validation.isSafe) {
+        console.error('SAFETY VIOLATION DETECTED:', validation.violations);
+        throw new Error(`Generated content contains inappropriate material: ${validation.violations.join(', ')}. Content generation blocked.`);
+      }
+    }
+    console.log('Content validation passed - all content is safe');
     
     // Store the original UK English versions
     // Only include fields that were actually requested
