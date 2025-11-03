@@ -15,7 +15,7 @@ const Index = () => {
             <img 
               src="/logo.png" 
               alt="ivangel" 
-              className="h-48 md:h-64 lg:h-80 w-auto drop-shadow-lg"
+              className="h-72 md:h-96 lg:h-[28rem] w-auto drop-shadow-lg"
             />
           </div>
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold mb-4">
@@ -23,11 +23,11 @@ const Index = () => {
             <span>Beta</span>
           </div>
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-playfair font-bold text-foreground leading-tight">
-            Church Content &
+            Social Media &
             <span className="block text-primary mt-2">Multi-Language Ministry Platform</span>
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Transform sermons into written social posts, Bible studies, and devotionals in 22 languages, saving 5+ hours weekly with AI that learns your church's unique voice. <span className="font-semibold text-foreground">Written content only — no images, photos, or videos.</span>
+            Transform sermons into written social posts, Bible studies, and devotionals in 22 languages, saving 5+ hours weekly with AI that learns your church's unique voice.
           </p>
           <div className="grid grid-cols-2 md:flex md:flex-wrap justify-center gap-4 text-sm text-muted-foreground mb-8 max-w-2xl mx-auto">
             <div className="flex items-center gap-2 justify-center md:justify-start">
@@ -86,9 +86,9 @@ const Index = () => {
             <div className="w-20 h-20 mx-auto bg-gradient-to-br from-purple-100 to-purple-50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
               <MessageSquare className="w-10 h-10 text-purple-600" />
             </div>
-            <h3 className="text-xl md:text-2xl font-playfair font-semibold">Social Media Excellence</h3>
+            <h3 className="text-xl md:text-2xl font-playfair font-semibold">Social Media Generation</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Platform-optimised written posts for Facebook, Instagram, TikTok, and Twitter with character limits and formatting guidance. Text content only.
+              Platform-optimised written posts for Facebook, Instagram, TikTok, and Twitter/X with character limits and formatting guidance. Text content only.
             </p>
           </div>
 
@@ -148,7 +148,7 @@ const Index = () => {
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Your Church's Voice</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              AI learns your unique style, values, and communication preferences. Never generic templates, always authentically you.
+              AI learns your unique style, values, and communication preferences. Never generic templates, always authentically you. Fully editable within settings to match your exact needs.
             </p>
           </div>
 
@@ -349,7 +349,7 @@ const Index = () => {
               </div>
               <h3 className="text-xl font-playfair font-bold">Comprehensive Generation</h3>
               <p className="text-muted-foreground text-sm">
-                Generate written social media posts, Bible study guides, and devotionals in up to 3 languages simultaneously. Platform optimised with multiple variations and cultural adaptation. Written content only — no images, videos, or photos.
+                Generate written social media posts, Bible study guides, and devotionals in up to 3 languages simultaneously. Platform optimised with multiple variations and cultural adaptation. Written content only. No images, videos, or photos are generated.
               </p>
             </div>
 
@@ -430,7 +430,7 @@ const Index = () => {
                 <div className="flex items-start gap-3">
                   <Sparkles className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold">Platform Optimization</h4>
+                    <h4 className="font-semibold">Platform Optimisation</h4>
                     <p className="text-sm text-muted-foreground">Content tailored for each platform's best practices, character limits, and audience behaviour</p>
                   </div>
                 </div>
@@ -451,7 +451,7 @@ const Index = () => {
                   <Database className="w-10 h-10 text-purple-600" />
                 </div>
                 <h3 className="text-2xl font-playfair font-bold mb-2">For Resource Management</h3>
-                <p className="text-muted-foreground">Organise, manage, and maximize your content assets</p>
+                <p className="text-muted-foreground">Organise, manage, and maximise your content assets</p>
               </div>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
@@ -517,7 +517,7 @@ const Index = () => {
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Real time editing and re-translation</span>
+                  <span>Real-time editing and re-translation</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
@@ -567,7 +567,7 @@ const Index = () => {
                 Can I edit the generated content?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                Absolutely! You have full editing control with real time markdown support. Edit your English content and re-translate to all languages with one click. Every piece of written content is customizable to match your exact needs.
+                Absolutely! You have full editing control with real-time markdown support. Edit your English content and re-translate to all languages with one click. Every piece of written content is customisable to match your exact needs.
               </AccordionContent>
             </AccordionItem>
 
@@ -603,7 +603,7 @@ const Index = () => {
                 Which social media platforms do you support?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                Facebook, Instagram, TikTok, and Twitter/X. Written text content is optimized for each platform's character limits, formatting, and best practices. You'll receive multiple text variations per platform for scheduling flexibility. Remember, we generate text only — you'll need to add images separately if desired.
+                Facebook, Instagram, TikTok, and Twitter/X. Written text content is optimised for each platform's character limits, formatting, and best practices. You'll receive multiple text variations per platform for scheduling flexibility. Remember, we generate text only. You'll need to add images separately if desired.
               </AccordionContent>
             </AccordionItem>
 
