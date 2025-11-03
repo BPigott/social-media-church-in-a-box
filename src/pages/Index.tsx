@@ -27,7 +27,7 @@ const Index = () => {
             <span className="block text-primary mt-2">Multi-Language Ministry Platform</span>
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Transform sermons into social posts, Bible studies, and devotionals in 14 languages—saving 5+ hours weekly with AI that learns your church's unique voice.
+            Transform sermons into social posts, Bible studies, and devotionals in 14 languages, saving 5+ hours weekly with AI that learns your church's unique voice.
           </p>
           <div className="grid grid-cols-2 md:flex md:flex-wrap justify-center gap-4 text-sm text-muted-foreground mb-8 max-w-2xl mx-auto">
             <div className="flex items-center gap-2 justify-center md:justify-start">
@@ -54,7 +54,7 @@ const Index = () => {
                 <Button asChild size="lg" className="text-lg px-12 py-8 shadow-xl hover:shadow-2xl transition-all duration-200">
                   <Link to="/signup">Start Free 10 Day Trial</Link>
                 </Button>
-                <Button asChild variant="ghost" size="lg" className="text-lg px-12 py-8">
+                <Button asChild size="lg" className="text-lg px-12 py-8 shadow-xl hover:shadow-2xl transition-all duration-200 bg-primary text-primary-foreground hover:bg-primary/90">
                   <Link to="/login">Sign In</Link>
                 </Button>
               </>}
