@@ -1555,9 +1555,43 @@ const Dashboard = () => {
                 <Label htmlFor="speaker-name">Who was preaching? (Optional)</Label>
                 <Input id="speaker-name" placeholder="e.g., Pastor John, Rob Smith, Sarah Johnson" value={speakerName} onChange={e => setSpeakerName(e.target.value)} />
                 <p className="text-xs text-muted-foreground">
-                  Adding the speaker's name helps personalize the content
+                  Adding the speaker's name helps personalise the content
                 </p>
               </div>
+
+              {/* Events, Announcements & Calls-to-Action - Prominent Section */}
+              <Card className="border-2 border-primary/30 bg-primary/5">
+                <CardContent className="pt-6">
+                  <div className="space-y-3">
+                    <div>
+                      <Label htmlFor="custom-cta" className="text-base font-semibold">Events, Announcements & Calls-to-Action</Label>
+                      <p className="text-sm text-muted-foreground mt-2 mb-3">
+                        {transcriptText.trim() ? 
+                          'Add specific themes, announcements, or calls-to-action to include in your posts. Examples:' :
+                          'Required if no sermon uploaded. Include specific events, themes, or messages. Examples:'
+                        }
+                      </p>
+                      <ul className="text-sm text-muted-foreground space-y-1 mb-3 ml-4">
+                        <li className="list-disc">Birthday celebrations, baptisms, or special events</li>
+                        <li className="list-disc">New Alpha course or small group starting</li>
+                        <li className="list-disc">Visit our website, register for an event, or volunteer</li>
+                        <li className="list-disc">Christmas services, Easter celebrations, prayer nights</li>
+                      </ul>
+                    </div>
+                    <Textarea 
+                      id="custom-cta" 
+                      placeholder={transcriptText.trim() ? 
+                        "E.g., 'Join us for our new Alpha course starting next Sunday' or 'Celebrating 50 years of ministry this month!'" :
+                        "E.g., 'Join us for our Christmas Eve service at 7pm' or 'New Alpha course starting January 15th - register today!'"
+                      } 
+                      value={customCTA} 
+                      onChange={e => setCustomCTA(e.target.value)} 
+                      rows={4}
+                      className="font-medium"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* Language Selection - Show when ANY content type is selected */}
               {contentTypes.length > 0 && (
@@ -1636,24 +1670,6 @@ const Dashboard = () => {
                   </div>
                 </div>
               )}
-
-              <div className="space-y-2">
-                <Label htmlFor="custom-cta">Events, Announcements & Calls-to-Action</Label>
-                <p className="text-sm text-muted-foreground mb-2">
-                  {transcriptText.trim() ? 
-                    'Add specific themes, announcements, or calls-to-action to include in your posts. Examples:' :
-                    'Required if no sermon uploaded. Include specific events, themes, or messages. Examples:'
-                  }
-                  <span className="block mt-1 italic">• Birthday celebrations, baptisms, or special events</span>
-                  <span className="block italic">• New Alpha course or small group starting</span>
-                  <span className="block italic">• Visit our website, register for an event, or volunteer</span>
-                  <span className="block italic">• Christmas services, Easter celebrations, prayer nights</span>
-                </p>
-                <Textarea id="custom-cta" placeholder={transcriptText.trim() ? 
-                  "E.g., 'Join us for our new Alpha course starting next Sunday' or 'Celebrating 50 years of ministry this month!'" :
-                  "E.g., 'Join us for our Christmas Eve service at 7pm' or 'New Alpha course starting January 15th - register today!'"
-                } value={customCTA} onChange={e => setCustomCTA(e.target.value)} rows={4} />
-              </div>
 
               <Button 
                 onClick={handleGenerate} 
