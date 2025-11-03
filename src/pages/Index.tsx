@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useAuth } from "@/hooks/useAuth";
-import { FileText, Sparkles, Settings, Brain, Zap, CheckCircle, Clock, Users, Shield, Palette, BookOpen, Globe, Search, Download, Heart, MessageSquare, Languages, Database } from "lucide-react";
+import { FileText, Sparkle, Gear, Brain, Lightning, CheckCircle, Clock, Users, Shield, Palette, BookOpen, Globe, MagnifyingGlass, Download, Heart, ChatCircle, Translate, Database } from "phosphor-react";
 const Index = () => {
   const {
     user
@@ -19,7 +19,7 @@ const Index = () => {
             />
           </div>
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold mb-4">
-            <Sparkles className="w-4 h-4" />
+            <Sparkle size={16} />
             <span>Beta</span>
           </div>
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-playfair font-bold text-foreground leading-tight">
@@ -31,19 +31,19 @@ const Index = () => {
           </p>
           <div className="grid grid-cols-2 md:flex md:flex-wrap justify-center gap-4 text-sm text-muted-foreground mb-8 max-w-2xl mx-auto">
             <div className="flex items-center gap-2 justify-center md:justify-start">
-              <MessageSquare className="w-4 h-4 text-primary flex-shrink-0" />
+              <ChatCircle size={16} className="text-primary flex-shrink-0" />
               <span>Social Media Posts</span>
             </div>
             <div className="flex items-center gap-2 justify-center md:justify-start">
-              <BookOpen className="w-4 h-4 text-primary flex-shrink-0" />
+              <BookOpen size={16} className="text-primary flex-shrink-0" />
               <span>Bible Study Guides</span>
             </div>
             <div className="flex items-center gap-2 justify-center md:justify-start">
-              <Heart className="w-4 h-4 text-primary flex-shrink-0" />
+              <Heart size={16} className="text-primary flex-shrink-0" />
               <span>Daily Devotionals</span>
             </div>
             <div className="flex items-center gap-2 justify-center md:justify-start">
-              <Languages className="w-4 h-4 text-primary flex-shrink-0" />
+              <Translate size={16} className="text-primary flex-shrink-0" />
               <span>22 Languages</span>
             </div>
           </div>
@@ -84,7 +84,7 @@ const Index = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-48 md:mt-56 max-w-7xl mx-auto">
           <div className="text-center space-y-4 p-8 bg-gradient-to-br from-primary/5 to-primary/10 border border-border/50 rounded-lg shadow-md hover:-translate-y-2 hover:shadow-2xl hover:border-primary/50 transition-all duration-300 ease-out group">
             <div className="w-20 h-20 mx-auto bg-gradient-to-br from-purple-100 to-purple-50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-              <MessageSquare className="w-10 h-10 text-purple-600" />
+              <ChatCircle size={40} className="text-purple-600" />
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Social Media Generation</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
@@ -94,7 +94,7 @@ const Index = () => {
 
           <div className="text-center space-y-4 p-8 bg-gradient-to-br from-primary/5 to-primary/10 border border-border/50 rounded-lg shadow-md hover:-translate-y-2 hover:shadow-2xl hover:border-primary/50 transition-all duration-300 ease-out group">
             <div className="w-20 h-20 mx-auto bg-gradient-to-br from-blue-100 to-blue-50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-              <BookOpen className="w-10 h-10 text-blue-600" />
+              <BookOpen size={40} className="text-blue-600" />
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Bible Study Guides</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
@@ -104,7 +104,7 @@ const Index = () => {
 
           <div className="text-center space-y-4 p-8 bg-gradient-to-br from-primary/5 to-primary/10 border border-border/50 rounded-lg shadow-md hover:-translate-y-2 hover:shadow-2xl hover:border-primary/50 transition-all duration-300 ease-out group">
             <div className="w-20 h-20 mx-auto bg-gradient-to-br from-pink-100 to-pink-50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-              <Heart className="w-10 h-10 text-pink-600" />
+              <Heart size={40} className="text-pink-600" />
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Daily Devotionals</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
@@ -114,7 +114,7 @@ const Index = () => {
 
           <div className="text-center space-y-4 p-8 bg-gradient-to-br from-primary/5 to-primary/10 border border-border/50 rounded-lg shadow-md hover:-translate-y-2 hover:shadow-2xl hover:border-primary/50 transition-all duration-300 ease-out group">
             <div className="w-20 h-20 mx-auto bg-gradient-to-br from-teal-100 to-teal-50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-              <Languages className="w-10 h-10 text-teal-600" />
+              <Translate size={40} className="text-teal-600" />
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Multi-Language Ministry</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
@@ -124,7 +124,7 @@ const Index = () => {
 
           <div className="text-center space-y-4 p-8 bg-gradient-to-br from-primary/5 to-primary/10 border border-border/50 rounded-lg shadow-md hover:-translate-y-2 hover:shadow-2xl hover:border-primary/50 transition-all duration-300 ease-out group">
             <div className="w-20 h-20 mx-auto bg-gradient-to-br from-amber-100 to-amber-50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-              <Search className="w-10 h-10 text-amber-600" />
+              <MagnifyingGlass size={40} className="text-amber-600" />
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Content Library</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
@@ -134,7 +134,7 @@ const Index = () => {
 
           <div className="text-center space-y-4 p-8 bg-gradient-to-br from-primary/5 to-primary/10 border border-border/50 rounded-lg shadow-md hover:-translate-y-2 hover:shadow-2xl hover:border-primary/50 transition-all duration-300 ease-out group">
             <div className="w-20 h-20 mx-auto bg-gradient-to-br from-cyan-100 to-cyan-50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-              <Globe className="w-10 h-10 text-cyan-600" />
+              <Globe size={40} className="text-cyan-600" />
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Website Analysis</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
@@ -144,7 +144,7 @@ const Index = () => {
 
           <div className="text-center space-y-4 p-8 bg-gradient-to-br from-primary/5 to-primary/10 border border-border/50 rounded-lg shadow-md hover:-translate-y-2 hover:shadow-2xl hover:border-primary/50 transition-all duration-300 ease-out group">
             <div className="w-20 h-20 mx-auto bg-gradient-to-br from-violet-100 to-violet-50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-              <Palette className="w-10 h-10 text-violet-600" />
+              <Palette size={40} className="text-violet-600" />
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Your Church's Voice</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
@@ -154,7 +154,7 @@ const Index = () => {
 
           <div className="text-center space-y-4 p-8 bg-gradient-to-br from-primary/5 to-primary/10 border border-border/50 rounded-lg shadow-md hover:-translate-y-2 hover:shadow-2xl hover:border-primary/50 transition-all duration-300 ease-out group">
             <div className="w-20 h-20 mx-auto bg-gradient-to-br from-indigo-100 to-indigo-50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-              <FileText className="w-10 h-10 text-indigo-600" />
+              <FileText size={40} className="text-indigo-600" />
             </div>
             <h3 className="text-xl md:text-2xl font-playfair font-semibold">Easy Upload</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
@@ -175,24 +175,24 @@ const Index = () => {
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-card border border-border rounded-lg p-8 space-y-6 shadow-md hover:-translate-y-3 hover:shadow-2xl transition-all duration-300 ease-out group">
               <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
-                <MessageSquare className="w-10 h-10 text-blue-600" />
+                <ChatCircle size={40} className="text-blue-600" />
               </div>
               <h3 className="text-2xl font-playfair font-bold text-center">Social Media Posts</h3>
               <ul className="space-y-3 text-muted-foreground">
                 <li className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle size={20} className="text-green-500 mt-0.5 flex-shrink-0" />
                   <span>Written text posts for Facebook, Instagram, TikTok, and Twitter/X optimisation</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle size={20} className="text-green-500 mt-0.5 flex-shrink-0" />
                   <span>Character limit guidance and platform-specific formatting</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle size={20} className="text-green-500 mt-0.5 flex-shrink-0" />
                   <span>1-3 variations per platform for scheduling flexibility</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle size={20} className="text-green-500 mt-0.5 flex-shrink-0" />
                   <span>Natural integration of your social media handles</span>
                 </li>
               </ul>
@@ -200,24 +200,24 @@ const Index = () => {
 
             <div className="bg-card border border-border rounded-lg p-8 space-y-6 shadow-md hover:-translate-y-3 hover:shadow-2xl transition-all duration-300 ease-out group">
               <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
-                <BookOpen className="w-10 h-10 text-green-600" />
+                <BookOpen size={40} className="text-green-600" />
               </div>
               <h3 className="text-2xl font-playfair font-bold text-center">Bible Study Guides</h3>
               <ul className="space-y-3 text-muted-foreground">
                 <li className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle size={20} className="text-green-500 mt-0.5 flex-shrink-0" />
                   <span>Comprehensive study materials from sermon content</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle size={20} className="text-green-500 mt-0.5 flex-shrink-0" />
                   <span>Discussion questions and practical application points</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle size={20} className="text-green-500 mt-0.5 flex-shrink-0" />
                   <span>Formatted for easy printing and small group sharing</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle size={20} className="text-green-500 mt-0.5 flex-shrink-0" />
                   <span>Downloadable as organised text files</span>
                 </li>
               </ul>
@@ -225,24 +225,24 @@ const Index = () => {
 
             <div className="bg-card border border-border rounded-lg p-8 space-y-6 shadow-md hover:-translate-y-3 hover:shadow-2xl transition-all duration-300 ease-out group">
               <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
-                <Heart className="w-10 h-10 text-purple-600" />
+                <Heart size={40} className="text-purple-600" />
               </div>
               <h3 className="text-2xl font-playfair font-bold text-center">Daily Devotionals</h3>
               <ul className="space-y-3 text-muted-foreground">
                 <li className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle size={20} className="text-green-500 mt-0.5 flex-shrink-0" />
                   <span>Short, inspirational content for regular sharing</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle size={20} className="text-green-500 mt-0.5 flex-shrink-0" />
                   <span>Scripture based reflections and practical application</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle size={20} className="text-green-500 mt-0.5 flex-shrink-0" />
                   <span>Perfect for daily posts, newsletters, or personal reflection</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle size={20} className="text-green-500 mt-0.5 flex-shrink-0" />
                   <span>Maintain consistent spiritual engagement with your community</span>
                 </li>
               </ul>
@@ -293,7 +293,7 @@ const Index = () => {
             <div className="grid md:grid-cols-3 gap-6 text-left">
               <div className="bg-background/50 backdrop-blur-sm rounded-lg p-6 border border-border/50 shadow-md hover:-translate-y-2 hover:shadow-lg transition-all duration-300 ease-out group">
                 <div className="w-12 h-12 bg-gradient-to-br from-primary/10 to-primary/20 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <Languages className="w-6 h-6 text-primary" />
+                  <Translate size={24} className="text-primary" />
                 </div>
                 <h4 className="font-playfair font-semibold mb-2">Cultural Sensitivity</h4>
                 <p className="text-muted-foreground text-sm">Content adapts to cultural nuances and linguistic preferences, not just direct translations</p>
@@ -301,7 +301,7 @@ const Index = () => {
               
               <div className="bg-background/50 backdrop-blur-sm rounded-lg p-6 border border-border/50 shadow-md hover:-translate-y-2 hover:shadow-lg transition-all duration-300 ease-out group">
                 <div className="w-12 h-12 bg-gradient-to-br from-primary/10 to-primary/20 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <Zap className="w-6 h-6 text-primary" />
+                  <Lightning size={24} className="text-primary" />
                 </div>
                 <h4 className="font-playfair font-semibold mb-2">Real-Time Editing</h4>
                 <p className="text-muted-foreground text-sm">Edit English content and instantly re-translate to your target languages with one click</p>
@@ -309,7 +309,7 @@ const Index = () => {
               
               <div className="bg-background/50 backdrop-blur-sm rounded-lg p-6 border border-border/50 shadow-md hover:-translate-y-2 hover:shadow-lg transition-all duration-300 ease-out group">
                 <div className="w-12 h-12 bg-gradient-to-br from-primary/10 to-primary/20 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <Globe className="w-6 h-6 text-primary" />
+                  <Globe size={24} className="text-primary" />
                 </div>
                 <h4 className="font-playfair font-semibold mb-2">Ministry Impact</h4>
                 <p className="text-muted-foreground text-sm">Serve diverse congregations and expand your outreach to new communities authentically</p>
@@ -324,7 +324,7 @@ const Index = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center space-y-4 p-6 bg-card border border-border rounded-lg shadow-md hover:-translate-y-2 hover:shadow-2xl hover:border-primary/50 transition-all duration-300 ease-out group">
               <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary/10 to-primary/20 rounded-full flex items-center justify-center relative group-hover:scale-110 transition-transform duration-300">
-                <Settings className="w-8 h-8 text-primary" />
+                <Gear size={32} className="text-primary" />
                 <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold shadow-lg">1</span>
               </div>
               <h3 className="text-xl font-playfair font-bold">Complete Church Setup</h3>
@@ -333,7 +333,7 @@ const Index = () => {
 
             <div className="text-center space-y-4 p-6 bg-card border border-border rounded-lg shadow-md hover:-translate-y-2 hover:shadow-2xl hover:border-primary/50 transition-all duration-300 ease-out group">
               <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary/10 to-primary/20 rounded-full flex items-center justify-center relative group-hover:scale-110 transition-transform duration-300">
-                <Brain className="w-8 h-8 text-primary" />
+                <Brain size={32} className="text-primary" />
                 <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold shadow-lg">2</span>
               </div>
               <h3 className="text-xl font-playfair font-bold">AI Learning & Style Guide</h3>
@@ -344,7 +344,7 @@ const Index = () => {
 
             <div className="text-center space-y-4 p-6 bg-card border border-border rounded-lg shadow-md hover:-translate-y-2 hover:shadow-2xl hover:border-primary/50 transition-all duration-300 ease-out group">
               <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary/10 to-primary/20 rounded-full flex items-center justify-center relative group-hover:scale-110 transition-transform duration-300">
-                <Zap className="w-8 h-8 text-primary" />
+                <Lightning size={32} className="text-primary" />
                 <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold shadow-lg">3</span>
               </div>
               <h3 className="text-xl font-playfair font-bold">Comprehensive Generation</h3>
@@ -380,28 +380,28 @@ const Index = () => {
             <div className="space-y-6">
               <div className="text-center">
                 <div className="w-20 h-20 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                  <Users className="w-10 h-10 text-blue-600" />
+                  <Users size={40} className="text-blue-600" />
                 </div>
                 <h3 className="text-2xl font-playfair font-bold mb-2">For Ministry Leaders</h3>
                 <p className="text-muted-foreground">Empower your leadership team with professional tools</p>
               </div>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <Clock className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
+                  <Clock size={20} className="text-blue-600 mt-1 flex-shrink-0" />
                   <div>
                     <h4 className="font-semibold">Save 5+ Hours Weekly</h4>
                     <p className="text-sm text-muted-foreground">Across all content creation: social media, study guides, and devotionals</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Brain className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
+                  <Brain size={20} className="text-blue-600 mt-1 flex-shrink-0" />
                   <div>
                     <h4 className="font-semibold">No Expertise Required</h4>
                     <p className="text-sm text-muted-foreground">AI handles content strategy, formatting, and optimisation. You focus on ministry.</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Palette className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
+                  <Palette size={20} className="text-blue-600 mt-1 flex-shrink-0" />
                   <div>
                     <h4 className="font-semibold">Consistent Quality</h4>
                     <p className="text-sm text-muted-foreground">Professional-quality materials that maintain your authentic voice and theological integrity</p>
@@ -414,28 +414,28 @@ const Index = () => {
             <div className="space-y-6">
               <div className="text-center">
                 <div className="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-4">
-                  <Globe className="w-10 h-10 text-green-600" />
+                  <Globe size={40} className="text-green-600" />
                 </div>
                 <h3 className="text-2xl font-playfair font-bold mb-2">For Church Growth</h3>
                 <p className="text-muted-foreground">Expand your reach and deepen community engagement</p>
               </div>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <Languages className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
+                  <Translate size={20} className="text-green-600 mt-1 flex-shrink-0" />
                   <div>
                     <h4 className="font-semibold">Multilingual Outreach</h4>
                     <p className="text-sm text-muted-foreground">Serve diverse communities in their native languages with culturally sensitive content</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Sparkles className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
+                  <Sparkle size={20} className="text-green-600 mt-1 flex-shrink-0" />
                   <div>
                     <h4 className="font-semibold">Platform Optimisation</h4>
                     <p className="text-sm text-muted-foreground">Content tailored for each platform's best practices, character limits, and audience behaviour</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Heart className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
+                  <Heart size={20} className="text-green-600 mt-1 flex-shrink-0" />
                   <div>
                     <h4 className="font-semibold">Extended Impact</h4>
                     <p className="text-sm text-muted-foreground">Transform sermons into multiple content formats for sustained community engagement</p>
@@ -455,21 +455,21 @@ const Index = () => {
               </div>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <Search className="w-5 h-5 text-purple-600 mt-1 flex-shrink-0" />
+                  <MagnifyingGlass size={20} className="text-purple-600 mt-1 flex-shrink-0" />
                   <div>
                     <h4 className="font-semibold">Comprehensive Library</h4>
                     <p className="text-sm text-muted-foreground">Search, organise, and access all your generated content with powerful management tools</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Download className="w-5 h-5 text-purple-600 mt-1 flex-shrink-0" />
+                  <Download size={20} className="text-purple-600 mt-1 flex-shrink-0" />
                   <div>
                     <h4 className="font-semibold">Easy Sharing</h4>
                     <p className="text-sm text-muted-foreground">Bulk download, copy-paste ready formats, and seamless integration with your workflow</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Shield className="w-5 h-5 text-purple-600 mt-1 flex-shrink-0" />
+                  <Shield size={20} className="text-purple-600 mt-1 flex-shrink-0" />
                   <div>
                     <h4 className="font-semibold">Message Integrity</h4>
                     <p className="text-sm text-muted-foreground">Real-time editing and re-translation while preserving your sermon's core message and theological accuracy</p>
@@ -500,27 +500,27 @@ const Index = () => {
               </div>
               <ul className="space-y-4 mb-8 text-left">
                 <li className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <CheckCircle size={20} className="text-primary mt-0.5 flex-shrink-0" />
                   <span>Written social media posts for all platforms (text only)</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <CheckCircle size={20} className="text-primary mt-0.5 flex-shrink-0" />
                   <span>Bible study guides and devotionals</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <CheckCircle size={20} className="text-primary mt-0.5 flex-shrink-0" />
                   <span>Up to 22 languages per generation</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <CheckCircle size={20} className="text-primary mt-0.5 flex-shrink-0" />
                   <span>Content library and management tools</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <CheckCircle size={20} className="text-primary mt-0.5 flex-shrink-0" />
                   <span>Real-time editing and re-translation</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <CheckCircle size={20} className="text-primary mt-0.5 flex-shrink-0" />
                   <span>Download in multiple formats (TXT, DOCX, PDF, HTML)</span>
                 </li>
               </ul>

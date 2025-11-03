@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { CircleNotch, CheckCircle, WarningCircle } from "phosphor-react";
 
 interface StyleGuideGenerationProps {
   onComplete: (styleGuide: string) => void;
@@ -46,7 +46,7 @@ export const StyleGuideGeneration = ({ onComplete, onRetry }: StyleGuideGenerati
   if (status === 'success') {
     return (
       <div className="text-center space-y-6 py-12">
-        <CheckCircle2 className="w-16 h-16 mx-auto text-green-500" />
+        <CheckCircle size={64} className="mx-auto text-green-500" />
         <div className="space-y-2">
           <h3 className="text-2xl font-playfair font-semibold">Style Guide Generated!</h3>
           <p className="text-muted-foreground">
@@ -60,7 +60,7 @@ export const StyleGuideGeneration = ({ onComplete, onRetry }: StyleGuideGenerati
   if (status === 'error') {
     return (
       <div className="text-center space-y-6 py-12">
-        <AlertCircle className="w-16 h-16 mx-auto text-destructive" />
+        <WarningCircle size={64} className="mx-auto text-destructive" />
         <div className="space-y-2">
           <h3 className="text-2xl font-playfair font-semibold">Generation Failed</h3>
           <p className="text-muted-foreground">
@@ -77,7 +77,7 @@ export const StyleGuideGeneration = ({ onComplete, onRetry }: StyleGuideGenerati
   return (
     <div className="text-center space-y-8 py-12">
       <div className="space-y-4">
-        <Loader2 className="w-16 h-16 mx-auto animate-spin text-primary" />
+        <CircleNotch size={64} className="mx-auto animate-spin text-primary" />
         <div className="space-y-2">
           <h3 className="text-2xl font-playfair font-semibold">Creating Your Style Guide</h3>
           <p className="text-muted-foreground">{message}</p>

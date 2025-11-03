@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Copy, Download, Trash2, Search, ChevronDown, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Copy, Download, Trash, MagnifyingGlass, CaretDown, CaretLeft, CaretRight, CircleNotch } from "phosphor-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { jsPDF } from "jspdf";
 import { Document, Packer, Paragraph, TextRun } from "docx";
@@ -330,8 +330,11 @@ const Library = () => {
     }
   };
 
-  const toggleSection = (key: string) => {
-    setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
+  const toggleSection = (key: string, isOpen?: boolean) => {
+    setExpandedSections(prev => ({ 
+      ...prev, 
+      [key]: isOpen !== undefined ? isOpen : !prev[key] 
+    }));
   };
 
   const changeVariation = (key: string, direction: 'prev' | 'next', maxIndex: number) => {
@@ -368,12 +371,12 @@ const Library = () => {
     const canRetranslate = hasNonEnglishLanguages && englishSource && englishSource.trim().length > 0;
 
     return (
-      <Collapsible key={platform} open={isExpanded} onOpenChange={() => toggleSection(sectionKey)}>
+      <Collapsible key={platform} open={isExpanded} onOpenChange={(open) => toggleSection(sectionKey, open)}>
         <div className="border rounded-lg">
           <CollapsibleTrigger className="w-full">
             <div className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
               <div className="flex items-center gap-2">
-                <ChevronDown className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                <CaretDown size={16} className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                 <p className="text-sm font-medium">
                   {platform} {posts.length > 1 && `(${posts.length} variations)`}
                 </p>
@@ -386,7 +389,7 @@ const Library = () => {
                   copyToClipboard(currentPost, `${platform} post`);
                 }}
               >
-                <Copy className="w-4 h-4" />
+                <Copy size={16} />
               </Button>
             </div>
           </CollapsibleTrigger>
@@ -399,7 +402,7 @@ const Library = () => {
                     size="sm"
                     onClick={() => changeVariation(sectionKey, 'prev', posts.length - 1)}
                   >
-                    <ChevronLeft className="w-4 h-4" />
+                    <CaretLeft size={16} />
                   </Button>
                   <span className="text-sm text-muted-foreground min-w-[80px] text-center">
                     {currentIndex + 1} of {posts.length}
@@ -409,7 +412,7 @@ const Library = () => {
                     size="sm"
                     onClick={() => changeVariation(sectionKey, 'next', posts.length - 1)}
                   >
-                    <ChevronRight className="w-4 h-4" />
+                    <CaretRight size={16} />
                   </Button>
                 </div>
               )}
@@ -426,7 +429,7 @@ const Library = () => {
                       variant="outline"
                       size="sm"
                     >
-                      <Copy className="w-4 h-4 mr-2" />
+                      <Copy size={16} className="mr-2" />
                       Copy English
                     </Button>
                   )}
@@ -443,7 +446,7 @@ const Library = () => {
                     >
                       {retranslating ? (
                         <>
-                          <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                          <CircleNotch size={12} className="mr-2 animate-spin" />
                           Re-translating...
                         </>
                       ) : (
@@ -570,14 +573,37 @@ const Library = () => {
   };
 
   const filteredContent = content.filter(item => {
-    const query = searchQuery.toLowerCase();
-    const fbPosts = Array.isArray(item.facebook_post) ? item.facebook_post : [item.facebook_post];
-    const igPosts = Array.isArray(item.instagram_post) ? item.instagram_post : [item.instagram_post];
+    if (!searchQuery.trim()) return true;
     
-    return item.devotional?.toLowerCase().includes(query) ||
-      item.bible_study_guide?.toLowerCase().includes(query) ||
-      fbPosts.some(post => post?.toLowerCase().includes(query)) ||
-      igPosts.some(post => post?.toLowerCase().includes(query));
+    const query = searchQuery.toLowerCase();
+    
+    // Helper function to check if text contains query
+    const containsQuery = (text: string | null | undefined): boolean => {
+      return text ? text.toLowerCase().includes(query) : false;
+    };
+    
+    // Helper function to check arrays of posts
+    const postsContainQuery = (posts: string[] | string | null | undefined): boolean => {
+      if (!posts) return false;
+      const postArray = Array.isArray(posts) ? posts : [posts];
+      return postArray.some(post => containsQuery(post));
+    };
+    
+    // Search across all content fields including custom_cta (themes/keywords)
+    return containsQuery(item.custom_cta) ||
+      containsQuery(item.devotional) ||
+      containsQuery(item.bible_study_guide) ||
+      postsContainQuery(item.facebook_post) ||
+      postsContainQuery(item.instagram_post) ||
+      postsContainQuery(item.tiktok_post) ||
+      postsContainQuery(item.twitter_post) ||
+      // Also search in English versions for completeness
+      postsContainQuery((item as any).facebook_post_english) ||
+      postsContainQuery((item as any).instagram_post_english) ||
+      postsContainQuery((item as any).tiktok_post_english) ||
+      postsContainQuery((item as any).twitter_post_english) ||
+      containsQuery((item as any).devotional_english) ||
+      containsQuery((item as any).bible_study_guide_english);
   });
 
   // Group content by date
@@ -632,9 +658,9 @@ const Library = () => {
 
         <div className="flex gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+            <MagnifyingGlass size={16} className="absolute left-3 top-3 text-muted-foreground" />
             <Input
-              placeholder="Search content..."
+              placeholder="Search by keywords, themes, or content (e.g., 'Advent', 'Easter', 'prayer')..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -663,21 +689,22 @@ const Library = () => {
                 day: 'numeric',
               });
               const groupKey = `date-${dateKey}`;
-              const isExpanded = expandedSections[groupKey] ?? true;
+              const isExpanded = expandedSections[groupKey] ?? false;
 
               return (
                 <Collapsible
                   key={dateKey}
                   open={isExpanded}
-                  onOpenChange={() => toggleSection(groupKey)}
+                  onOpenChange={(open) => toggleSection(groupKey, open)}
                 >
                   <Card>
                     <CardHeader>
                       <CollapsibleTrigger className="w-full">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <ChevronDown 
-                              className={`w-5 h-5 transition-transform ${
+                            <CaretDown 
+                              size={20}
+                              className={`transition-transform ${
                                 isExpanded ? 'rotate-180' : ''
                               }`}
                             />
@@ -724,7 +751,7 @@ const Library = () => {
                                     <DropdownMenu>
                                       <DropdownMenuTrigger asChild>
                                         <Button variant="outline" size="sm">
-                                          <Download className="w-4 h-4" />
+                                          <Download size={16} />
                                         </Button>
                                       </DropdownMenuTrigger>
                                       <DropdownMenuContent align="end">
@@ -739,7 +766,7 @@ const Library = () => {
                                       size="sm"
                                       onClick={() => deleteContent(item.id)}
                                     >
-                                      <Trash2 className="w-4 h-4" />
+                                      <Trash size={16} />
                                     </Button>
                                   </div>
                                 </div>
@@ -747,17 +774,18 @@ const Library = () => {
                               <CardContent className="space-y-3">
                   {item.devotional && (
                     <Collapsible
-                      open={expandedSections[`${item.id}-devotional`]}
-                      onOpenChange={() => toggleSection(`${item.id}-devotional`)}
+                      open={expandedSections[`${item.id}-devotional`] ?? false}
+                      onOpenChange={(open) => toggleSection(`${item.id}-devotional`, open)}
                     >
                       <div className="border rounded-lg">
                         <CollapsibleTrigger className="w-full">
                           <div className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
                             <div className="flex items-center gap-2">
-                              <ChevronDown 
-                                className={`w-4 h-4 transition-transform ${
-                                  expandedSections[`${item.id}-devotional`] ? 'rotate-180' : ''
-                                }`}
+                              <CaretDown 
+                              size={16}
+                              className={`transition-transform ${
+                                expandedSections[`${item.id}-devotional`] ? 'rotate-180' : ''
+                              }`}
                               />
                               <p className="text-sm font-medium">Daily Devotional</p>
                             </div>
@@ -769,7 +797,7 @@ const Library = () => {
                                 copyToClipboard(item.devotional!, "Daily devotional");
                               }}
                             >
-                              <Copy className="w-4 h-4" />
+                              <Copy size={16} />
                             </Button>
                           </div>
                         </CollapsibleTrigger>
@@ -804,7 +832,7 @@ const Library = () => {
                                   >
                                     {retranslating ? (
                                       <>
-                                        <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                                        <CircleNotch size={12} className="mr-2 animate-spin" />
                                         Re-translating...
                                       </>
                                     ) : (
@@ -850,15 +878,16 @@ const Library = () => {
 
                   {item.bible_study_guide && (
                     <Collapsible
-                      open={expandedSections[`${item.id}-bible-study`]}
-                      onOpenChange={() => toggleSection(`${item.id}-bible-study`)}
+                      open={expandedSections[`${item.id}-bible-study`] ?? false}
+                      onOpenChange={(open) => toggleSection(`${item.id}-bible-study`, open)}
                     >
                       <div className="border rounded-lg">
                         <CollapsibleTrigger className="w-full">
                           <div className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
                             <div className="flex items-center gap-2">
-                              <ChevronDown 
-                                className={`w-4 h-4 transition-transform ${
+                              <CaretDown 
+                                size={16}
+                                className={`transition-transform ${
                                   expandedSections[`${item.id}-bible-study`] ? 'rotate-180' : ''
                                 }`} 
                               />
@@ -879,7 +908,7 @@ const Library = () => {
                                 copyToClipboard(item.bible_study_guide!, "Bible Study Guide");
                               }}
                             >
-                              <Copy className="w-4 h-4" />
+                              <Copy size={16} />
                             </Button>
                           </div>
                         </CollapsibleTrigger>
@@ -914,7 +943,7 @@ const Library = () => {
                                   >
                                     {retranslating ? (
                                       <>
-                                        <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                                        <CircleNotch size={12} className="mr-2 animate-spin" />
                                         Re-translating...
                                       </>
                                     ) : (

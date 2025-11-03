@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Eye, EyeOff, Shield, Mail } from "lucide-react";
+import { Eye, EyeSlash, Shield, Envelope } from "phosphor-react";
 import { z } from "zod";
 
 const passwordSchema = z.object({
@@ -185,7 +185,7 @@ export const AccountSettings = () => {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Mail className="w-5 h-5 text-primary" />
+            <Envelope size={20} className="text-primary" />
             <CardTitle className="font-playfair">Account Information</CardTitle>
           </div>
           <CardDescription>Your account details</CardDescription>
@@ -250,7 +250,7 @@ export const AccountSettings = () => {
                   className="absolute right-0 top-0 h-full px-3"
                   onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                 >
-                  {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showCurrentPassword ? <EyeSlash size={16} /> : <Eye size={16} />}
                 </Button>
               </div>
               {errors.currentPassword && (
@@ -275,7 +275,7 @@ export const AccountSettings = () => {
                   className="absolute right-0 top-0 h-full px-3"
                   onClick={() => setShowNewPassword(!showNewPassword)}
                 >
-                  {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showNewPassword ? <EyeSlash size={16} /> : <Eye size={16} />}
                 </Button>
               </div>
               {formData.newPassword && (
@@ -320,7 +320,7 @@ export const AccountSettings = () => {
                   className="absolute right-0 top-0 h-full px-3"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
-                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showConfirmPassword ? <EyeSlash size={16} /> : <Eye size={16} />}
                 </Button>
               </div>
               {errors.confirmPassword && (

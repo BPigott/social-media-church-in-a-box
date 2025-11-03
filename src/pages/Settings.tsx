@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ChurchInfoForm } from "@/components/onboarding/ChurchInfoForm";
 import { AccountSettings } from "@/components/settings/AccountSettings";
 import { Textarea } from "@/components/ui/textarea";
-import { Download, LogOut, RefreshCw } from "lucide-react";
+import { Download, SignOut, ArrowClockwise } from "phosphor-react";
 import { signOut } from "@/lib/auth";
 import {
   AlertDialog,
@@ -269,7 +269,7 @@ const Settings = () => {
             <p className="text-muted-foreground">Manage your church information and preferences</p>
           </div>
           <Button onClick={handleSignOut} variant="outline">
-            <LogOut className="w-4 h-4 mr-2" />
+            <SignOut size={16} className="mr-2" />
             Sign Out
           </Button>
         </div>

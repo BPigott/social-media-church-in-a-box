@@ -14,7 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Loader2, Copy, Download, Upload, CheckCircle2, ChevronDown, RotateCcw } from "lucide-react";
+import { CircleNotch, Copy, Download, Upload, CheckCircle, CaretDown, ArrowCounterClockwise } from "phosphor-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { jsPDF } from "jspdf";
 import { Document, Packer, Paragraph, TextRun } from "docx";
@@ -171,7 +171,7 @@ const DualLanguageDisplay: React.FC<DualLanguageDisplayProps> = ({
                     >
                       {retranslating ? (
                         <>
-                          <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                          <CircleNotch size={12} className="mr-2 animate-spin" />
                           Translating...
                         </>
                       ) : (
@@ -1530,7 +1530,7 @@ const Dashboard = () => {
               <div>
                 <Label htmlFor="transcript-upload" className="cursor-pointer">
                   <div className={`border-2 border-dashed rounded-lg p-8 text-center transition-all ${dragActive ? "border-primary bg-primary/5 scale-[1.02]" : "border-muted-foreground hover:border-primary"}`} onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop}>
-                    <Upload className={`w-10 h-10 mx-auto mb-2 transition-all ${dragActive ? "text-primary scale-110" : "text-muted-foreground"}`} />
+                    <Upload size={40} className={`mx-auto mb-2 transition-all ${dragActive ? "text-primary scale-110" : "text-muted-foreground"}`} />
                     <p className="text-sm font-medium mb-1">
                       {transcriptFile ? transcriptFile.name : <>
                           <span className="font-semibold">Drop sermon file here</span> or click to upload
@@ -1683,7 +1683,7 @@ const Dashboard = () => {
                 size="lg"
               >
                 {generating ? <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <CircleNotch size={16} className="mr-2 animate-spin" />
                     Generating...
                   </> : `Generate ${contentTypes.includes('social_media') && contentTypes.includes('bible_study') && contentTypes.includes('devotional') ? 'Content' : contentTypes.includes('social_media') && contentTypes.includes('bible_study') ? 'Social Media & Bible Study' : contentTypes.includes('social_media') && contentTypes.includes('devotional') ? 'Social Media & Devotional' : contentTypes.includes('bible_study') && contentTypes.includes('devotional') ? 'Bible Study & Devotional' : contentTypes.includes('social_media') ? 'Social Media Posts' : contentTypes.includes('bible_study') ? 'Bible Study Guide' : contentTypes.includes('devotional') ? 'Daily Devotional' : 'Content'}`}
               </Button>
@@ -1698,13 +1698,13 @@ const Dashboard = () => {
                 {generatedContent && (
                   <div className="flex gap-2">
                     <Button onClick={handleStartFresh} variant="outline" size="sm">
-                      <RotateCcw className="w-4 h-4 mr-2" />
+                      <ArrowCounterClockwise size={16} className="mr-2" />
                       Start Fresh
                     </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="outline" size="sm">
-                          <Download className="w-4 h-4 mr-2" />
+                          <Download size={16} className="mr-2" />
                           Download All
                         </Button>
                       </DropdownMenuTrigger>
@@ -1811,9 +1811,9 @@ const Dashboard = () => {
                                   size="sm"
                                 >
                                   {copiedItem === `${platform.charAt(0).toUpperCase() + platform.slice(1)} post (Primary)` ? (
-                                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                                    <CheckCircle size={16} className="mr-2" />
                                   ) : (
-                                    <Copy className="w-4 h-4 mr-2" />
+                                    <Copy size={16} className="mr-2" />
                                   )}
                                   Copy
                                 </Button>
@@ -1829,7 +1829,7 @@ const Dashboard = () => {
                                   >
                                     {retranslating ? (
                                       <>
-                                        <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                                        <CircleNotch size={12} className="mr-2 animate-spin" />
                                         Re-translating...
                                       </>
                                     ) : (
@@ -1846,7 +1846,7 @@ const Dashboard = () => {
                                 <CollapsibleTrigger className="w-full">
                                   <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border rounded-lg">
                                     <div className="flex items-center gap-2">
-                                      <ChevronDown className="w-4 h-4" />
+                                      <CaretDown size={16} />
                                       <span className="text-sm font-medium">English Reference</span>
                                     </div>
                                   </div>
@@ -1865,9 +1865,9 @@ const Dashboard = () => {
                                         size="sm"
                                       >
                                         {copiedItem === `English ${platform} post` ? (
-                                          <CheckCircle2 className="w-4 h-4 mr-2" />
+                                          <CheckCircle size={16} className="mr-2" />
                                         ) : (
-                                          <Copy className="w-4 h-4 mr-2" />
+                                          <Copy size={16} className="mr-2" />
                                         )}
                                         Copy English
                                       </Button>
@@ -1889,7 +1889,7 @@ const Dashboard = () => {
                                   <CollapsibleTrigger className="w-full">
                                     <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border rounded-lg">
                                       <div className="flex items-center gap-2">
-                                        <ChevronDown className="w-4 h-4" />
+                                        <CaretDown size={16} />
                                         <span className="text-sm font-medium">{LANGUAGE_NAMES[langCode] || langCode}</span>
                                       </div>
                                     </div>
@@ -1908,9 +1908,9 @@ const Dashboard = () => {
                                           size="sm"
                                         >
                                           {copiedItem === `${LANGUAGE_NAMES[langCode] || langCode} ${platform} post` ? (
-                                            <CheckCircle2 className="w-4 h-4 mr-2" />
+                                            <CheckCircle size={16} className="mr-2" />
                                           ) : (
-                                            <Copy className="w-4 h-4 mr-2" />
+                                            <Copy size={16} className="mr-2" />
                                           )}
                                           Copy {LANGUAGE_NAMES[langCode] || langCode}
                                         </Button>
@@ -1964,9 +1964,9 @@ const Dashboard = () => {
                                       size="sm"
                                     >
                                       {copiedItem === `${platform.charAt(0).toUpperCase() + platform.slice(1)} post` ? (
-                                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                                        <CheckCircle size={16} className="mr-2" />
                                       ) : (
-                                        <Copy className="w-4 h-4 mr-2" />
+                                        <Copy size={16} className="mr-2" />
                                       )}
                                       Copy
                                     </Button>
@@ -2090,9 +2090,9 @@ const Dashboard = () => {
                                   size="sm"
                                 >
                                   {copiedItem === "Bible Study Guide" ? (
-                                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                                    <CheckCircle size={16} className="mr-2" />
                                   ) : (
-                                    <Copy className="w-4 h-4 mr-2" />
+                                    <Copy size={16} className="mr-2" />
                                   )}
                                   Copy
                                 </Button>
@@ -2105,7 +2105,7 @@ const Dashboard = () => {
                                   >
                                     {retranslating ? (
                                       <>
-                                        <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                                        <CircleNotch size={12} className="mr-2 animate-spin" />
                                         Re-translating...
                                       </>
                                     ) : (
@@ -2122,7 +2122,7 @@ const Dashboard = () => {
                                 <CollapsibleTrigger className="w-full">
                                   <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border rounded-lg">
                                     <div className="flex items-center gap-2">
-                                      <ChevronDown className="w-4 h-4" />
+                                      <CaretDown size={16} />
                                       <span className="text-sm font-medium">English Reference</span>
                                     </div>
                                   </div>
@@ -2141,9 +2141,9 @@ const Dashboard = () => {
                                         size="sm"
                                       >
                                         {copiedItem === "English Bible Study Guide" ? (
-                                          <CheckCircle2 className="w-4 h-4 mr-2" />
+                                          <CheckCircle size={16} className="mr-2" />
                                         ) : (
-                                          <Copy className="w-4 h-4 mr-2" />
+                                          <Copy size={16} className="mr-2" />
                                         )}
                                         Copy
                                       </Button>
@@ -2161,7 +2161,7 @@ const Dashboard = () => {
                                   <CollapsibleTrigger className="w-full">
                                     <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border rounded-lg">
                                       <div className="flex items-center gap-2">
-                                        <ChevronDown className="w-4 h-4" />
+                                        <CaretDown size={16} />
                                         <span className="text-sm font-medium">{LANGUAGE_NAMES[langCode] || langCode}</span>
                                       </div>
                                     </div>
@@ -2180,9 +2180,9 @@ const Dashboard = () => {
                                           size="sm"
                                         >
                                           {copiedItem === `${LANGUAGE_NAMES[langCode] || langCode} Bible Study Guide` ? (
-                                            <CheckCircle2 className="w-4 h-4 mr-2" />
+                                            <CheckCircle size={16} className="mr-2" />
                                           ) : (
-                                            <Copy className="w-4 h-4 mr-2" />
+                                            <Copy size={16} className="mr-2" />
                                           )}
                                           Copy
                                         </Button>
@@ -2250,7 +2250,7 @@ const Dashboard = () => {
                               size="sm"
                               className="flex-1"
                             >
-                              {copiedItem === "Bible Study Guide" ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+                              {copiedItem === "Bible Study Guide" ? <CheckCircle size={16} className="mr-2" /> : <Copy size={16} className="mr-2" />}
                               Copy
                             </Button>
                             <Button
@@ -2259,7 +2259,7 @@ const Dashboard = () => {
                               size="sm"
                               className="flex-1"
                             >
-                              <Download className="w-4 h-4 mr-2" />
+                              <Download size={16} className="mr-2" />
                               Download
                             </Button>
                           </>
@@ -2302,9 +2302,9 @@ const Dashboard = () => {
                                   size="sm"
                                 >
                                   {copiedItem === "Devotional" ? (
-                                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                                    <CheckCircle size={16} className="mr-2" />
                                   ) : (
-                                    <Copy className="w-4 h-4 mr-2" />
+                                    <Copy size={16} className="mr-2" />
                                   )}
                                   Copy
                                 </Button>
@@ -2317,7 +2317,7 @@ const Dashboard = () => {
                                   >
                                     {retranslating ? (
                                       <>
-                                        <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                                        <CircleNotch size={12} className="mr-2 animate-spin" />
                                         Re-translating...
                                       </>
                                     ) : (
@@ -2334,7 +2334,7 @@ const Dashboard = () => {
                                 <CollapsibleTrigger className="w-full">
                                   <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border rounded-lg">
                                     <div className="flex items-center gap-2">
-                                      <ChevronDown className="w-4 h-4" />
+                                      <CaretDown size={16} />
                                       <span className="text-sm font-medium">English Reference</span>
                                     </div>
                                   </div>
@@ -2353,9 +2353,9 @@ const Dashboard = () => {
                                         size="sm"
                                       >
                                         {copiedItem === "English devotional" ? (
-                                          <CheckCircle2 className="w-4 h-4 mr-2" />
+                                          <CheckCircle size={16} className="mr-2" />
                                         ) : (
-                                          <Copy className="w-4 h-4 mr-2" />
+                                          <Copy size={16} className="mr-2" />
                                         )}
                                         Copy
                                       </Button>
@@ -2373,7 +2373,7 @@ const Dashboard = () => {
                                   <CollapsibleTrigger className="w-full">
                                     <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border rounded-lg">
                                       <div className="flex items-center gap-2">
-                                        <ChevronDown className="w-4 h-4" />
+                                        <CaretDown size={16} />
                                         <span className="text-sm font-medium">{LANGUAGE_NAMES[langCode] || langCode}</span>
                                       </div>
                                     </div>
@@ -2392,9 +2392,9 @@ const Dashboard = () => {
                                           size="sm"
                                         >
                                           {copiedItem === `${LANGUAGE_NAMES[langCode] || langCode} devotional` ? (
-                                            <CheckCircle2 className="w-4 h-4 mr-2" />
+                                            <CheckCircle size={16} className="mr-2" />
                                           ) : (
-                                            <Copy className="w-4 h-4 mr-2" />
+                                            <Copy size={16} className="mr-2" />
                                           )}
                                           Copy
                                         </Button>
@@ -2441,7 +2441,7 @@ const Dashboard = () => {
                                     Edit
                                   </Button>
                                   <Button onClick={() => copyToClipboard(generatedContent.devotional, "Daily devotional")} variant="outline" size="sm" className="flex-1">
-                                    {copiedItem === "Daily devotional" ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+                                    {copiedItem === "Daily devotional" ? <CheckCircle size={16} className="mr-2" /> : <Copy size={16} className="mr-2" />}
                                     Copy
                                   </Button>
                                 </>

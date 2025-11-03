@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, X, FileText } from "lucide-react";
+import { Upload, X, FileText } from "phosphor-react";
 
 interface SermonUploadProps {
   onFilesSelected: (files: File[]) => void;
@@ -156,7 +156,7 @@ export const SermonUpload = ({
         onDrop={handleDrop}
         onClick={() => document.getElementById('file-input')?.click()}
       >
-        <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+        <Upload size={48} className="mx-auto mb-4 text-muted-foreground" />
         <p className="text-lg font-medium mb-2">Drop sermon files here</p>
         <p className="text-sm text-muted-foreground mb-4">or click to browse</p>
         <p className="text-xs text-muted-foreground">
@@ -185,7 +185,7 @@ export const SermonUpload = ({
                 className="flex items-center justify-between p-3 rounded-lg border bg-card"
               >
                 <div className="flex items-center gap-3">
-                  <FileText className="w-5 h-5 text-primary" />
+                  <FileText size={20} className="text-primary" />
                   <div>
                     <p className="text-sm font-medium">{file.name}</p>
                     <p className="text-xs text-muted-foreground">
@@ -199,7 +199,7 @@ export const SermonUpload = ({
                   size="icon"
                   onClick={() => removeFile(index)}
                 >
-                  <X className="w-4 h-4" />
+                  <X size={16} />
                 </Button>
               </div>
             ))}
