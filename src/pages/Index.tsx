@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useAuth } from "@/hooks/useAuth";
 import { FileText, Sparkles, Settings, Brain, Zap, CheckCircle, Clock, Users, Shield, Palette, BookOpen, Globe, Search, Download, Heart, MessageSquare, Languages, Database } from "lucide-react";
 const Index = () => {
@@ -8,58 +9,82 @@ const Index = () => {
   } = useAuth();
   return <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <div className="container mx-auto px-4 py-16 md:py-24">
+      <div className="container mx-auto px-4 py-20 md:py-32">
         <div className="max-w-5xl mx-auto text-center space-y-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold mb-4">
             <Sparkles className="w-4 h-4" />
             <span>Beta</span>
           </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-playfair font-bold text-foreground">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-playfair font-bold text-foreground leading-tight">
             Complete Church Content &
             <span className="block text-primary mt-2">Multi-Language Ministry Platform</span>
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto">
-            Transform your sermons into comprehensive ministry resources—social media posts, Bible study guides, and daily devotionals—in up to 14 languages. Our AI learns your church's unique voice to create professional content that extends your ministry reach while saving you hours every week.
+            Transform your sermons into comprehensive ministry resources. Social media posts, Bible study guides, and daily devotionals in up to 14 languages. Our AI learns your church's unique voice to create professional content that extends your ministry reach while saving you hours every week.
           </p>
-          <div className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground mb-8">
-            <div className="flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-primary" />
+          <div className="grid grid-cols-2 md:flex md:flex-wrap justify-center gap-4 text-sm text-muted-foreground mb-8 max-w-2xl mx-auto">
+            <div className="flex items-center gap-2 justify-center md:justify-start">
+              <MessageSquare className="w-4 h-4 text-primary flex-shrink-0" />
               <span>Social Media Posts</span>
             </div>
-            <div className="flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-primary" />
+            <div className="flex items-center gap-2 justify-center md:justify-start">
+              <BookOpen className="w-4 h-4 text-primary flex-shrink-0" />
               <span>Bible Study Guides</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Heart className="w-4 h-4 text-primary" />
+            <div className="flex items-center gap-2 justify-center md:justify-start">
+              <Heart className="w-4 h-4 text-primary flex-shrink-0" />
               <span>Daily Devotionals</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Languages className="w-4 h-4 text-primary" />
+            <div className="flex items-center gap-2 justify-center md:justify-start">
+              <Languages className="w-4 h-4 text-primary flex-shrink-0" />
               <span>14 Languages</span>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            {user ? <Button asChild size="lg" className="text-lg px-8">
-                <Link to="/dashboard">Go to Dashboard</Link>
+            {user ? <Button asChild size="lg" className="text-lg px-10 py-6 shadow-lg hover:shadow-xl transition-all duration-200">
+                <Link to="/dashboard">Go to Dashboard →</Link>
               </Button> : <>
-                <Button asChild size="lg" className="text-lg px-8">
-                  <Link to="/signup">Get Started</Link>
+                <Button asChild size="lg" className="text-lg px-10 py-6 shadow-lg hover:shadow-xl transition-all duration-200">
+                  <Link to="/signup">Start Free 10 Day Trial</Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="text-lg px-8">
+                <Button asChild variant="ghost" size="lg" className="text-lg px-10 py-6">
                   <Link to="/login">Sign In</Link>
                 </Button>
               </>}
           </div>
         </div>
+      </div>
 
+      {/* Social Proof Stats Bar */}
+      <section className="bg-primary/5 py-8 border-y border-border/50">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 text-center">
+            <div>
+              <div className="text-3xl font-bold text-foreground">Weekly</div>
+              <div className="text-sm text-muted-foreground">Content Updates</div>
+            </div>
+            <div className="hidden md:block w-px h-12 bg-border"></div>
+            <div>
+              <div className="text-3xl font-bold text-foreground">14 Languages</div>
+              <div className="text-sm text-muted-foreground">Supported</div>
+            </div>
+            <div className="hidden md:block w-px h-12 bg-border"></div>
+            <div>
+              <div className="text-3xl font-bold text-foreground">5+ Hours</div>
+              <div className="text-sm text-muted-foreground">Saved Per Week</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="container mx-auto px-4">
         {/* Core Features */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-32 max-w-7xl mx-auto">
           <div className="text-center space-y-4 p-6 border border-border/50 rounded-lg hover:border-primary/50 transition-colors">
             <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
               <MessageSquare className="w-8 h-8 text-primary" />
             </div>
-            <h3 className="text-lg font-playfair font-semibold">Social Media Excellence</h3>
+            <h3 className="text-xl md:text-2xl font-playfair font-semibold">Social Media Excellence</h3>
             <p className="text-muted-foreground text-sm">
               Platform-optimised posts for Facebook, Instagram, TikTok, and Twitter with character limits and formatting guidance
             </p>
@@ -69,7 +94,7 @@ const Index = () => {
             <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
               <BookOpen className="w-8 h-8 text-primary" />
             </div>
-            <h3 className="text-lg font-playfair font-semibold">Bible Study Guides</h3>
+            <h3 className="text-xl md:text-2xl font-playfair font-semibold">Bible Study Guides</h3>
             <p className="text-muted-foreground text-sm">
               Comprehensive study materials with discussion questions, application points, and downloadable resources for small groups
             </p>
@@ -79,7 +104,7 @@ const Index = () => {
             <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
               <Heart className="w-8 h-8 text-primary" />
             </div>
-            <h3 className="text-lg font-playfair font-semibold">Daily Devotionals</h3>
+            <h3 className="text-xl md:text-2xl font-playfair font-semibold">Daily Devotionals</h3>
             <p className="text-muted-foreground text-sm">
               Short, inspirational content perfect for daily social media posts, newsletters, or spiritual reflection materials
             </p>
@@ -89,9 +114,9 @@ const Index = () => {
             <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
               <Languages className="w-8 h-8 text-primary" />
             </div>
-            <h3 className="text-lg font-playfair font-semibold">Multi-Language Ministry</h3>
+            <h3 className="text-xl md:text-2xl font-playfair font-semibold">Multi-Language Ministry</h3>
             <p className="text-muted-foreground text-sm">
-              Generate content in up to 14 languages including Spanish, French, Korean, Chinese, Arabic, and more—reach every community
+              Generate content in up to 14 languages including Spanish, French, Korean, Chinese, Arabic, and more. Reach every community.
             </p>
           </div>
 
@@ -99,7 +124,7 @@ const Index = () => {
             <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
               <Search className="w-8 h-8 text-primary" />
             </div>
-            <h3 className="text-lg font-playfair font-semibold">Content Library</h3>
+            <h3 className="text-xl md:text-2xl font-playfair font-semibold">Content Library</h3>
             <p className="text-muted-foreground text-sm">
               Organise, search, and manage all your generated content with real-time editing and easy sharing capabilities
             </p>
@@ -109,7 +134,7 @@ const Index = () => {
             <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
               <Globe className="w-8 h-8 text-primary" />
             </div>
-            <h3 className="text-lg font-playfair font-semibold">Website Integration</h3>
+            <h3 className="text-xl md:text-2xl font-playfair font-semibold">Website Integration</h3>
             <p className="text-muted-foreground text-sm">
               Automatically analyse your church website to understand your mission, values, and communication style for better content
             </p>
@@ -119,9 +144,9 @@ const Index = () => {
             <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
               <Palette className="w-8 h-8 text-primary" />
             </div>
-            <h3 className="text-lg font-playfair font-semibold">Your Church's Voice</h3>
+            <h3 className="text-xl md:text-2xl font-playfair font-semibold">Your Church's Voice</h3>
             <p className="text-muted-foreground text-sm">
-              AI learns your unique style, values, and communication preferences—never generic templates, always authentically you
+              AI learns your unique style, values, and communication preferences. Never generic templates, always authentically you.
             </p>
           </div>
 
@@ -129,9 +154,9 @@ const Index = () => {
             <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
               <FileText className="w-8 h-8 text-primary" />
             </div>
-            <h3 className="text-lg font-playfair font-semibold">Easy Upload</h3>
+            <h3 className="text-xl md:text-2xl font-playfair font-semibold">Easy Upload</h3>
             <p className="text-muted-foreground text-sm">
-              Support for PDF, DOCX, and TXT files with intelligent text extraction—even works with announcement-only content
+              Support for PDF, DOCX, and TXT files with intelligent text extraction. Even works with announcement only content.
             </p>
           </div>
         </div>
@@ -139,7 +164,7 @@ const Index = () => {
         {/* Content Types Showcase */}
         <div className="mt-32 max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-playfair font-bold mb-4">Three Powerful Content Types</h2>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-playfair font-bold mb-4">Three Powerful Content Types</h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               From one sermon, create everything you need to engage your community throughout the week
             </p>
@@ -226,19 +251,34 @@ const Index = () => {
         {/* Multi-Language Ministry Section */}
         <div className="mt-32 max-w-6xl mx-auto text-center">
           <div className="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 rounded-2xl p-12 border border-primary/20">
-            <h2 className="text-4xl md:text-5xl font-playfair font-bold mb-6 text-foreground">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-playfair font-bold mb-6 text-foreground">
               Reach Every Community in Their Own Language
             </h2>
             <p className="text-xl text-muted-foreground mb-8 max-w-4xl mx-auto">
               Break down language barriers and extend your ministry's reach with support for 14 languages. Generate up to 3 languages per session with real-time editing and cultural sensitivity built in.
             </p>
             
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8 text-sm">
+            {/* Mobile: Horizontal Scroll */}
+            <div className="md:hidden overflow-x-auto mb-8">
+              <div className="flex gap-3 pb-4 min-w-max text-sm">
+                {[
+                  "English", "Spanish", "French", "Portuguese", "German", "Korean", "Chinese",
+                  "Arabic", "Persian", "Polish", "Ukrainian", "Italian", "Russian", "Japanese"
+                ].map((language) => (
+                  <div key={language} className="bg-background/80 backdrop-blur-sm border border-border/50 rounded-lg py-3 px-4 font-medium whitespace-nowrap">
+                    {language}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Tablet+: Grid */}
+            <div className="hidden md:grid md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8 text-sm">
               {[
                 "English", "Spanish", "French", "Portuguese", "German", "Korean", "Chinese",
                 "Arabic", "Persian", "Polish", "Ukrainian", "Italian", "Russian", "Japanese"
               ].map((language) => (
-                <div key={language} className="bg-background/80 backdrop-blur-sm border border-border/50 rounded-lg py-3 px-2 font-medium">
+                <div key={language} className="bg-background/80 backdrop-blur-sm border border-border/50 rounded-lg py-3 px-2 font-medium text-center">
                   {language}
                 </div>
               ))}
@@ -274,7 +314,7 @@ const Index = () => {
 
         {/* How It Works */}
         <div className="mt-32 max-w-6xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-playfair font-bold text-center mb-16">How It Works</h2>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-playfair font-bold text-center mb-16">How It Works</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center space-y-4 p-6 bg-card border border-border rounded-lg">
               <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center relative">
@@ -303,7 +343,7 @@ const Index = () => {
               </div>
               <h3 className="text-xl font-playfair font-semibold">Comprehensive Generation</h3>
               <p className="text-muted-foreground text-sm">
-                Generate social media posts, Bible study guides, and devotionals in up to 3 languages simultaneously. Platform-optimised with multiple variations and cultural adaptation.
+                Generate social media posts, Bible study guides, and devotionals in up to 3 languages simultaneously. Platform optimised with multiple variations and cultural adaptation.
               </p>
             </div>
 
@@ -323,7 +363,7 @@ const Index = () => {
         {/* Benefits */}
         <div className="mt-32 max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-playfair font-bold mb-4">Why Churches Choose Our Platform</h2>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-playfair font-bold mb-4">Why Churches Choose Our Platform</h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Designed specifically for church leaders, growing congregations, and efficient ministry management
             </p>
@@ -344,14 +384,14 @@ const Index = () => {
                   <Clock className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
                   <div>
                     <h4 className="font-semibold">Save 5+ Hours Weekly</h4>
-                    <p className="text-sm text-muted-foreground">Across all content creation—social media, study guides, and devotionals</p>
+                    <p className="text-sm text-muted-foreground">Across all content creation: social media, study guides, and devotionals</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <Brain className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
                   <div>
                     <h4 className="font-semibold">No Expertise Required</h4>
-                    <p className="text-sm text-muted-foreground">AI handles content strategy, formatting, and optimisation—you focus on ministry</p>
+                    <p className="text-sm text-muted-foreground">AI handles content strategy, formatting, and optimisation. You focus on ministry.</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -434,6 +474,60 @@ const Index = () => {
           </div>
         </div>
 
+        {/* Pricing Section */}
+        <div className="mt-32 max-w-5xl mx-auto">
+          <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-2xl p-12 md:p-16 border border-primary/20">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-playfair font-bold mb-6">
+                Simple, Transparent Pricing
+              </h2>
+              <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
+                Professional ministry tools that fit your church budget
+              </p>
+            </div>
+            <div className="bg-background rounded-xl shadow-xl p-8 md:p-12 max-w-md mx-auto">
+              <div className="text-center mb-6">
+                <div className="text-5xl md:text-6xl font-bold mb-2">
+                  £50<span className="text-2xl text-muted-foreground">/month</span>
+                </div>
+                <p className="text-muted-foreground">Unlimited content generation</p>
+              </div>
+              <ul className="space-y-4 mb-8 text-left">
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span>Social media posts for all platforms</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span>Bible study guides and devotionals</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span>Up to 14 languages per generation</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span>Content library and management tools</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span>Real time editing and re-translation</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span>Download in multiple formats (TXT, DOCX, PDF, HTML)</span>
+                </li>
+              </ul>
+              <Button asChild size="lg" className="w-full mb-4 text-lg py-6 shadow-lg hover:shadow-xl transition-all duration-200">
+                <Link to="/signup">Start Free 10 Day Trial</Link>
+              </Button>
+              <p className="text-sm text-muted-foreground text-center">
+                No credit card required • Cancel anytime
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Platform Reliability Section */}
         <div className="mt-32 max-w-6xl mx-auto">
           <div className="bg-muted/30 rounded-2xl p-12 border border-border">
@@ -478,6 +572,90 @@ const Index = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* FAQ Section */}
+        <div className="mt-32 max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-playfair font-bold mb-4">Frequently Asked Questions</h2>
+            <p className="text-xl text-muted-foreground">
+              Everything you need to know about our platform
+            </p>
+          </div>
+
+          <Accordion type="single" collapsible className="w-full space-y-4">
+            <AccordionItem value="item-1" className="border border-border rounded-lg px-6">
+              <AccordionTrigger className="text-left font-semibold hover:no-underline">
+                How long does content generation take?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Typically 2 to 3 minutes. Upload your sermon, select your languages, and receive comprehensive content across all platforms almost instantly. Most churches complete the entire process during their Monday morning coffee.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-2" className="border border-border rounded-lg px-6">
+              <AccordionTrigger className="text-left font-semibold hover:no-underline">
+                Can I edit the generated content?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Absolutely! You have full editing control with real time markdown support. Edit your English content and re-translate to all languages with one click. Every piece of content is customizable to match your exact needs.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-3" className="border border-border rounded-lg px-6">
+              <AccordionTrigger className="text-left font-semibold hover:no-underline">
+                Is my sermon content kept private and secure?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Yes. Your content is stored securely and never shared with third parties. We use enterprise grade encryption and comply with UK data protection standards. Your sermons and church information remain completely confidential.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-4" className="border border-border rounded-lg px-6">
+              <AccordionTrigger className="text-left font-semibold hover:no-underline">
+                Do I need technical skills or social media expertise?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Not at all. Our platform is designed for church leaders, not marketers. Simple 3 step process: upload your sermon, select languages, and download your content. If you can use email, you can use our platform.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-5" className="border border-border rounded-lg px-6">
+              <AccordionTrigger className="text-left font-semibold hover:no-underline">
+                What if the content doesn't match our theology or voice?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Our AI learns your church's unique voice and theological perspective by analyzing your sermons and website. You can review and edit everything before publishing. The more sermons you upload, the better the AI understands your specific style and doctrine.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-6" className="border border-border rounded-lg px-6">
+              <AccordionTrigger className="text-left font-semibold hover:no-underline">
+                Which social media platforms do you support?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Facebook, Instagram, TikTok, and Twitter/X. Content is optimized for each platform's character limits, formatting, and best practices. You'll receive multiple variations per platform for scheduling flexibility.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-7" className="border border-border rounded-lg px-6">
+              <AccordionTrigger className="text-left font-semibold hover:no-underline">
+                Can I try the platform before committing?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Yes! Start with a free 10 day trial. No credit card required. Generate unlimited content and explore all features risk free. Experience the time savings firsthand before making any financial commitment.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-8" className="border border-border rounded-lg px-6">
+              <AccordionTrigger className="text-left font-semibold hover:no-underline">
+                What happens after my trial ends?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Plans start at £50 per month with unlimited content generation. Cancel anytime, no long term contracts required. Continue enjoying the time savings and professional content, or cancel with no questions asked.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
 
         {/* Footer */}

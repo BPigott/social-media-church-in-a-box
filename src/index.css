@@ -10,22 +10,22 @@ All colors MUST be HSL.
   :root {
     /* IFO Brand Colors */
     --background: 32 20% 97%; /* #F9F8F6 */
-    --foreground: 0 0% 20%; /* #333333 */
+    --foreground: 0 0% 10%; /* #1a1a1a - Darker for better contrast */
 
     --card: 32 20% 97%;
-    --card-foreground: 0 0% 20%;
+    --card-foreground: 0 0% 10%;
 
     --popover: 32 20% 97%;
-    --popover-foreground: 0 0% 20%;
+    --popover-foreground: 0 0% 10%;
 
     --primary: 85 14% 48%; /* #7A8367 */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 40 30% 85%; /* #E1D8C9 */
-    --secondary-foreground: 0 0% 20%;
+    --secondary-foreground: 0 0% 10%;
 
     --muted: 40 30% 90%;
-    --muted-foreground: 0 0% 45%;
+    --muted-foreground: 0 0% 40%; /* #666666 - Darker for better contrast */
 
     --accent: 85 14% 55%;
     --accent-foreground: 0 0% 100%;
@@ -100,10 +100,20 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
   body {
     @apply bg-background text-foreground font-inter;
   }
-  
+
   h1, h2, h3, h4, h5, h6 {
     @apply font-playfair;
   }
