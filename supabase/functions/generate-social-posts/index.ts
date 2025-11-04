@@ -629,7 +629,7 @@ FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 60000,
+        max_tokens: 16384,
         system: systemPrompt,
         messages: [
           {
@@ -671,7 +671,8 @@ FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
     
     // Check if response was truncated
     if (aiData.stop_reason === 'max_tokens') {
-      console.warn('⚠️ WARNING: AI response was truncated at max_tokens limit. This should not happen with max_tokens: 60000.');
+      console.warn('⚠️ WARNING: AI response was truncated at max_tokens limit. This should not happen with max_tokens: 16384.');
+      console.warn('Response may be incomplete. Consider splitting content generation or reducing content size.');
     }
     
     const textContent = aiData.content[0].text;
