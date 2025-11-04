@@ -17,7 +17,6 @@ additional_redirect_urls = [
 # Enable email-based authentication
 [auth.email]
 enable_signup = true
-double_confirm_changes_email_enabled = true
 
 [functions.generate-style-guide]
 verify_jwt = true
