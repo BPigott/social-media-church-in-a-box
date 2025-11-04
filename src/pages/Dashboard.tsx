@@ -555,20 +555,24 @@ const Dashboard = () => {
       let errorTitle = "Error processing file";
       let errorDescription = "Failed to read file content.";
       
-      if (error instanceof Error) {
+      const errorMessage = (error && typeof error === 'object' && 'message' in error) 
+        ? String(error.message) 
+        : (typeof error === 'string' ? error : '');
+      
+      if (errorMessage) {
         // Password-protected PDF
-        if (error.message.includes('password')) {
+        if (errorMessage.includes('password')) {
           errorTitle = "Password-protected PDF";
           errorDescription = "This PDF is password-protected. Please unlock it and try again.";
         }
         // Corrupted or invalid PDF
-        else if (error.message.includes('Invalid PDF') || error.message.includes('corrupted')) {
+        else if (errorMessage.includes('Invalid PDF') || errorMessage.includes('corrupted')) {
           errorTitle = "Invalid PDF file";
           errorDescription = "This PDF file appears to be corrupted. Try re-exporting it and upload again.";
         }
         // Generic error with actual message
         else {
-          errorDescription = error.message;
+          errorDescription = errorMessage;
         }
       }
       
@@ -1269,7 +1273,11 @@ const Dashboard = () => {
       });
       if (error) {
         console.error('Generation error:', error);
-        throw error;
+        // Ensure error is always an Error instance to avoid instanceof issues
+        const errorObj = (error && typeof error === 'object' && 'message' in error)
+          ? new Error(String(error.message))
+          : new Error(typeof error === 'string' ? error : 'Failed to generate content');
+        throw errorObj;
       }
 
       console.log('=== FRONTEND RESPONSE ===');
@@ -1348,10 +1356,13 @@ const Dashboard = () => {
       });
     } catch (error) {
       console.error('Error in handleGenerate:', error);
+      const errorMessage = (error && typeof error === 'object' && 'message' in error) 
+        ? String(error.message) 
+        : (typeof error === 'string' ? error : "Failed to generate content");
       toast({
         variant: "destructive",
         title: "Generation failed",
-        description: error instanceof Error ? error.message : "Failed to generate content"
+        description: errorMessage
       });
     } finally {
       setGenerating(false);
