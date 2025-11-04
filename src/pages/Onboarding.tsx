@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useChurch } from "@/hooks/useChurch";
+import { useChurch, clearChurchCache } from "@/hooks/useChurch";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -307,6 +307,10 @@ const Onboarding = () => {
         title: "Setup complete!",
         description: "Your church has been set up successfully.",
       });
+
+      // Clear the church cache to force a fresh fetch
+      console.log('🗑️ Clearing church cache to ensure fresh data...');
+      clearChurchCache(user!.id);
 
       // Verify church creation by checking if user now has churches
       console.log('Verifying church creation...');

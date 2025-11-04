@@ -7,6 +7,20 @@ const churchCache = new Map<string, { userChurches: UserChurch[], timestamp: num
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 /**
+ * Clears the church cache for a specific user (or all users if no userId provided)
+ * Call this after creating/updating church data to force a refresh
+ */
+export function clearChurchCache(userId?: string) {
+  if (userId) {
+    churchCache.delete(userId);
+    console.log('🗑️ Cleared church cache for user:', userId);
+  } else {
+    churchCache.clear();
+    console.log('🗑️ Cleared all church cache');
+  }
+}
+
+/**
  * Hook to get user's church information with retry logic and caching
  */
 export function useChurch(userId: string | undefined) {
