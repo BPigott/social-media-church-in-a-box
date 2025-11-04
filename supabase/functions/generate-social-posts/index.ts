@@ -687,17 +687,52 @@ FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
           console.error("Markdown JSON extraction failed:", mdError);
         }
       }
-      // If markdown extraction failed, try to find any JSON object in the text
+      // If markdown extraction failed, try to find JSON object with balanced braces
       if (!generatedContent) {
-        jsonMatch = textContent.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          try {
-            generatedContent = JSON.parse(jsonMatch[0]);
-            console.log("Successfully extracted JSON object from response");
-          } catch (extractError) {
-            console.error("JSON extraction failed:", extractError);
-            console.error("Matched text:", jsonMatch[0].substring(0, 500));
-            throw new Error(`Failed to parse AI response as JSON: ${extractError.message}`);
+        // Find the first opening brace
+        const firstBrace = textContent.indexOf('{');
+        if (firstBrace !== -1) {
+          // Try to find the matching closing brace by counting braces
+          let braceCount = 0;
+          let jsonStart = firstBrace;
+          let jsonEnd = -1;
+          
+          for (let i = firstBrace; i < textContent.length; i++) {
+            if (textContent[i] === '{') {
+              braceCount++;
+            } else if (textContent[i] === '}') {
+              braceCount--;
+              if (braceCount === 0) {
+                jsonEnd = i + 1;
+                break;
+              }
+            }
+          }
+          
+          if (jsonEnd > jsonStart) {
+            const jsonCandidate = textContent.substring(jsonStart, jsonEnd);
+            try {
+              generatedContent = JSON.parse(jsonCandidate);
+              console.log("Successfully extracted JSON object from response");
+            } catch (extractError) {
+              console.error("JSON extraction failed:", extractError);
+              // Log more context around the error position
+              const errorPos = extractError.message.match(/position (\d+)/);
+              if (errorPos) {
+                const pos = parseInt(errorPos[1]);
+                const start = Math.max(0, pos - 200);
+                const end = Math.min(jsonCandidate.length, pos + 200);
+                console.error("Error context:", jsonCandidate.substring(start, end));
+                console.error("Full matched text length:", jsonCandidate.length);
+              } else {
+                console.error("Matched text (first 1000 chars):", jsonCandidate.substring(0, 1000));
+              }
+              throw new Error(`Failed to parse AI response as JSON: ${extractError.message}`);
+            }
+          } else {
+            console.error("Could not find matching closing brace for JSON object");
+            console.error("Response preview:", textContent.substring(0, 1000));
+            throw new Error("AI response contains incomplete JSON (missing closing brace)");
           }
         } else {
           console.error("No JSON found in response:", textContent.substring(0, 500));
