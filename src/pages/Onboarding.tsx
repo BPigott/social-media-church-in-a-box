@@ -26,6 +26,7 @@ const Onboarding = () => {
   const [styleGuide, setStyleGuide] = useState("");
   const [generating, setGenerating] = useState(false);
   const [scrapingWebsite, setScrapingWebsite] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -158,18 +159,33 @@ const Onboarding = () => {
   };
 
   const handleStyleGuideAccept = async (finalGuide: string) => {
+    // Prevent double submission
+    if (isSubmitting) {
+      console.log('⚠️ Submission already in progress, ignoring duplicate request');
+      return;
+    }
+
+    setIsSubmitting(true);
+
     try {
-      // Check if user already has a church with this email
-      const { data: existingChurch } = await supabase
+      // Check if user already has ANY church (orphaned record detection)
+      const { data: userChurches, error: userChurchError } = await supabase
         .from('churches')
-        .select('id')
-        .eq('owner_id', user!.id)
-        .eq('email', churchData.email!)
-        .maybeSingle();
+        .select('id, name, email')
+        .eq('owner_id', user!.id);
+
+      if (userChurchError) {
+        console.error('Error checking for existing churches:', userChurchError);
+        throw new Error('Failed to verify church records');
+      }
 
       let churchId: string;
 
-      if (existingChurch) {
+      // If user already has a church, update it instead of creating a new one
+      if (userChurches && userChurches.length > 0) {
+        const existingChurch = userChurches[0];
+        console.log('📍 Found existing church for user, updating:', existingChurch);
+
         // Update existing church
         toast({
           title: "Updating church information...",
@@ -180,6 +196,7 @@ const Onboarding = () => {
           .from('churches')
           .update({
             name: churchData.name!,
+            email: churchData.email!,
             location: churchData.location!,
             vision_statement: churchData.vision_statement!,
             contact_email: churchData.contact_email!,
@@ -189,7 +206,10 @@ const Onboarding = () => {
           })
           .eq('id', existingChurch.id);
 
-        if (updateError) throw updateError;
+        if (updateError) {
+          console.error('Error updating church:', updateError);
+          throw updateError;
+        }
 
         churchId = existingChurch.id;
 
@@ -257,7 +277,10 @@ const Onboarding = () => {
           .select()
           .single();
 
-        if (churchError) throw churchError;
+        if (churchError) {
+          console.error('Church creation error:', churchError);
+          throw churchError;
+        }
 
         churchId = church.id;
 
@@ -330,6 +353,9 @@ const Onboarding = () => {
         title: "Setup failed",
         description: error instanceof Error ? error.message : "Failed to complete setup",
       });
+    } finally {
+      // Always reset submitting state, even on error
+      setIsSubmitting(false);
     }
   };
 
@@ -398,6 +424,7 @@ const Onboarding = () => {
                 styleGuide={styleGuide}
                 onAccept={handleStyleGuideAccept}
                 onRegenerate={() => setStep(2)}
+                isSubmitting={isSubmitting}
               />
             )}
           </CardContent>

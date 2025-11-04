@@ -9,9 +9,10 @@ interface StyleGuideReviewProps {
   styleGuide: string;
   onAccept: (finalGuide: string) => void;
   onRegenerate: () => void;
+  isSubmitting?: boolean;
 }
 
-export const StyleGuideReview = ({ styleGuide, onAccept, onRegenerate }: StyleGuideReviewProps) => {
+export const StyleGuideReview = ({ styleGuide, onAccept, onRegenerate, isSubmitting = false }: StyleGuideReviewProps) => {
   const [editedGuide, setEditedGuide] = useState(styleGuide);
   const [activeTab, setActiveTab] = useState("preview");
 
@@ -56,6 +57,7 @@ export const StyleGuideReview = ({ styleGuide, onAccept, onRegenerate }: StyleGu
           variant="outline"
           onClick={onRegenerate}
           className="flex-1"
+          disabled={isSubmitting}
         >
           Regenerate
         </Button>
@@ -63,8 +65,9 @@ export const StyleGuideReview = ({ styleGuide, onAccept, onRegenerate }: StyleGu
           onClick={() => onAccept(editedGuide)}
           size="lg"
           className="flex-1"
+          disabled={isSubmitting}
         >
-          Accept & Complete Setup
+          {isSubmitting ? "Setting up..." : "Accept & Complete Setup"}
         </Button>
       </div>
     </div>
