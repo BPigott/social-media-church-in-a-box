@@ -629,7 +629,7 @@ FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 8192,
+        max_tokens: 32768,
         system: systemPrompt,
         messages: [
           {
@@ -668,6 +668,12 @@ FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
       throw new Error(`Anthropic API error: ${aiResponse.status}`);
     }
     const aiData = await aiResponse.json();
+    
+    // Check if response was truncated
+    if (aiData.stop_reason === 'max_tokens') {
+      console.warn('⚠️ WARNING: AI response was truncated at max_tokens limit. This should not happen with max_tokens: 32768.');
+    }
+    
     const textContent = aiData.content[0].text;
     console.log("Raw AI response preview:", textContent.substring(0, 200));
     // Try to extract and parse JSON from the response
