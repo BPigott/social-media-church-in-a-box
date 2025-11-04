@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,6 +46,24 @@ export const ChurchInfoForm = ({
     service_times: initialData?.service_times || [{ day: "", time: "" }],
     social_handles: initialData?.social_handles || { facebook: "", instagram: "", twitter: "", tiktok: "" },
   });
+
+  // Sync form state when initialData changes (e.g., when church data loads asynchronously)
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        name: initialData.name || "",
+        email: initialData.email || "",
+        website_url: initialData.website_url || "",
+        location: initialData.location || "",
+        vision_statement: initialData.vision_statement || "",
+        contact_email: initialData.contact_email || "",
+        service_times: initialData.service_times && initialData.service_times.length > 0 
+          ? initialData.service_times 
+          : [{ day: "", time: "" }],
+        social_handles: initialData.social_handles || { facebook: "", instagram: "", twitter: "", tiktok: "" },
+      });
+    }
+  }, [initialData]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

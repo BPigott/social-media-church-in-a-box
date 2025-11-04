@@ -95,7 +95,7 @@ const DualLanguageDisplay: React.FC<DualLanguageDisplayProps> = ({
           </Label>
           <span className="text-xs text-muted-foreground">Read-only</span>
         </div>
-        <ScrollArea className="border rounded-lg max-h-[600px]">
+        <ScrollArea className="border rounded-lg h-[600px]">
           <div className="prose prose-sm max-w-none p-6">
             <ReactMarkdown>{foreignContent}</ReactMarkdown>
           </div>
@@ -133,7 +133,7 @@ const DualLanguageDisplay: React.FC<DualLanguageDisplayProps> = ({
                   />
                 </div>
               ) : (
-                <ScrollArea className="border rounded-lg max-h-[500px]">
+                <ScrollArea className="border rounded-lg h-[500px]">
                   <div className="prose prose-sm max-w-none p-6 prose-p:mb-4">
                     <ReactMarkdown>{editedEnglish}</ReactMarkdown>
                   </div>
@@ -1857,7 +1857,7 @@ const Dashboard = () => {
                                 </CollapsibleTrigger>
                                 <CollapsibleContent>
                                   <div className="p-4 border-l-2 border-muted-foreground/20 ml-4">
-                                    <ScrollArea className="border rounded-lg max-h-[400px]">
+                                    <ScrollArea className="border rounded-lg h-[400px]">
                                       <div className="prose prose-sm max-w-none p-4">
                                         <ReactMarkdown>{englishPost}</ReactMarkdown>
                                       </div>
@@ -1899,12 +1899,12 @@ const Dashboard = () => {
                                     </div>
                                   </CollapsibleTrigger>
                                   <CollapsibleContent>
-                                    <div className="p-4 border-l-2 border-muted-foreground/20 ml-4">
-                                      <ScrollArea className="border rounded-lg max-h-[400px]">
-                                        <div className="prose prose-sm max-w-none p-4">
-                                          <ReactMarkdown>{post}</ReactMarkdown>
-                                        </div>
-                                      </ScrollArea>
+                                  <div className="p-4 border-l-2 border-muted-foreground/20 ml-4">
+                                    <ScrollArea className="border rounded-lg h-[400px]">
+                                      <div className="prose prose-sm max-w-none p-4">
+                                        <ReactMarkdown>{post}</ReactMarkdown>
+                                      </div>
+                                    </ScrollArea>
                                       <div className="mt-2 flex justify-end">
                                         <Button
                                           onClick={() => copyToClipboard(post, `${LANGUAGE_NAMES[langCode] || langCode} ${platform} post`)}
@@ -1937,7 +1937,7 @@ const Dashboard = () => {
                                 />
                               </div>
                             ) : (
-                              <ScrollArea className="border rounded-lg max-h-[500px]">
+                              <ScrollArea className="border rounded-lg h-[500px]">
                                 <div className="bg-muted p-4">
                                   <p className="whitespace-pre-wrap">{displayContent}</p>
                                 </div>
@@ -2133,7 +2133,7 @@ const Dashboard = () => {
                                 </CollapsibleTrigger>
                                 <CollapsibleContent>
                                   <div className="p-4 border-l-2 border-muted-foreground/20 ml-4">
-                                    <ScrollArea className="border rounded-lg max-h-[500px]">
+                                    <ScrollArea className="border rounded-lg h-[500px]">
                                       <div className="prose prose-sm max-w-none p-4">
                                         <ReactMarkdown>{cleanBibleStudyFormatting(generatedContent.englishVersions.bibleStudyGuide)}</ReactMarkdown>
                                       </div>
@@ -2172,7 +2172,7 @@ const Dashboard = () => {
                                   </CollapsibleTrigger>
                                   <CollapsibleContent>
                                     <div className="p-4 border-l-2 border-muted-foreground/20 ml-4">
-                                      <ScrollArea className="border rounded-lg max-h-[500px]">
+                                      <ScrollArea className="border rounded-lg h-[500px]">
                                         <div className="prose prose-sm max-w-none p-4">
                                           <ReactMarkdown>{cleanBibleStudyFormatting(langContent.bibleStudyGuide)}</ReactMarkdown>
                                         </div>
@@ -2211,7 +2211,7 @@ const Dashboard = () => {
                               preview="edit"
                             />
                           ) : (
-                            <ScrollArea className="border rounded-lg max-h-[700px]">
+                            <ScrollArea className="border rounded-lg h-[700px]">
                               <div className="prose prose-sm max-w-none bg-muted p-6 prose-p:mb-4">
                                 <ReactMarkdown>{cleanBibleStudyFormatting(generatedContent.bibleStudyGuide)}</ReactMarkdown>
                               </div>
@@ -2345,7 +2345,7 @@ const Dashboard = () => {
                                 </CollapsibleTrigger>
                                 <CollapsibleContent>
                                   <div className="p-4 border-l-2 border-muted-foreground/20 ml-4">
-                                    <ScrollArea className="border rounded-lg h-[400px] overflow-y-auto">
+                                    <ScrollArea className="border rounded-lg h-[400px]">
                                       <div className="prose prose-sm max-w-none p-4">
                                         <ReactMarkdown>{englishDevotional}</ReactMarkdown>
                                       </div>
@@ -2384,7 +2384,7 @@ const Dashboard = () => {
                                   </CollapsibleTrigger>
                                   <CollapsibleContent>
                                     <div className="p-4 border-l-2 border-muted-foreground/20 ml-4">
-                                      <ScrollArea className="border rounded-lg h-[400px] overflow-y-auto">
+                                      <ScrollArea className="border rounded-lg h-[400px]">
                                         <div className="prose prose-sm max-w-none p-4">
                                           <ReactMarkdown>{langContent.devotional}</ReactMarkdown>
                                         </div>
@@ -2423,7 +2423,7 @@ const Dashboard = () => {
                                 />
                               </div>
                             ) : (
-                              <ScrollArea className="border rounded-lg max-h-[600px]">
+                              <ScrollArea className="border rounded-lg h-[600px]">
                                 <div className="bg-muted p-4">
                                   <p className="whitespace-pre-wrap">{generatedContent.devotional}</p>
                                 </div>
