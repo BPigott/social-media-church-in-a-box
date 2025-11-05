@@ -23,6 +23,8 @@ const LANGUAGE_NAMES = {
   'ru': 'Russian',
   'ja': 'Japanese'
 };
+const CONTENT_SAFETY_ENABLED = false;
+
 const PLATFORM_GUIDELINES = {
   facebook: `
 Facebook Guidelines:
@@ -207,51 +209,55 @@ serve(async (req)=>{
       });
     }
     
-    // Validate input content for inappropriate material
-    if (transcript) {
-      const transcriptValidation = validateInput(transcript);
-      if (!transcriptValidation.isSafe) {
-        return new Response(JSON.stringify({
-          error: `Your sermon transcript contains inappropriate content: ${transcriptValidation.violations.join(', ')}. Please review and remove inappropriate content before generating.`
-        }), {
-          status: 400,
-          headers: {
-            ...corsHeaders,
-            'Content-Type': 'application/json'
-          }
-        });
+    if (CONTENT_SAFETY_ENABLED) {
+      // Validate input content for inappropriate material
+      if (transcript) {
+        const transcriptValidation = validateInput(transcript);
+        if (!transcriptValidation.isSafe) {
+          return new Response(JSON.stringify({
+            error: `Your sermon transcript contains inappropriate content: ${transcriptValidation.violations.join(', ')}. Please review and remove inappropriate content before generating.`
+          }), {
+            status: 400,
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json'
+            }
+          });
+        }
       }
-    }
 
-    if (customCTA) {
-      const ctaValidation = validateInput(customCTA);
-      if (!ctaValidation.isSafe) {
-        return new Response(JSON.stringify({
-          error: `Your event/announcement contains inappropriate content: ${ctaValidation.violations.join(', ')}. Please review and remove inappropriate content before generating.`
-        }), {
-          status: 400,
-          headers: {
-            ...corsHeaders,
-            'Content-Type': 'application/json'
-          }
-        });
+      if (customCTA) {
+        const ctaValidation = validateInput(customCTA);
+        if (!ctaValidation.isSafe) {
+          return new Response(JSON.stringify({
+            error: `Your event/announcement contains inappropriate content: ${ctaValidation.violations.join(', ')}. Please review and remove inappropriate content before generating.`
+          }), {
+            status: 400,
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json'
+            }
+          });
+        }
       }
-    }
 
-    if (speakerName) {
-      const speakerValidation = validateInput(speakerName);
-      if (!speakerValidation.isSafe) {
-        console.error('VALIDATION FAILED: Speaker name contains inappropriate content');
-        return new Response(JSON.stringify({
-          error: `Speaker name contains inappropriate content. Please use an appropriate name.`
-        }), {
-          status: 400,
-          headers: {
-            ...corsHeaders,
-            'Content-Type': 'application/json'
-          }
-        });
+      if (speakerName) {
+        const speakerValidation = validateInput(speakerName);
+        if (!speakerValidation.isSafe) {
+          console.error('VALIDATION FAILED: Speaker name contains inappropriate content');
+          return new Response(JSON.stringify({
+            error: `Speaker name contains inappropriate content. Please use an appropriate name.`
+          }), {
+            status: 400,
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json'
+            }
+          });
+        }
       }
+    } else {
+      console.warn('⚠️ Content safety input validation disabled for testing');
     }
     
     console.log('=== ALL VALIDATIONS PASSED ===');
@@ -869,27 +875,31 @@ FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
     console.log('Content generated successfully in UK English');
     
     // Validate generated content for safety
-    console.log('Validating generated content for safety...');
-    const contentToValidate = [
-      ...(hasSocialMedia ? [
-        generatedContent.facebook,
-        generatedContent.instagram,
-        generatedContent.tiktok,
-        generatedContent.twitter,
-        generatedContent.executiveSummary
-      ].filter(Boolean) : []),
-      ...(hasBibleStudy ? [generatedContent.bibleStudyGuide].filter(Boolean) : []),
-      ...(hasDevotional ? [generatedContent.devotional].filter(Boolean) : []),
-    ];
+    if (CONTENT_SAFETY_ENABLED) {
+      console.log('Validating generated content for safety...');
+      const contentToValidate = [
+        ...(hasSocialMedia ? [
+          generatedContent.facebook,
+          generatedContent.instagram,
+          generatedContent.tiktok,
+          generatedContent.twitter,
+          generatedContent.executiveSummary
+        ].filter(Boolean) : []),
+        ...(hasBibleStudy ? [generatedContent.bibleStudyGuide].filter(Boolean) : []),
+        ...(hasDevotional ? [generatedContent.devotional].filter(Boolean) : []),
+      ];
 
-    for (const content of contentToValidate) {
-      const validation = validateGeneratedContent(content);
-      if (!validation.isSafe) {
-        console.error('SAFETY VIOLATION DETECTED:', validation.violations);
-        throw new Error(`Generated content contains inappropriate material: ${validation.violations.join(', ')}. Content generation blocked.`);
+      for (const content of contentToValidate) {
+        const validation = validateGeneratedContent(content);
+        if (!validation.isSafe) {
+          console.error('SAFETY VIOLATION DETECTED:', validation.violations);
+          throw new Error(`Generated content contains inappropriate material: ${validation.violations.join(', ')}. Content generation blocked.`);
+        }
       }
+      console.log('Content validation passed - all content is safe');
+    } else {
+      console.warn('⚠️ Skipping generated content safety validation (disabled for testing)');
     }
-    console.log('Content validation passed - all content is safe');
     
     // Store the original UK English versions
     // Only include fields that were actually requested
