@@ -78,6 +78,25 @@ serve(async (req)=>{
     });
   }
   try {
+    console.log('=== FUNCTION START ===');
+    console.log('Request method:', req.method);
+    const contentLength = req.headers.get('content-length');
+    console.log('Content length:', contentLength ? `${contentLength} bytes (${Math.round(parseInt(contentLength) / 1024)}KB)` : 'unknown');
+    
+    // Check request size limit (Supabase Edge Functions have a 6MB limit)
+    if (contentLength && parseInt(contentLength) > 6 * 1024 * 1024) {
+      console.error('Request too large:', contentLength, 'bytes');
+      return new Response(JSON.stringify({
+        error: 'Request too large. Please reduce the size of your transcript or content.'
+      }), {
+        status: 413,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      });
+    }
+    
     const supabase = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
@@ -87,9 +106,44 @@ serve(async (req)=>{
     if (userError || !user) {
       throw new Error('Unauthorized');
     }
-    const { transcript, styleGuide, platforms, customCTA, churchId, postsPerPlatform = 1, speakerName, socialHandles, contentTypes = [
+    
+    console.log('=== PARSING REQUEST BODY ===');
+    let requestBody;
+    try {
+      requestBody = await req.json();
+      console.log('Request body parsed successfully');
+      console.log('Request body keys:', Object.keys(requestBody));
+    } catch (parseError) {
+      console.error('Failed to parse request body:', parseError);
+      return new Response(JSON.stringify({
+        error: 'Invalid request body. Please ensure the request contains valid JSON.'
+      }), {
+        status: 400,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      });
+    }
+    
+    const { transcript, styleGuide, platforms: rawPlatforms, customCTA, churchId, postsPerPlatform = 1, speakerName, socialHandles, contentTypes = [
       'social_media'
-    ], outputLanguages = ['en'], primaryLanguage = 'en' } = await req.json();
+    ], outputLanguages = ['en'], primaryLanguage = 'en' } = requestBody;
+    
+    // Normalize platforms to always be an array
+    const platforms = Array.isArray(rawPlatforms) ? rawPlatforms : (rawPlatforms ? [rawPlatforms] : []);
+    
+    // Debug logging for request validation
+    console.log('=== REQUEST VALIDATION DEBUG ===');
+    console.log('Content Types:', contentTypes);
+    console.log('Raw Platforms:', rawPlatforms);
+    console.log('Normalized Platforms:', platforms);
+    console.log('Platforms type:', typeof platforms);
+    console.log('Platforms is array:', Array.isArray(platforms));
+    console.log('Platforms length:', platforms.length);
+    console.log('Has transcript:', !!transcript, 'Length:', transcript?.length || 0);
+    console.log('Has CTA:', !!customCTA, 'Length:', customCTA?.length || 0);
+    
     // Get language names from codes
     const languageNames = outputLanguages.map(code => LANGUAGE_NAMES[code] || code);
     // Debug logging for translation
@@ -102,7 +156,10 @@ serve(async (req)=>{
     const hasSocialMedia = contentTypes.includes('social_media');
     const hasBibleStudy = contentTypes.includes('bible_study');
     const hasDevotional = contentTypes.includes('devotional');
+    console.log('Content type flags:', { hasSocialMedia, hasBibleStudy, hasDevotional });
+    
     if (!hasSocialMedia && !hasBibleStudy && !hasDevotional) {
+      console.error('VALIDATION FAILED: No content types selected');
       return new Response(JSON.stringify({
         error: 'Please select at least one content type to generate.'
       }), {
@@ -114,7 +171,14 @@ serve(async (req)=>{
       });
     }
     // For social media, validate platforms
-    if (hasSocialMedia && (!platforms || platforms.length === 0)) {
+    // Since platforms is normalized to always be an array, just check length
+    const hasValidPlatforms = platforms.length > 0;
+    console.log('Platform validation:', { hasSocialMedia, hasValidPlatforms, platforms, platformsLength: platforms.length });
+    
+    if (hasSocialMedia && !hasValidPlatforms) {
+      console.error('VALIDATION FAILED: Social media selected but no valid platforms provided');
+      console.error('Platforms value:', platforms);
+      console.error('Platforms length:', platforms.length);
       return new Response(JSON.stringify({
         error: 'Please select at least one platform for social media posts.'
       }), {
@@ -128,7 +192,10 @@ serve(async (req)=>{
     // Validate content source - need either transcript or customCTA
     const hasTranscript = transcript && transcript.trim().length >= 100;
     const hasCTA = customCTA && customCTA.trim().length >= 10;
+    console.log('Content source validation:', { hasTranscript, hasCTA, transcriptLength: transcript?.length || 0, ctaLength: customCTA?.length || 0 });
+    
     if (!hasTranscript && !hasCTA) {
+      console.error('VALIDATION FAILED: No valid content source (transcript or CTA)');
       return new Response(JSON.stringify({
         error: 'Please provide either a sermon transcript (100+ words) or call-to-action/event information (10+ words).'
       }), {
@@ -174,6 +241,7 @@ serve(async (req)=>{
     if (speakerName) {
       const speakerValidation = validateInput(speakerName);
       if (!speakerValidation.isSafe) {
+        console.error('VALIDATION FAILED: Speaker name contains inappropriate content');
         return new Response(JSON.stringify({
           error: `Speaker name contains inappropriate content. Please use an appropriate name.`
         }), {
@@ -186,6 +254,9 @@ serve(async (req)=>{
       }
     }
     
+    console.log('=== ALL VALIDATIONS PASSED ===');
+    console.log('All content safety checks passed');
+    console.log('Proceeding to content generation...');
     console.log('Generating content for church:', churchId);
     console.log('Content types:', contentTypes);
     console.log('Output languages:', outputLanguages);
@@ -197,9 +268,20 @@ serve(async (req)=>{
     console.log('Speaker name:', speakerName || 'Not provided');
     console.log('Platforms:', platforms);
     console.log('Posts per platform:', postsPerPlatform);
-    // Build platform-specific guidelines (only for social media)
-    const selectedGuidelines = hasSocialMedia && platforms ? platforms.map((platform)=>PLATFORM_GUIDELINES[platform]).join('\n\n') : '';
-    const systemPrompt = `You are an expert church communications specialist. Create engaging content that captures the essence of sermons and church events while maintaining the church's unique voice and style.
+    
+    console.log('=== BUILDING PROMPTS ===');
+    let selectedGuidelines = '';
+    let systemPrompt = '';
+    let userPrompt = '';
+    
+    try {
+      // Build platform-specific guidelines (only for social media)
+      console.log('Building platform guidelines...');
+      selectedGuidelines = hasSocialMedia && platforms ? platforms.map((platform)=>PLATFORM_GUIDELINES[platform]).join('\n\n') : '';
+      console.log('Platform guidelines length:', selectedGuidelines.length);
+      
+      console.log('Constructing system prompt...');
+      systemPrompt = `You are an expert church communications specialist. Create engaging content that captures the essence of sermons and church events while maintaining the church's unique voice and style.
 
 CRITICAL CONTENT SAFETY GUARDRAILS:
 - ABSOLUTELY PROHIBITED: Any erotic, sexual, or explicit content of any kind
@@ -254,7 +336,10 @@ CRITICAL WRITING RULE - DASH PROHIBITION:
 - Before generating ANY content, mentally check: "Would I use a dash here? If yes, use colon or comma instead"
 
 CRITICAL: Your response must be ONLY valid JSON with no preamble, explanation, or additional text. Do not write "Here is the JSON:" or any other introduction. Start directly with the opening brace {`;
-    const userPrompt = `
+      
+      console.log('System prompt constructed, length:', systemPrompt.length);
+      console.log('Constructing user prompt...');
+      userPrompt = `
 # CRITICAL: MANDATORY WRITING RULES (READ FIRST)
 
 **ABSOLUTE DASH PROHIBITION:**
@@ -615,10 +700,44 @@ FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
 - Check that punctuation follows guidelines (commas for parentheticals, colons for lists, periods for clarity)
 ` : ''}
 `;
+      
+      console.log('User prompt constructed, length:', userPrompt.length);
+      console.log('=== PROMPT CONSTRUCTION COMPLETE ===');
+      console.log('System prompt length:', systemPrompt.length, 'characters');
+      console.log('User prompt length:', userPrompt.length, 'characters');
+      console.log('Total prompt size:', (systemPrompt.length + userPrompt.length), 'characters');
+    } catch (promptError) {
+      console.error('=== ERROR CONSTRUCTING PROMPTS ===');
+      console.error('Error type:', promptError instanceof Error ? promptError.constructor.name : typeof promptError);
+      console.error('Error message:', promptError instanceof Error ? promptError.message : String(promptError));
+      console.error('Error stack:', promptError instanceof Error ? promptError.stack : 'No stack trace');
+      return new Response(JSON.stringify({
+        error: 'Failed to construct prompts. Please try again or contact support if the issue persists.'
+      }), {
+        status: 400,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      });
+    }
+    
+    console.log('=== CHECKING API KEY ===');
+    console.log('Checking for ANTHROPIC_API_KEY...');
     const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
     if (!ANTHROPIC_API_KEY) {
-      throw new Error('ANTHROPIC_API_KEY not configured');
+      console.error('ANTHROPIC_API_KEY is not configured in environment variables');
+      return new Response(JSON.stringify({
+        error: 'Service configuration error: AI API key not found. Please contact support.'
+      }), {
+        status: 400,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      });
     }
+    console.log('ANTHROPIC_API_KEY found, proceeding...');
     console.log('Calling Anthropic API with Claude 4.5 Haiku...');
     const aiResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -932,16 +1051,27 @@ FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
     });
   } catch (error) {
     console.error('=== ERROR IN generate-social-posts ===');
+    console.error('Error occurred at:', new Date().toISOString());
     console.error('Error type:', error instanceof Error ? error.constructor.name : typeof error);
     console.error('Error message:', error instanceof Error ? error.message : String(error));
     console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-    console.error('Full error:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    
+    // Try to stringify the error object
+    try {
+      console.error('Full error:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    } catch (stringifyError) {
+      console.error('Could not stringify error:', stringifyError);
+    }
+    
+    // Return a user-friendly error message
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+    const isConfigError = errorMessage.includes('not configured') || errorMessage.includes('API key');
     
     return new Response(JSON.stringify({
-      error: error instanceof Error ? error.message : 'Internal server error',
+      error: isConfigError ? 'Service configuration error. Please contact support.' : errorMessage,
       errorType: error instanceof Error ? error.constructor.name : typeof error
     }), {
-      status: 500,
+      status: isConfigError ? 400 : 500,
       headers: {
         ...corsHeaders,
         'Content-Type': 'application/json'
