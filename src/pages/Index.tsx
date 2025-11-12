@@ -494,7 +494,7 @@ const Index = () => {
             <div className="bg-background rounded-xl shadow-xl p-8 md:p-12 max-w-md mx-auto hover:-translate-y-4 hover:shadow-2xl transition-all duration-300 ease-out">
               <div className="text-center mb-6">
                 <div className="text-5xl md:text-6xl font-bold mb-2">
-                  £50<span className="text-2xl text-muted-foreground">/month</span>
+                  £25<span className="text-2xl text-muted-foreground">/month</span>
                 </div>
                 <p className="text-muted-foreground">Unlimited written content generation</p>
               </div>

@@ -114,7 +114,7 @@ const TermsOfService = () => {
 
                 <h3 className="text-xl font-semibold mb-3 mt-6">5.2 Subscription Plans</h3>
                 <p className="mb-4">
-                  The Service is available through a monthly subscription plan priced at £50 per month ("Subscription Fee"). The Subscription Fee is 
+                  The Service is available through a monthly subscription plan priced at £25 per month ("Subscription Fee"). The Subscription Fee is 
                   billed monthly in advance and provides unlimited content generation.
                 </p>
                 <p className="mb-4">
