@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { List } from "phosphor-react";
+import { List, CheckCircle } from "phosphor-react";
 
 const languageNodes = [
   { id: 'en', name: 'English', color: 'hsl(100 13% 54%)', text: "Don't just broadcast. Converse. Bring your community closer, no matter what language they speak at home.", pos: { top: '40%', left: '50%' } },
@@ -607,6 +608,104 @@ const Index = () => {
             </div>
           </div>
 
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section id="pricing" className="py-20 md:py-28 bg-card relative z-10">
+        <div className="max-w-4xl mx-auto px-6 md:px-12">
+          <h2 className="text-3xl md:text-4xl font-playfair font-bold text-center mb-4">
+            Simple, honest pricing.
+          </h2>
+          <p className="text-lg text-muted-foreground text-center mb-12 max-w-xl mx-auto">
+            Professional ministry tools that fit your church budget.
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+            {/* Single Church */}
+            <Card className="shadow-[0_10px_40px_-10px_rgba(58,53,47,0.1),0_2px_10px_-2px_rgba(58,53,47,0.05)]">
+              <CardHeader className="text-center pb-4">
+                <CardTitle className="text-lg font-medium text-muted-foreground">Single Church</CardTitle>
+                <div className="mt-2">
+                  <span className="text-4xl font-playfair font-bold">£19</span>
+                  <span className="text-lg text-muted-foreground">/month</span>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 mb-8">
+                  <li className="flex items-center gap-3">
+                    <CheckCircle size={20} className="text-secondary flex-shrink-0" weight="fill" />
+                    <span className="text-sm">All 6 content types</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle size={20} className="text-secondary flex-shrink-0" weight="fill" />
+                    <span className="text-sm">15+ languages</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle size={20} className="text-secondary flex-shrink-0" weight="fill" />
+                    <span className="text-sm">Style guide matching</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle size={20} className="text-secondary flex-shrink-0" weight="fill" />
+                    <span className="text-sm">Sermon series tracking</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle size={20} className="text-secondary flex-shrink-0" weight="fill" />
+                    <span className="text-sm">PDF &amp; DOCX export</span>
+                  </li>
+                </ul>
+                <Button asChild className="w-full" size="lg">
+                  <Link to="/signup">Start 14-day free trial</Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Multi-site */}
+            <Card className="border-primary border-2 shadow-[0_10px_40px_-10px_rgba(58,53,47,0.1),0_2px_10px_-2px_rgba(58,53,47,0.05)]">
+              <CardHeader className="text-center pb-4">
+                <CardTitle className="text-lg font-medium text-muted-foreground">Multi-site</CardTitle>
+                <div className="mt-2">
+                  <span className="text-4xl font-playfair font-bold">£49</span>
+                  <span className="text-lg text-muted-foreground">/month</span>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 mb-8">
+                  <li className="flex items-center gap-3">
+                    <CheckCircle size={20} className="text-secondary flex-shrink-0" weight="fill" />
+                    <span className="text-sm">All 6 content types</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle size={20} className="text-secondary flex-shrink-0" weight="fill" />
+                    <span className="text-sm">15+ languages</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle size={20} className="text-secondary flex-shrink-0" weight="fill" />
+                    <span className="text-sm">Style guide matching</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle size={20} className="text-secondary flex-shrink-0" weight="fill" />
+                    <span className="text-sm">Sermon series tracking</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle size={20} className="text-secondary flex-shrink-0" weight="fill" />
+                    <span className="text-sm">PDF &amp; DOCX export</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle size={20} className="text-secondary flex-shrink-0" weight="fill" />
+                    <span className="text-sm">Multiple church profiles</span>
+                  </li>
+                </ul>
+                <Button asChild className="w-full" size="lg">
+                  <Link to="/signup">Start 14-day free trial</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          <p className="text-sm text-muted-foreground text-center mt-8">
+            14-day free trial. No credit card required.
+          </p>
         </div>
       </section>
     </div>
