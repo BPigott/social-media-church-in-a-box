@@ -6,12 +6,34 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { List } from "phosphor-react";
 
+const languageNodes = [
+  { id: 'en', name: 'English', color: 'hsl(100 13% 54%)', text: "Don't just broadcast. Converse. Bring your community closer, no matter what language they speak at home.", pos: { top: '40%', left: '50%' } },
+  { id: 'es', name: 'Español', color: 'hsl(10 56% 54%)', text: "No solo transmitas. Conversa. Acerca a tu comunidad, sin importar el idioma que hablen en casa.", pos: { top: '15%', left: '25%' } },
+  { id: 'kr', name: '한국어', color: 'hsl(36 62% 57%)', text: "단순히 방송하지 마십시오. 대화하십시오. 집에서 어떤 언어를 사용하든 커뮤니티를 더 가깝게 만드십시오.", pos: { top: '65%', left: '80%' } },
+  { id: 'ar', name: 'العربية', color: 'hsl(24 14% 42%)', text: "لا تكتفِ بالبث. تواصل. قرّب مجتمعك، بغض النظر عن اللغة التي يتحدثون بها في المنزل.", pos: { top: '20%', left: '70%' } },
+  { id: 'cy', name: 'Cymraeg', color: 'hsl(10 56% 54%)', text: "Peidiwch â darlledu yn unig. Sgwrsiwch. Dewch â'ch cymuned yn nes, ni waeth pa iaith y maent yn ei siarad gartref.", pos: { top: '70%', left: '20%' } },
+];
+
 const Index = () => {
   const { user } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [activeLang, setActiveLang] = useState(languageNodes[0]);
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden font-inter">
+    <>
+      <style>{`
+        @keyframes float {
+          0% { transform: translate(-50%, -50%) translateY(0px) rotate(0deg); }
+          50% { transform: translate(-50%, -50%) translateY(-15px) rotate(2deg); }
+          100% { transform: translate(-50%, -50%) translateY(0px) rotate(0deg); }
+        }
+        .floating-node { animation: float 6s ease-in-out infinite; }
+        .floating-node:nth-child(2) { animation-delay: -2s; animation-duration: 7s; }
+        .floating-node:nth-child(3) { animation-delay: -4s; animation-duration: 5s; }
+        .floating-node:nth-child(4) { animation-delay: -1s; animation-duration: 8s; }
+        .floating-node:nth-child(5) { animation-delay: -3s; animation-duration: 6.5s; }
+      `}</style>
+      <div className="min-h-screen bg-background relative overflow-hidden font-inter">
       {/* Abstract background shapes */}
       <div
         className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full mix-blend-multiply blur-3xl opacity-20 pointer-events-none"
@@ -448,7 +470,62 @@ const Index = () => {
           </Tabs>
         </div>
       </section>
+
+      {/* Tapestry Map — Language Feature */}
+      <section className="py-20 md:py-28 bg-card relative z-10">
+        <div className="max-w-5xl mx-auto px-6 md:px-12 flex flex-col items-center">
+          {/* Section header */}
+          <div className="text-center max-w-2xl mb-16">
+            <h2 className="font-playfair text-4xl md:text-5xl font-bold mb-4">
+              Speak to their heart.
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Hover over a language to see how your pastoral voice translates across cultures. 15+ languages supported.
+            </p>
+          </div>
+
+          {/* Interactive Map Area */}
+          <div className="w-full max-w-4xl h-[500px] relative bg-background rounded-3xl overflow-hidden shadow-[0_10px_40px_-10px_rgba(58,53,47,0.1),0_2px_10px_-2px_rgba(58,53,47,0.05)] border border-border/50">
+
+            {/* Central Display Card */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-md bg-card p-8 rounded-2xl shadow-[0_10px_40px_-10px_rgba(58,53,47,0.1)] z-30 transition-all duration-500">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: activeLang.color }} />
+                <span className="font-bold text-lg" style={{ color: activeLang.color }}>{activeLang.name}</span>
+              </div>
+              <p className="text-xl font-medium leading-relaxed" dir={activeLang.id === 'ar' ? 'rtl' : 'ltr'}>
+                "{activeLang.text}"
+              </p>
+            </div>
+
+            {/* Floating Nodes */}
+            {languageNodes.map((lang) => (
+              <button
+                key={lang.id}
+                onMouseEnter={() => setActiveLang(lang)}
+                onClick={() => setActiveLang(lang)}
+                className={`floating-node absolute w-14 h-14 md:w-20 md:h-20 rounded-full flex items-center justify-center text-white font-bold text-sm md:text-lg transition-transform duration-300 hover:scale-110 focus:outline-none z-40 ${activeLang.id === lang.id ? 'ring-4 ring-white ring-offset-2 ring-offset-background scale-110' : ''}`}
+                style={{
+                  backgroundColor: lang.color,
+                  top: lang.pos.top,
+                  left: lang.pos.left,
+                  boxShadow: `0 10px 20px -5px ${lang.color}80`
+                }}
+                aria-label={`View translation in ${lang.name}`}
+              >
+                {lang.id.toUpperCase()}
+              </button>
+            ))}
+          </div>
+
+          {/* Note below map */}
+          <p className="text-muted-foreground text-center mt-6 text-sm">
+            Also available in: French, Portuguese, German, Mandarin, Hindi, Tagalog, and more.
+          </p>
+        </div>
+      </section>
     </div>
+    </>
   );
 };
 
