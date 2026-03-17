@@ -81,7 +81,9 @@ export interface GeneratedContent {
   posts_per_platform?: number | null;
   bible_study_guide?: string | null;
   output_language?: string;
-  content_types?: ('social_media' | 'bible_study' | 'devotional')[];
+  podcast_description?: string | null;
+  podcast_description_english?: string | null;
+  content_types?: ('social_media' | 'bible_study' | 'devotional' | 'podcast_description')[];
 }
 
 export type Platform = 'facebook' | 'instagram' | 'tiktok' | 'twitter';

@@ -104,6 +104,8 @@ export type Database = {
           output_language: string | null
           output_languages: string[] | null
           platforms: Json
+          podcast_description: string | null
+          podcast_description_english: string | null
           posts_per_platform: number | null
           sermon_transcript_id: string | null
           tiktok_post: string[] | null
@@ -129,6 +131,8 @@ export type Database = {
           output_language?: string | null
           output_languages?: string[] | null
           platforms?: Json
+          podcast_description?: string | null
+          podcast_description_english?: string | null
           posts_per_platform?: number | null
           sermon_transcript_id?: string | null
           tiktok_post?: string[] | null
@@ -154,6 +158,8 @@ export type Database = {
           output_language?: string | null
           output_languages?: string[] | null
           platforms?: Json
+          podcast_description?: string | null
+          podcast_description_english?: string | null
           posts_per_platform?: number | null
           sermon_transcript_id?: string | null
           tiktok_post?: string[] | null
