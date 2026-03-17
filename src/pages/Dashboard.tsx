@@ -348,6 +348,14 @@ const Dashboard = () => {
   const [selectedSeriesId, setSelectedSeriesId] = useState<string | null>(null);
   const [seriesWeekNumber, setSeriesWeekNumber] = useState<number | null>(null);
 
+  // Generation mode state
+  const [generationMode, setGenerationMode] = useState<'sermon' | 'event'>('sermon');
+  const [eventName, setEventName] = useState("");
+  const [eventDate, setEventDate] = useState("");
+  const [eventLocation, setEventLocation] = useState("");
+  const [eventDescription, setEventDescription] = useState("");
+  const [signupLink, setSignupLink] = useState("");
+
   // Editing state for inline content editing
   const [editingContent, setEditingContent] = useState<Record<string, boolean>>({});
   const [editedContent, setEditedContent] = useState<Record<string, string>>({});
@@ -1348,16 +1356,27 @@ const Dashboard = () => {
       return;
     }
 
-    const hasTranscript = transcriptText.trim().length >= 100;
-    const hasCTA = customCTA.trim().length >= 10;
-    
-    if (!hasTranscript && !hasCTA) {
-      toast({
-        variant: "destructive",
-        title: "No content source",
-        description: "Please provide either a sermon transcript (100+ words) or call-to-action/event information (10+ words)."
-      });
-      return;
+    if (generationMode === 'event') {
+      if (!eventName.trim()) {
+        toast({
+          variant: "destructive",
+          title: "Event name required",
+          description: "Please provide an event name to generate promotional content."
+        });
+        return;
+      }
+    } else {
+      const hasTranscript = transcriptText.trim().length >= 100;
+      const hasCTA = customCTA.trim().length >= 10;
+
+      if (!hasTranscript && !hasCTA) {
+        toast({
+          variant: "destructive",
+          title: "No content source",
+          description: "Please provide either a sermon transcript (100+ words) or call-to-action/event information (10+ words)."
+        });
+        return;
+      }
     }
 
     if (contentTypes.includes('social_media') && platforms.length === 0) {
@@ -1393,10 +1412,18 @@ const Dashboard = () => {
         contentTypes,
         outputLanguages,
         primaryLanguage,
-        seriesName: selectedSeriesId ? seriesList.find(s => s.id === selectedSeriesId)?.name || null : null,
-        seriesDescription: selectedSeriesId ? seriesList.find(s => s.id === selectedSeriesId)?.description || null : null,
-        seriesWeekNumber: seriesWeekNumber || null,
-        seriesTotalWeeks: selectedSeriesId ? seriesList.find(s => s.id === selectedSeriesId)?.total_weeks || null : null,
+        seriesName: generationMode === 'sermon' && selectedSeriesId ? seriesList.find(s => s.id === selectedSeriesId)?.name || null : null,
+        seriesDescription: generationMode === 'sermon' && selectedSeriesId ? seriesList.find(s => s.id === selectedSeriesId)?.description || null : null,
+        seriesWeekNumber: generationMode === 'sermon' ? seriesWeekNumber || null : null,
+        seriesTotalWeeks: generationMode === 'sermon' && selectedSeriesId ? seriesList.find(s => s.id === selectedSeriesId)?.total_weeks || null : null,
+        generationMode,
+        eventDetails: generationMode === 'event' ? {
+          eventName: eventName.trim(),
+          eventDate: eventDate || null,
+          eventLocation: eventLocation.trim() || null,
+          eventDescription: eventDescription.trim() || null,
+          signupLink: signupLink.trim() || null,
+        } : null,
       };
 
       console.log('=== FRONTEND REQUEST ===');
@@ -1432,6 +1459,28 @@ const Dashboard = () => {
         if (!post) return null;
         return Array.isArray(post) ? post : [post];
       };
+      // Save event to church_events table if in event mode
+      let savedEventId: string | null = null;
+      if (generationMode === 'event' && eventName.trim()) {
+        const { data: eventData, error: eventError } = await supabase
+          .from('church_events')
+          .insert({
+            church_id: primaryChurch.id,
+            event_name: eventName.trim(),
+            event_date: eventDate || null,
+            event_location: eventLocation.trim() || null,
+            event_description: eventDescription.trim() || null,
+            signup_link: signupLink.trim() || null,
+          })
+          .select('id')
+          .single();
+        if (eventError) {
+          console.error('Event save error:', eventError);
+        } else {
+          savedEventId = eventData.id;
+        }
+      }
+
       const {
         error: insertError
       } = await supabase.from('generated_content').insert({
@@ -1456,8 +1505,10 @@ const Dashboard = () => {
         podcast_description_english: data.englishVersions?.podcastDescription || null,
         email_newsletter: data.emailNewsletter || null,
         email_newsletter_english: data.englishVersions?.emailNewsletter || null,
-        sermon_series_id: selectedSeriesId || null,
-        series_week_number: seriesWeekNumber || null,
+        sermon_series_id: generationMode === 'sermon' ? selectedSeriesId || null : null,
+        series_week_number: generationMode === 'sermon' ? seriesWeekNumber || null : null,
+        church_event_id: savedEventId,
+        generation_mode: generationMode,
         output_language: primaryLanguage,
         content_types: contentTypes,
         output_languages: outputLanguages
@@ -1484,8 +1535,10 @@ const Dashboard = () => {
           bible_study_guide_english: data.englishVersions?.bibleStudyGuide || null,
           podcast_description: data.podcastDescription || null,
           podcast_description_english: data.englishVersions?.podcastDescription || null,
-          sermon_series_id: selectedSeriesId || null,
-          series_week_number: seriesWeekNumber || null,
+          sermon_series_id: generationMode === 'sermon' ? selectedSeriesId || null : null,
+          series_week_number: generationMode === 'sermon' ? seriesWeekNumber || null : null,
+          church_event_id: savedEventId,
+          generation_mode: generationMode,
           email_newsletter: data.emailNewsletter || null,
           email_newsletter_english: data.englishVersions?.emailNewsletter || null,
           output_language: primaryLanguage,
@@ -1715,8 +1768,102 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Sermon Upload Section */}
-              <div>
+              {/* Generation Mode Toggle */}
+              <div className="space-y-2">
+                <Label>What are you creating content from?</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setGenerationMode('sermon')}
+                    className={`p-4 rounded-lg border-2 text-left transition-all ${
+                      generationMode === 'sermon'
+                        ? 'border-primary bg-primary/10'
+                        : 'border-muted hover:border-primary/50'
+                    }`}
+                  >
+                    <p className="font-semibold text-sm">From a Sermon</p>
+                    <p className="text-xs text-muted-foreground mt-1">Generate content from a sermon transcript</p>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setGenerationMode('event')}
+                    className={`p-4 rounded-lg border-2 text-left transition-all ${
+                      generationMode === 'event'
+                        ? 'border-primary bg-primary/10'
+                        : 'border-muted hover:border-primary/50'
+                    }`}
+                  >
+                    <p className="font-semibold text-sm">Promote an Event</p>
+                    <p className="text-xs text-muted-foreground mt-1">Create promotional content for a specific event</p>
+                  </button>
+                </div>
+              </div>
+
+              {/* Event Details Fields - Only in Event Mode */}
+              {generationMode === 'event' && (
+                <Card className="border-2 border-primary/30 bg-primary/5">
+                  <CardContent className="pt-6">
+                    <div className="space-y-4">
+                      <div>
+                        <Label className="text-base font-semibold">Event Details</Label>
+                        <p className="text-xs text-muted-foreground mt-1">Fill in the details of the event you want to promote</p>
+                      </div>
+                      <div>
+                        <Label htmlFor="event-name">Event Name *</Label>
+                        <Input
+                          id="event-name"
+                          placeholder="e.g., Christmas Eve Service, Alpha Course, Youth Camp"
+                          value={eventName}
+                          onChange={e => setEventName(e.target.value)}
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label htmlFor="event-date">Date & Time</Label>
+                          <Input
+                            id="event-date"
+                            type="datetime-local"
+                            value={eventDate}
+                            onChange={e => setEventDate(e.target.value)}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="event-location">Location</Label>
+                          <Input
+                            id="event-location"
+                            placeholder="e.g., Main Hall, Church Campus"
+                            value={eventLocation}
+                            onChange={e => setEventLocation(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <Label htmlFor="event-description">Event Description</Label>
+                        <Textarea
+                          id="event-description"
+                          placeholder="What is this event about? Who is it for? What can people expect?"
+                          value={eventDescription}
+                          onChange={e => setEventDescription(e.target.value)}
+                          rows={3}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="signup-link">Sign-up / Registration Link</Label>
+                        <Input
+                          id="signup-link"
+                          type="url"
+                          placeholder="https://..."
+                          value={signupLink}
+                          onChange={e => setSignupLink(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Sermon Upload Section - Only in Sermon Mode */}
+              {generationMode === 'sermon' && <div>
                 <Label htmlFor="transcript-upload" className="cursor-pointer">
                   <div className={`border-2 border-dashed rounded-lg p-8 text-center transition-all ${dragActive ? "border-primary bg-primary/5 scale-[1.02]" : "border-muted-foreground hover:border-primary"}`} onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop}>
                     <Upload size={40} className={`mx-auto mb-2 transition-all ${dragActive ? "text-primary scale-110" : "text-muted-foreground"}`} />
@@ -1738,22 +1885,25 @@ const Dashboard = () => {
                           </span>)}
                     </div>
                   </div>}
-              </div>
+              </div>}
 
-              <Card className="border-2 border-primary/30 bg-primary/5">
-                <CardContent className="pt-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="speaker-name">Who was preaching? (Optional)</Label>
-                    <Input id="speaker-name" placeholder="e.g., Pastor John, Rob Smith, Sarah Johnson" value={speakerName} onChange={e => setSpeakerName(e.target.value)} />
-                    <p className="text-xs text-muted-foreground">
-                      Adding the speaker's name helps personalise the content
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Speaker Name - Only in Sermon Mode */}
+              {generationMode === 'sermon' && (
+                <Card className="border-2 border-primary/30 bg-primary/5">
+                  <CardContent className="pt-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="speaker-name">Who was preaching? (Optional)</Label>
+                      <Input id="speaker-name" placeholder="e.g., Pastor John, Rob Smith, Sarah Johnson" value={speakerName} onChange={e => setSpeakerName(e.target.value)} />
+                      <p className="text-xs text-muted-foreground">
+                        Adding the speaker's name helps personalise the content
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
-              {/* Sermon Series Selection */}
-              {primaryChurch && (
+              {/* Sermon Series Selection - Only in Sermon Mode */}
+              {generationMode === 'sermon' && primaryChurch && (
                 <Card className="border-2 border-primary/30 bg-primary/5">
                   <CardContent className="pt-6">
                     <SeriesSelector
@@ -1769,34 +1919,50 @@ const Dashboard = () => {
                 </Card>
               )}
 
-              {/* Events, Announcements & Calls-to-Action - Prominent Section */}
+              {/* Additional Context / CTA Section */}
               <Card className="border-2 border-primary/30 bg-primary/5">
                 <CardContent className="pt-6">
                   <div className="space-y-3">
                     <div>
-                      <Label htmlFor="custom-cta" className="text-base font-semibold">Events, Announcements & Calls-to-Action</Label>
+                      <Label htmlFor="custom-cta" className="text-base font-semibold">
+                        {generationMode === 'event' ? 'Additional Context (Optional)' : 'Events, Announcements & Calls-to-Action'}
+                      </Label>
                       <p className="text-sm text-muted-foreground mt-2 mb-3">
-                        {transcriptText.trim() ? 
-                          'Add specific themes, announcements, or calls-to-action to include in your posts. Examples:' :
-                          'Required if no sermon uploaded. Include specific events, themes, or messages. Examples:'
+                        {generationMode === 'event' ?
+                          'Add any extra context to include alongside the event details above. Examples:' :
+                          transcriptText.trim() ?
+                            'Add specific themes, announcements, or calls-to-action to include in your posts. Examples:' :
+                            'Required if no sermon uploaded. Include specific events, themes, or messages. Examples:'
                         }
                       </p>
                       <ul className="text-sm text-muted-foreground space-y-1 mb-3 ml-4">
-                        <li className="list-disc">Birthday celebrations, baptisms, or special events</li>
-                        <li className="list-disc">New Alpha course or small group starting</li>
-                        <li className="list-disc">Visit our website, register for an event, or volunteer</li>
-                        <li className="list-disc">Christmas services, Easter celebrations, prayer nights</li>
+                        {generationMode === 'event' ? (
+                          <>
+                            <li className="list-disc">Special guests or speakers attending</li>
+                            <li className="list-disc">What to bring or how to prepare</li>
+                            <li className="list-disc">Related events or follow-up activities</li>
+                          </>
+                        ) : (
+                          <>
+                            <li className="list-disc">Birthday celebrations, baptisms, or special events</li>
+                            <li className="list-disc">New Alpha course or small group starting</li>
+                            <li className="list-disc">Visit our website, register for an event, or volunteer</li>
+                            <li className="list-disc">Christmas services, Easter celebrations, prayer nights</li>
+                          </>
+                        )}
                       </ul>
                     </div>
-                    <Textarea 
-                      id="custom-cta" 
-                      placeholder={transcriptText.trim() ? 
-                        "E.g., 'Join us for our new Alpha course starting next Sunday' or 'Celebrating 50 years of ministry this month!'" :
-                        "E.g., 'Join us for our Christmas Eve service at 7pm' or 'New Alpha course starting January 15th - register today!'"
-                      } 
-                      value={customCTA} 
-                      onChange={e => setCustomCTA(e.target.value)} 
-                      rows={4}
+                    <Textarea
+                      id="custom-cta"
+                      placeholder={generationMode === 'event' ?
+                        "E.g., 'Childcare will be provided' or 'Refreshments served afterwards'" :
+                        transcriptText.trim() ?
+                          "E.g., 'Join us for our new Alpha course starting next Sunday' or 'Celebrating 50 years of ministry this month!'" :
+                          "E.g., 'Join us for our Christmas Eve service at 7pm' or 'New Alpha course starting January 15th - register today!'"
+                      }
+                      value={customCTA}
+                      onChange={e => setCustomCTA(e.target.value)}
+                      rows={generationMode === 'event' ? 2 : 4}
                       className="font-medium"
                     />
                   </div>
@@ -1881,21 +2047,22 @@ const Dashboard = () => {
                 </div>
               )}
 
-              <Button 
-                onClick={handleGenerate} 
+              <Button
+                onClick={handleGenerate}
                 disabled={
-                  contentTypes.length === 0 || 
-                  (!transcriptText.trim() && !customCTA.trim()) ||
+                  contentTypes.length === 0 ||
+                  (generationMode === 'sermon' && !transcriptText.trim() && !customCTA.trim()) ||
+                  (generationMode === 'event' && !eventName.trim()) ||
                   (contentTypes.includes('social_media') && platforms.length === 0) ||
                   generating
-                } 
-                className="w-full" 
+                }
+                className="w-full"
                 size="lg"
               >
                 {generating ? <>
                     <CircleNotch size={16} className="mr-2 animate-spin" />
                     Generating...
-                  </> : `Generate ${contentTypes.includes('social_media') && contentTypes.includes('bible_study') && contentTypes.includes('devotional') ? 'Content' : contentTypes.includes('social_media') && contentTypes.includes('bible_study') ? 'Social Media & Bible Study' : contentTypes.includes('social_media') && contentTypes.includes('devotional') ? 'Social Media & Devotional' : contentTypes.includes('bible_study') && contentTypes.includes('devotional') ? 'Bible Study & Devotional' : contentTypes.includes('social_media') ? 'Social Media Posts' : contentTypes.includes('bible_study') ? 'Bible Study Guide' : contentTypes.includes('devotional') ? 'Daily Devotional' : 'Content'}`}
+                  </> : generationMode === 'event' ? 'Generate Event Content' : `Generate ${contentTypes.includes('social_media') && contentTypes.includes('bible_study') && contentTypes.includes('devotional') ? 'Content' : contentTypes.includes('social_media') && contentTypes.includes('bible_study') ? 'Social Media & Bible Study' : contentTypes.includes('social_media') && contentTypes.includes('devotional') ? 'Social Media & Devotional' : contentTypes.includes('bible_study') && contentTypes.includes('devotional') ? 'Bible Study & Devotional' : contentTypes.includes('social_media') ? 'Social Media Posts' : contentTypes.includes('bible_study') ? 'Bible Study Guide' : contentTypes.includes('devotional') ? 'Daily Devotional' : 'Content'}`}
               </Button>
             </CardContent>
           </Card>

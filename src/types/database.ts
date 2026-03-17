@@ -87,6 +87,8 @@ export interface GeneratedContent {
   email_newsletter_english?: string | null;
   sermon_series_id?: string | null;
   series_week_number?: number | null;
+  church_event_id?: string | null;
+  generation_mode?: 'sermon' | 'event';
   content_types?: ('social_media' | 'bible_study' | 'devotional' | 'podcast_description' | 'email_newsletter')[];
 }
 
@@ -98,6 +100,17 @@ export interface SermonSeries {
   total_weeks: number | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface ChurchEvent {
+  id: string;
+  church_id: string;
+  event_name: string;
+  event_date: string | null;
+  event_location: string | null;
+  event_description: string | null;
+  signup_link: string | null;
+  created_at: string;
 }
 
 export type Platform = 'facebook' | 'instagram' | 'tiktok' | 'twitter';
