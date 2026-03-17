@@ -17,6 +17,11 @@ export function useAuth() {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // On first sign-in, ensure a trial subscription exists
+        if (event === 'SIGNED_IN' && session) {
+          supabase.functions.invoke('create-trial').catch(console.error);
+        }
       }
     );
 
