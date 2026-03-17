@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useChurch } from "@/hooks/useChurch";
 import { supabase } from "@/integrations/supabase/client";
 import { Navigation } from "@/components/Navigation";
+import { TrialBanner } from "@/components/TrialBanner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -271,6 +272,7 @@ const Settings = () => {
   return (
     <>
       <Navigation />
+      <TrialBanner />
       <div className="min-h-screen bg-background p-8">
       <div className="max-w-6xl mx-auto space-y-8">
         <div className="flex items-center justify-between">
