@@ -130,7 +130,7 @@ serve(async (req)=>{
     
     const { transcript, styleGuide, platforms: rawPlatforms, customCTA, churchId, postsPerPlatform = 1, speakerName, socialHandles, contentTypes = [
       'social_media'
-    ], outputLanguages = ['en'], primaryLanguage = 'en' } = requestBody;
+    ], outputLanguages = ['en'], primaryLanguage = 'en', seriesName, seriesDescription, seriesWeekNumber, seriesTotalWeeks } = requestBody;
     
     // Normalize platforms to always be an array
     const platforms = Array.isArray(rawPlatforms) ? rawPlatforms : (rawPlatforms ? [rawPlatforms] : []);
@@ -375,6 +375,18 @@ ${hasTranscript ? 'Generate content based on the sermon transcript provided belo
 ${hasSocialMedia ? 'Create social media posts optimized for each platform.' : ''}
 ${hasBibleStudy ? 'Create a comprehensive Bible Study Guide with scripture references and discussion questions.' : ''}
 ${hasDevotional ? 'Create a daily devotional following the Blended Approach style guide.' : ''}
+
+${seriesName ? `
+# Sermon Series Context
+This sermon is part of the series: "${seriesName}"${seriesWeekNumber ? ` (Week ${seriesWeekNumber}${seriesTotalWeeks ? ` of ${seriesTotalWeeks}` : ''})` : ''}
+${seriesDescription ? `Series Theme: ${seriesDescription}` : ''}
+
+SERIES INTEGRATION INSTRUCTIONS:
+- Reference the series name "${seriesName}" naturally in ALL content types generated
+- Create a sense of continuity and progression within the series
+- Include a series-specific hashtag like #${seriesName.replace(/[^a-zA-Z0-9]/g, '')} in social media posts
+- Frame content within the broader series narrative${seriesWeekNumber ? ` — this is week ${seriesWeekNumber}${seriesTotalWeeks ? ` of ${seriesTotalWeeks}` : ''}, so acknowledge where we are in the journey` : ''}
+` : ''}
 
 # Content Source
 ${hasTranscript ? `
