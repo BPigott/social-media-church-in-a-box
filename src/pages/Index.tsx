@@ -524,6 +524,91 @@ const Index = () => {
           </p>
         </div>
       </section>
+
+      {/* Features — 3 Focused Blocks */}
+      <section id="features" className="py-20 md:py-28 relative z-10">
+        <div className="max-w-6xl mx-auto px-6 md:px-12">
+
+          {/* Block 1: Your voice, not ours */}
+          <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+            {/* Text side — left on desktop */}
+            <div>
+              <h3 className="text-3xl md:text-4xl font-playfair font-bold mb-6">Your voice, not ours.</h3>
+              <p className="text-lg text-muted-foreground leading-relaxed">Ivangel crawls your church website and learns your tone, vocabulary, and style. Every output sounds like you wrote it — because it's built on your words, your theology, your heart for your community.</p>
+            </div>
+            {/* Visual side — right on desktop */}
+            <div
+              className="w-full h-72 rounded-3xl p-8 flex flex-col justify-end -rotate-2 bg-primary"
+              style={{ boxShadow: "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)" }}
+            >
+              <div
+                className="bg-card p-6 rounded-2xl w-4/5 ml-auto translate-y-4"
+                style={{ boxShadow: "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)" }}
+              >
+                <p className="font-semibold mb-1">Voice Match: 94%</p>
+                <p className="text-sm text-muted-foreground">Grace Community Church</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Block 2: Series-aware content */}
+          <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center mt-20">
+            {/* Visual side — left on desktop */}
+            <div
+              className="order-2 md:order-1 w-full h-72 rounded-3xl p-8 flex flex-col justify-center rotate-2 bg-secondary"
+              style={{ boxShadow: "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)" }}
+            >
+              <div className="flex items-center gap-4">
+                <div
+                  className="bg-card p-4 rounded-xl w-2/5"
+                  style={{ boxShadow: "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)" }}
+                >
+                  <p className="font-semibold text-sm mb-2">Week 3</p>
+                  <div className="w-full h-2 bg-muted rounded-full mb-1.5" />
+                  <div className="w-4/5 h-2 bg-muted rounded-full" />
+                </div>
+                <div className="border-t-2 border-dashed border-white/40 w-8 flex-shrink-0" />
+                <div
+                  className="bg-card p-4 rounded-xl w-2/5"
+                  style={{ boxShadow: "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)" }}
+                >
+                  <p className="font-semibold text-sm mb-2">Week 4</p>
+                  <div className="w-full h-2 bg-muted rounded-full mb-1.5" />
+                  <div className="w-4/5 h-2 bg-muted rounded-full" />
+                </div>
+              </div>
+            </div>
+            {/* Text side — right on desktop */}
+            <div className="order-1 md:order-2">
+              <h3 className="text-3xl md:text-4xl font-playfair font-bold mb-6">Series-aware content.</h3>
+              <p className="text-lg text-muted-foreground leading-relaxed">Running a sermon series? Ivangel connects this week's message to last week's. Cross-references, callbacks, and continuity across every content type — your community gets a coherent journey, not isolated fragments.</p>
+            </div>
+          </div>
+
+          {/* Block 3: Every platform, ready to go */}
+          <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center mt-20">
+            {/* Text side — left on desktop */}
+            <div>
+              <h3 className="text-3xl md:text-4xl font-playfair font-bold mb-6">Every platform, ready to go.</h3>
+              <p className="text-lg text-muted-foreground leading-relaxed">Optimised for Facebook, Instagram, TikTok, X, email, and podcast directories. Export as PDF, DOCX, or copy to clipboard. Social handles auto-inserted. Your content, your way.</p>
+            </div>
+            {/* Visual side — right on desktop */}
+            <div
+              className="w-full h-72 rounded-3xl p-8 flex flex-wrap items-center justify-center gap-3 -rotate-1 bg-accent/20 border border-accent/30"
+              style={{ boxShadow: "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)" }}
+            >
+              <span className="bg-card rounded-lg px-4 py-2 text-sm font-medium shadow-sm">Facebook</span>
+              <span className="bg-card rounded-lg px-4 py-2 text-sm font-medium shadow-sm">Instagram</span>
+              <span className="bg-card rounded-lg px-4 py-2 text-sm font-medium shadow-sm">TikTok</span>
+              <span className="bg-card rounded-lg px-4 py-2 text-sm font-medium shadow-sm">X</span>
+              <span className="bg-card rounded-lg px-4 py-2 text-sm font-medium shadow-sm">PDF</span>
+              <span className="bg-card rounded-lg px-4 py-2 text-sm font-medium shadow-sm">DOCX</span>
+              <span className="bg-card rounded-lg px-4 py-2 text-sm font-medium shadow-sm">Clipboard</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
     </div>
     </>
   );
