@@ -1,7 +1,7 @@
 # Landing Page Redesign — Design Spec
 
 **Date:** 2026-03-17
-**Status:** Draft
+**Status:** Review v2
 **File:** `src/pages/Index.tsx`
 
 ## Context
@@ -22,17 +22,17 @@ Ivangel is a React/TS/Vite SaaS that generates social media content, bible studi
 
 ### Color Palette
 
-Applied as CSS custom properties, consumed through Tailwind's existing `hsl(var(--*))` pattern.
+Applied as CSS custom properties in HSL space-separated format (matching existing `src/index.css` convention), consumed through Tailwind's `hsl(var(--*))` pattern.
 
-| Role | Name | Hex | CSS Variable | Usage |
-|------|------|-----|-------------|-------|
-| Background | Sand | `#f5f2eb` | `--background` | Page bg, alternating sections |
-| Foreground | Earth | `#3a352f` | `--foreground` | Headlines, primary text |
-| Primary | Terracotta | `#cb5d47` | `--primary` | CTAs, brand accents |
-| Secondary | Sage | `#8b997b` | `--secondary` | Badges, supporting accents |
-| Muted text | Clay | `#7c6a5d` | `--muted-foreground` | Body text, secondary copy |
-| Accent | Ochre | `#d69f4c` | `--accent` | Warm highlights, pricing |
-| Card surface | White | `#ffffff` | `--card` | Card backgrounds |
+| Role | Name | HSL Value | CSS Variable | Usage |
+|------|------|-----------|-------------|-------|
+| Background | Sand | `38 28% 94%` | `--background` | Page bg, alternating sections |
+| Foreground | Earth | `30 10% 20%` | `--foreground` | Headlines, primary text |
+| Primary | Terracotta | `10 56% 54%` | `--primary` | CTAs, brand accents |
+| Secondary | Sage | `100 13% 54%` | `--secondary` | Badges, supporting accents |
+| Muted text | Clay | `24 14% 42%` | `--muted-foreground` | Body text, secondary copy |
+| Accent | Ochre | `36 62% 57%` | `--accent` | Warm highlights, pricing |
+| Card surface | White | `0 0% 100%` | `--card` | Card backgrounds |
 
 ### Visual Texture
 
@@ -54,12 +54,12 @@ Applied as CSS custom properties, consumed through Tailwind's existing `hsl(var(
 
 ## Page Structure
 
-### 1. Navigation
+### 1. Navigation (enhancement beyond chunk-7 scope — added for UX)
 
 - **Left:** Logo — terracotta circle dot + "Ivangel" in Playfair bold
 - **Center (desktop):** Links — How It Works, Features, Pricing, FAQ (anchor links)
-- **Right:** CTA button — "Start Free Trial" when logged out, "Go to Dashboard" when logged in (`useAuth`)
-- **Mobile:** Hamburger menu with slide-out drawer
+- **Right:** CTA button — "Start Free Trial" when logged out → `/signup`, "Go to Dashboard" when logged in → `/dashboard` (via `useAuth`)
+- **Mobile:** Hamburger menu using shadcn `Sheet` component (slide-out drawer)
 - Sticky on scroll with subtle background blur
 
 ### 2. Hero
@@ -109,7 +109,7 @@ Applied as CSS custom properties, consumed through Tailwind's existing `hsl(var(
   5. **Email Newsletters** — "Subject line, preview text, and full draft. 400-600 words, structured sections."
   6. **Event Promotions** — "Not from a sermon — structured event fields for announcements, outreach, and special services."
 
-### 6. The Tapestry Map — Language Feature
+### 6. The Tapestry Map — Language Feature (replaces chunk-7's "multi-language" feature block — elevated to signature interactive section)
 
 - White background
 - **Headline (Playfair):** "Speak to their heart."
@@ -137,9 +137,9 @@ Applied as CSS custom properties, consumed through Tailwind's existing `hsl(var(
 - Text: "Running a sermon series? Ivangel connects this week's message to last week's. Cross-references, callbacks, and continuity across every content type."
 - Visual: Two connected sermon cards with a visual thread between them
 
-**Block 3: "Export everything"**
-- Text: "Copy to clipboard, download as PDF or DOCX, social handles auto-inserted. Your content, your way."
-- Visual: Row of format badges (PDF, DOCX, clipboard icon)
+**Block 3: "Every platform, ready to go"**
+- Text: "Optimised for Facebook, Instagram, TikTok, X, email, and podcast directories. Export as PDF, DOCX, or copy to clipboard. Social handles auto-inserted."
+- Visual: Row of platform + format badges (Facebook, Instagram, TikTok, X, PDF, DOCX)
 
 ### 8. Pricing — Two Tiers
 
@@ -179,12 +179,12 @@ Applied as CSS custom properties, consumed through Tailwind's existing `hsl(var(
 - **Headline (Playfair, white):** "Ready to give your team their week back?"
 - **Subheadline (Inter, sand):** "Join the beta. Keep your voice. Save your team hours. Welcome everyone in their language."
 - **CTA:** Button with sand/white bg, earth text — "Start your 14-day free trial" → `/signup`
-- **Secondary link:** "View example outputs" (text link)
+- No secondary link (no example outputs page exists yet)
 
 ### 11. Footer
 
 - Sand background, subtle top border
-- **Left:** Ivangel logo (ochre dot + text)
+- **Left:** Ivangel logo (terracotta dot + text — matches nav)
 - **Center:** Links — Terms of Service (`/terms`), Privacy, Support
 - **Right:** "IN FOCUS OPERATIONS LIMITED, Company No. 16707659"
 - **Bottom center:** "Built with care for the modern church."
@@ -230,7 +230,7 @@ Applied as CSS custom properties, consumed through Tailwind's existing `hsl(var(
 - [ ] ToS link: `/terms`
 - [ ] Text-only product — made clear in hero copy and FAQ
 - [ ] CTA → `/signup`
-- [ ] Auth-aware: logged in → "Go to Dashboard" via `useAuth`
+- [ ] Auth-aware: logged in → "Go to Dashboard" → `/dashboard` via `useAuth`
 - [ ] FAQ accordion values unique (`item-1` through `item-5`)
 - [ ] No blue/indigo colours
 - [ ] No new UI libraries — shadcn/ui, Tailwind, phosphor-react only
@@ -240,4 +240,4 @@ Applied as CSS custom properties, consumed through Tailwind's existing `hsl(var(
 ## Files Modified
 
 - `src/pages/Index.tsx` — full replacement
-- `src/index.css` (or equivalent) — updated CSS custom properties for new colour palette
+- `src/index.css` — updated CSS custom properties for new colour palette
