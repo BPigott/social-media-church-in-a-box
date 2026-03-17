@@ -40,11 +40,6 @@ async function createJWT(credentials: ServiceAccountCredentials): Promise<string
 
   // Import the private key
   const privateKey = credentials.private_key.replace(/\\n/g, '\n');
-  console.log('=== DEBUG: Private Key Processing ===');
-  console.log('Original private key length:', credentials.private_key.length);
-  console.log('Processed private key length:', privateKey.length);
-  console.log('Has BEGIN marker:', privateKey.includes('-----BEGIN PRIVATE KEY-----'));
-  console.log('Has END marker:', privateKey.includes('-----END PRIVATE KEY-----'));
   const key = await crypto.subtle.importKey(
     'pkcs8',
     pemToArrayBuffer(privateKey),
@@ -88,12 +83,6 @@ function pemToArrayBuffer(pem: string): ArrayBuffer {
  */
 async function getAccessToken(credentials: ServiceAccountCredentials): Promise<string> {
   const jwt = await createJWT(credentials);
-
-  console.log('=== DEBUG: OAuth Request ===');
-  console.log('Client Email:', credentials.client_email);
-  console.log('Project ID:', credentials.project_id);
-  console.log('JWT Length:', jwt.length);
-  console.log('JWT Preview:', jwt.substring(0, 100) + '...');
 
   const response = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
