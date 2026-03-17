@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { List } from "phosphor-react";
 
 const Index = () => {
@@ -218,6 +219,233 @@ const Index = () => {
               <p className="text-muted-foreground">Review, tweak if you like, then copy or export. Done in minutes.</p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Content Types Tabbed Showcase */}
+      <section className="py-20 md:py-28 relative z-10">
+        <div className="max-w-5xl mx-auto px-6 md:px-12">
+          <h2 className="text-3xl md:text-4xl font-playfair font-bold text-center mb-4">
+            One sermon. Six ways to reach your community.
+          </h2>
+          <p className="text-lg text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
+            Choose the content types you need — Ivangel generates them all from a single transcript.
+          </p>
+
+          <Tabs defaultValue="social" className="w-full">
+            <TabsList className="flex flex-wrap justify-center gap-2 bg-transparent h-auto mb-8">
+              <TabsTrigger value="social" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium">
+                Social Media Posts
+              </TabsTrigger>
+              <TabsTrigger value="study" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium">
+                Bible Study Guides
+              </TabsTrigger>
+              <TabsTrigger value="devotional" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium">
+                Daily Devotionals
+              </TabsTrigger>
+              <TabsTrigger value="podcast" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium">
+                Podcast Descriptions
+              </TabsTrigger>
+              <TabsTrigger value="newsletter" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium">
+                Email Newsletters
+              </TabsTrigger>
+              <TabsTrigger value="event" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium">
+                Event Promotions
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Social Media Posts */}
+            <TabsContent value="social">
+              <div className="grid md:grid-cols-2 gap-8 items-center">
+                <div>
+                  <h3 className="text-2xl font-playfair font-bold mb-4">Social Media Posts</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Platform-optimised posts for Facebook, Instagram, TikTok, and X. Multiple variations, hashtags included.
+                  </p>
+                </div>
+                <div className="flex justify-center">
+                  <div
+                    className="bg-card rounded-2xl p-6 w-full max-w-sm rotate-2"
+                    style={{ boxShadow: "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)" }}
+                  >
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-8 h-8 rounded-full bg-accent" />
+                      <div>
+                        <p className="font-semibold text-sm text-card-foreground">Grace Community Church</p>
+                        <p className="text-xs text-muted-foreground">@gracechurch</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="w-full h-2 bg-muted rounded-full" />
+                      <div className="w-5/6 h-2 bg-muted rounded-full" />
+                      <div className="w-4/6 h-2 bg-muted rounded-full" />
+                    </div>
+                    <div className="mt-4 flex gap-2 flex-wrap">
+                      <span className="text-xs text-primary">#faith</span>
+                      <span className="text-xs text-primary">#sermon</span>
+                      <span className="text-xs text-primary">#community</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Bible Study Guides */}
+            <TabsContent value="study">
+              <div className="grid md:grid-cols-2 gap-8 items-center">
+                <div>
+                  <h3 className="text-2xl font-playfair font-bold mb-4">Bible Study Guides</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Discussion questions, scripture references, and application points. Ready for your small group leaders.
+                  </p>
+                </div>
+                <div className="flex justify-center">
+                  <div
+                    className="bg-card rounded-2xl p-6 w-full max-w-sm -rotate-1"
+                    style={{ boxShadow: "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)" }}
+                  >
+                    <p className="font-semibold text-card-foreground mb-4">Discussion Questions</p>
+                    <div className="space-y-3">
+                      {[1, 2, 3].map((n) => (
+                        <div key={n} className="flex gap-3 items-start">
+                          <span className="text-xs font-bold text-primary mt-0.5">{n}.</span>
+                          <div className="flex-1 space-y-1">
+                            <div className="w-full h-2 bg-muted rounded-full" />
+                            <div className="w-4/5 h-2 bg-muted rounded-full" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Daily Devotionals */}
+            <TabsContent value="devotional">
+              <div className="grid md:grid-cols-2 gap-8 items-center">
+                <div>
+                  <h3 className="text-2xl font-playfair font-bold mb-4">Daily Devotionals</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    A week of devotionals from one sermon. Blended format with scripture and reflection.
+                  </p>
+                </div>
+                <div className="flex justify-center">
+                  <div
+                    className="bg-card rounded-2xl p-6 w-full max-w-sm rotate-1"
+                    style={{ boxShadow: "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)" }}
+                  >
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Day 1</p>
+                    <p className="font-semibold text-card-foreground mb-4">Monday Devotional</p>
+                    <div className="space-y-2">
+                      <div className="w-full h-2 bg-muted rounded-full" />
+                      <div className="w-full h-2 bg-muted rounded-full" />
+                      <div className="w-3/4 h-2 bg-muted rounded-full" />
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-border">
+                      <p className="text-xs font-medium text-muted-foreground italic">Reflection prompt below...</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Podcast Descriptions */}
+            <TabsContent value="podcast">
+              <div className="grid md:grid-cols-2 gap-8 items-center">
+                <div>
+                  <h3 className="text-2xl font-playfair font-bold mb-4">Podcast Descriptions</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Episode summaries with timestamps, tags, and SEO-friendly descriptions. 150–250 words.
+                  </p>
+                </div>
+                <div className="flex justify-center">
+                  <div
+                    className="bg-card rounded-2xl p-6 w-full max-w-sm -rotate-2"
+                    style={{ boxShadow: "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)" }}
+                  >
+                    <p className="text-xs text-muted-foreground mb-1">Episode 42</p>
+                    <p className="font-semibold text-card-foreground mb-4">[Sermon Title Here]</p>
+                    <div className="space-y-2 mb-4">
+                      <div className="w-full h-2 bg-muted rounded-full" />
+                      <div className="w-full h-2 bg-muted rounded-full" />
+                      <div className="w-5/6 h-2 bg-muted rounded-full" />
+                    </div>
+                    <div className="flex gap-2">
+                      <span className="text-xs bg-muted px-2 py-0.5 rounded-full text-muted-foreground">faith</span>
+                      <span className="text-xs bg-muted px-2 py-0.5 rounded-full text-muted-foreground">church</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Email Newsletters */}
+            <TabsContent value="newsletter">
+              <div className="grid md:grid-cols-2 gap-8 items-center">
+                <div>
+                  <h3 className="text-2xl font-playfair font-bold mb-4">Email Newsletters</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Subject line, preview text, and full draft. 400–600 words, structured sections.
+                  </p>
+                </div>
+                <div className="flex justify-center">
+                  <div
+                    className="bg-card rounded-2xl p-6 w-full max-w-sm rotate-1"
+                    style={{ boxShadow: "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)" }}
+                  >
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Subject</p>
+                        <p className="text-sm font-medium text-card-foreground">This Week at [Church Name]</p>
+                      </div>
+                      <div className="border-t border-border pt-3 space-y-2">
+                        <div className="w-full h-2 bg-muted rounded-full" />
+                        <div className="w-full h-2 bg-muted rounded-full" />
+                        <div className="w-4/5 h-2 bg-muted rounded-full" />
+                      </div>
+                      <div className="border-t border-border pt-3 space-y-2">
+                        <div className="w-full h-2 bg-muted rounded-full" />
+                        <div className="w-3/5 h-2 bg-muted rounded-full" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Event Promotions */}
+            <TabsContent value="event">
+              <div className="grid md:grid-cols-2 gap-8 items-center">
+                <div>
+                  <h3 className="text-2xl font-playfair font-bold mb-4">Event Promotions</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Not from a sermon — structured event fields for announcements, outreach, and special services.
+                  </p>
+                </div>
+                <div className="flex justify-center">
+                  <div
+                    className="bg-card rounded-2xl p-6 w-full max-w-sm -rotate-1"
+                    style={{ boxShadow: "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)" }}
+                  >
+                    <p className="font-semibold text-card-foreground mb-4">Easter Sunday Service</p>
+                    <div className="space-y-3">
+                      {[
+                        { label: "Date", value: "April 20, 2025" },
+                        { label: "Time", value: "9:00 AM & 11:00 AM" },
+                        { label: "Location", value: "Main Sanctuary" },
+                      ].map(({ label, value }) => (
+                        <div key={label} className="flex justify-between text-sm">
+                          <span className="text-muted-foreground font-medium">{label}</span>
+                          <span className="text-card-foreground">{value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </section>
     </div>
