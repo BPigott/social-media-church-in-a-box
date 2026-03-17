@@ -85,10 +85,52 @@ export type Database = {
         }
         Relationships: []
       }
+      church_events: {
+        Row: {
+          id: string
+          church_id: string
+          event_name: string
+          event_date: string | null
+          event_location: string | null
+          event_description: string | null
+          signup_link: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          church_id: string
+          event_name: string
+          event_date?: string | null
+          event_location?: string | null
+          event_description?: string | null
+          signup_link?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          church_id?: string
+          event_name?: string
+          event_date?: string | null
+          event_location?: string | null
+          event_description?: string | null
+          signup_link?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "church_events_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "churches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       generated_content: {
         Row: {
           bible_study_guide: string | null
           bible_study_guide_english: string | null
+          church_event_id: string | null
           church_id: string
           content_types: Json | null
           custom_cta: string | null
@@ -97,6 +139,7 @@ export type Database = {
           facebook_post: string[] | null
           facebook_post_english: Json | null
           generated_at: string
+          generation_mode: string | null
           id: string
           instagram_post: string[] | null
           instagram_post_english: Json | null
@@ -120,6 +163,7 @@ export type Database = {
         Insert: {
           bible_study_guide?: string | null
           bible_study_guide_english?: string | null
+          church_event_id?: string | null
           church_id: string
           content_types?: Json | null
           custom_cta?: string | null
@@ -128,6 +172,7 @@ export type Database = {
           facebook_post?: string[] | null
           facebook_post_english?: Json | null
           generated_at?: string
+          generation_mode?: string | null
           id?: string
           instagram_post?: string[] | null
           instagram_post_english?: Json | null
@@ -151,6 +196,7 @@ export type Database = {
         Update: {
           bible_study_guide?: string | null
           bible_study_guide_english?: string | null
+          church_event_id?: string | null
           church_id?: string
           content_types?: Json | null
           custom_cta?: string | null
@@ -159,6 +205,7 @@ export type Database = {
           facebook_post?: string[] | null
           facebook_post_english?: Json | null
           generated_at?: string
+          generation_mode?: string | null
           id?: string
           instagram_post?: string[] | null
           instagram_post_english?: Json | null
@@ -180,6 +227,13 @@ export type Database = {
           twitter_post_english?: Json | null
         }
         Relationships: [
+          {
+            foreignKeyName: "generated_content_church_event_id_fkey"
+            columns: ["church_event_id"]
+            isOneToOne: false
+            referencedRelation: "church_events"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "generated_content_church_id_fkey"
             columns: ["church_id"]

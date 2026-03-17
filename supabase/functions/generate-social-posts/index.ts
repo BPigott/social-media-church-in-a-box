@@ -130,7 +130,7 @@ serve(async (req)=>{
     
     const { transcript, styleGuide, platforms: rawPlatforms, customCTA, churchId, postsPerPlatform = 1, speakerName, socialHandles, contentTypes = [
       'social_media'
-    ], outputLanguages = ['en'], primaryLanguage = 'en', seriesName, seriesDescription, seriesWeekNumber, seriesTotalWeeks } = requestBody;
+    ], outputLanguages = ['en'], primaryLanguage = 'en', seriesName, seriesDescription, seriesWeekNumber, seriesTotalWeeks, generationMode = 'sermon', eventDetails } = requestBody;
     
     // Normalize platforms to always be an array
     const platforms = Array.isArray(rawPlatforms) ? rawPlatforms : (rawPlatforms ? [rawPlatforms] : []);
@@ -193,12 +193,27 @@ serve(async (req)=>{
         }
       });
     }
-    // Validate content source - need either transcript or customCTA
+    // Validate content source based on generation mode
+    const isEventMode = generationMode === 'event';
     const hasTranscript = transcript && transcript.trim().length >= 100;
     const hasCTA = customCTA && customCTA.trim().length >= 10;
-    console.log('Content source validation:', { hasTranscript, hasCTA, transcriptLength: transcript?.length || 0, ctaLength: customCTA?.length || 0 });
-    
-    if (!hasTranscript && !hasCTA) {
+    const hasEventDetails = isEventMode && eventDetails && eventDetails.eventName && eventDetails.eventName.trim().length > 0;
+    console.log('Content source validation:', { generationMode, isEventMode, hasTranscript, hasCTA, hasEventDetails, transcriptLength: transcript?.length || 0, ctaLength: customCTA?.length || 0 });
+
+    if (isEventMode && !hasEventDetails) {
+      console.error('VALIDATION FAILED: Event mode but no event name provided');
+      return new Response(JSON.stringify({
+        error: 'Please provide an event name for event promotion mode.'
+      }), {
+        status: 400,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      });
+    }
+
+    if (!isEventMode && !hasTranscript && !hasCTA) {
       console.error('VALIDATION FAILED: No valid content source (transcript or CTA)');
       return new Response(JSON.stringify({
         error: 'Please provide either a sermon transcript (100+ words) or call-to-action/event information (10+ words).'
@@ -371,7 +386,7 @@ CRITICAL: Your response must be ONLY valid JSON with no preamble, explanation, o
 ---
 
 # Content Generation Task
-${hasTranscript ? 'Generate content based on the sermon transcript provided below.' : 'Generate content based on the church event/announcement information provided below.'}
+${isEventMode ? 'Generate promotional content for the church event described below.' : hasTranscript ? 'Generate content based on the sermon transcript provided below.' : 'Generate content based on the church event/announcement information provided below.'}
 ${hasSocialMedia ? 'Create social media posts optimized for each platform.' : ''}
 ${hasBibleStudy ? 'Create a comprehensive Bible Study Guide with scripture references and discussion questions.' : ''}
 ${hasDevotional ? 'Create a daily devotional following the Blended Approach style guide.' : ''}
@@ -389,7 +404,23 @@ SERIES INTEGRATION INSTRUCTIONS:
 ` : ''}
 
 # Content Source
-${hasTranscript ? `
+${isEventMode ? `
+## Event Promotion Details
+**Event Name:** ${eventDetails.eventName}
+${eventDetails.eventDate ? `**Date:** ${eventDetails.eventDate}` : ''}
+${eventDetails.eventLocation ? `**Location:** ${eventDetails.eventLocation}` : ''}
+${eventDetails.eventDescription ? `**Description:** ${eventDetails.eventDescription}` : ''}
+${eventDetails.signupLink ? `**Sign-up/Registration Link:** ${eventDetails.signupLink}` : ''}
+
+EVENT PROMOTION INSTRUCTIONS:
+- This is dedicated event promotional content, not sermon-based content
+- Lead with the event name and key details (date, location) prominently
+- Create excitement and urgency around attending or signing up
+- ${eventDetails.signupLink ? `Include the registration link "${eventDetails.signupLink}" naturally in content where appropriate` : 'Include a clear call-to-action for how to get involved'}
+- For Bible study and devotional content types: frame them around the event theme rather than a sermon
+- Make every piece of content drive awareness and attendance for this event
+${customCTA ? `\n**Additional Context:** ${customCTA}` : ''}
+` : hasTranscript ? `
 ## Sermon Transcript
 ${transcript}
 
