@@ -30,11 +30,11 @@ function useScrollReveal() {
 }
 
 const languageNodes = [
-  { id: 'en', name: 'English', color: 'hsl(100 13% 54%)', text: "Don't just broadcast. Converse. Bring your community closer, no matter what language they speak at home.", pos: { top: '40%', left: '50%' } },
-  { id: 'es', name: 'Español', color: 'hsl(10 56% 54%)', text: "No solo transmitas. Conversa. Acerca a tu comunidad, sin importar el idioma que hablen en casa.", pos: { top: '15%', left: '25%' } },
-  { id: 'kr', name: '한국어', color: 'hsl(36 62% 57%)', text: "단순히 방송하지 마십시오. 대화하십시오. 집에서 어떤 언어를 사용하든 커뮤니티를 더 가깝게 만드십시오.", pos: { top: '65%', left: '80%' } },
-  { id: 'ar', name: 'العربية', color: 'hsl(24 14% 42%)', text: "لا تكتفِ بالبث. تواصل. قرّب مجتمعك، بغض النظر عن اللغة التي يتحدثون بها في المنزل.", pos: { top: '20%', left: '70%' } },
-  { id: 'cy', name: 'Cymraeg', color: 'hsl(10 56% 54%)', text: "Peidiwch â darlledu yn unig. Sgwrsiwch. Dewch â'ch cymuned yn nes, ni waeth pa iaith y maent yn ei siarad gartref.", pos: { top: '70%', left: '20%' } },
+  { id: 'en', name: 'English', color: 'hsl(100 13% 54%)', text: "Don't just broadcast. Converse. Bring your community closer, no matter what language they speak at home.", pos: { top: '40%', left: '50%' }, animDuration: '6s', animDelay: '0s' },
+  { id: 'es', name: 'Español', color: 'hsl(10 56% 54%)', text: "No solo transmitas. Conversa. Acerca a tu comunidad, sin importar el idioma que hablen en casa.", pos: { top: '15%', left: '25%' }, animDuration: '7s', animDelay: '-2s' },
+  { id: 'kr', name: '한국어', color: 'hsl(36 62% 57%)', text: "단순히 방송하지 마십시오. 대화하십시오. 집에서 어떤 언어를 사용하든 커뮤니티를 더 가깝게 만드십시오.", pos: { top: '65%', left: '80%' }, animDuration: '5s', animDelay: '-4s' },
+  { id: 'ar', name: 'العربية', color: 'hsl(24 14% 42%)', text: "لا تكتفِ بالبث. تواصل. قرّب مجتمعك، بغض النظر عن اللغة التي يتحدثون بها في المنزل.", pos: { top: '20%', left: '70%' }, animDuration: '8s', animDelay: '-1s' },
+  { id: 'cy', name: 'Cymraeg', color: 'hsl(10 56% 54%)', text: "Peidiwch â darlledu yn unig. Sgwrsiwch. Dewch â'ch cymuned yn nes, ni waeth pa iaith y maent yn ei siarad gartref.", pos: { top: '70%', left: '20%' }, animDuration: '6.5s', animDelay: '-3s' },
 ];
 
 const Index = () => {
@@ -62,10 +62,6 @@ const Index = () => {
           100% { transform: translate(-50%, -50%) translateY(0px) rotate(0deg); }
         }
         .floating-node { animation: float 6s ease-in-out infinite; }
-        .floating-node:nth-child(2) { animation-delay: -2s; animation-duration: 7s; }
-        .floating-node:nth-child(3) { animation-delay: -4s; animation-duration: 5s; }
-        .floating-node:nth-child(4) { animation-delay: -1s; animation-duration: 8s; }
-        .floating-node:nth-child(5) { animation-delay: -3s; animation-duration: 6.5s; }
       `}</style>
       <div className="min-h-screen bg-background relative overflow-hidden font-inter">
       {/* Abstract background shapes */}
@@ -543,7 +539,9 @@ const Index = () => {
                   backgroundColor: lang.color,
                   top: lang.pos.top,
                   left: lang.pos.left,
-                  boxShadow: `0 10px 20px -5px ${lang.color}80`
+                  boxShadow: `0 10px 20px -5px ${lang.color}80`,
+                  animationDuration: lang.animDuration,
+                  animationDelay: lang.animDelay,
                 }}
                 aria-label={`View translation in ${lang.name}`}
               >
@@ -703,27 +701,8 @@ const Index = () => {
                 </div>
               </CardHeader>
               <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">Everything in Single Church, plus:</p>
                 <ul className="space-y-3 mb-8">
-                  <li className="flex items-center gap-3">
-                    <CheckCircle size={20} className="text-secondary flex-shrink-0" weight="fill" />
-                    <span className="text-sm">All 6 content types</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle size={20} className="text-secondary flex-shrink-0" weight="fill" />
-                    <span className="text-sm">15+ languages</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle size={20} className="text-secondary flex-shrink-0" weight="fill" />
-                    <span className="text-sm">Style guide matching</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle size={20} className="text-secondary flex-shrink-0" weight="fill" />
-                    <span className="text-sm">Sermon series tracking</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle size={20} className="text-secondary flex-shrink-0" weight="fill" />
-                    <span className="text-sm">PDF &amp; DOCX export</span>
-                  </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle size={20} className="text-secondary flex-shrink-0" weight="fill" />
                     <span className="text-sm">Multiple church profiles</span>
