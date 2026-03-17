@@ -83,7 +83,9 @@ export interface GeneratedContent {
   output_language?: string;
   podcast_description?: string | null;
   podcast_description_english?: string | null;
-  content_types?: ('social_media' | 'bible_study' | 'devotional' | 'podcast_description')[];
+  email_newsletter?: string | null;
+  email_newsletter_english?: string | null;
+  content_types?: ('social_media' | 'bible_study' | 'devotional' | 'podcast_description' | 'email_newsletter')[];
 }
 
 export type Platform = 'facebook' | 'instagram' | 'tiktok' | 'twitter';

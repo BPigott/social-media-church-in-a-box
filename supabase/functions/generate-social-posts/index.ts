@@ -159,9 +159,10 @@ serve(async (req)=>{
     const hasBibleStudy = contentTypes.includes('bible_study');
     const hasDevotional = contentTypes.includes('devotional');
     const hasPodcastDescription = contentTypes.includes('podcast_description');
-    console.log('Content type flags:', { hasSocialMedia, hasBibleStudy, hasDevotional, hasPodcastDescription });
+    const hasEmailNewsletter = contentTypes.includes('email_newsletter');
+    console.log('Content type flags:', { hasSocialMedia, hasBibleStudy, hasDevotional, hasPodcastDescription, hasEmailNewsletter });
 
-    if (!hasSocialMedia && !hasBibleStudy && !hasDevotional && !hasPodcastDescription) {
+    if (!hasSocialMedia && !hasBibleStudy && !hasDevotional && !hasPodcastDescription && !hasEmailNewsletter) {
       console.error('VALIDATION FAILED: No content types selected');
       return new Response(JSON.stringify({
         error: 'Please select at least one content type to generate.'
@@ -636,6 +637,42 @@ TONE: Conversational, inviting, accessible. Write as if describing the episode t
 LENGTH: 150-250 words total for the description section.
 ` : ''}
 
+${hasEmailNewsletter ? `
+# Email Newsletter Draft Generation Requirements
+${hasTranscript ? `
+- Create a weekly email newsletter draft (400-600 words) based on the sermon transcript
+- Extract key themes, memorable quotes, and practical takeaways from the sermon
+` : `
+- Create a weekly email newsletter draft (400-600 words) based on the event/announcement
+- Highlight the key details and why the community should engage
+`}
+
+Generate the Email Newsletter in UK English spelling with this structure:
+
+EMAIL NEWSLETTER FORMAT REQUIREMENTS:
+**Subject Line:** [Compelling subject line, under 50 characters]
+
+**Preview Text:** [Email preview text, under 100 characters - what shows in inbox before opening]
+
+**Greeting:**
+[Warm, personal opening addressing the church community - 1-2 sentences]
+
+**Sermon Highlights:**
+[Key themes and takeaways from the sermon - 2-3 paragraphs covering the main message, a memorable quote or scripture, and why it matters for daily life]
+
+**Devotional Snippet:**
+[A brief devotional thought or reflection question tied to the sermon theme - 2-3 sentences]
+
+**Coming Up:**
+[Upcoming events, announcements, or calls to action${customCTA ? ' - incorporate the provided CTA here' : ''} - bullet points or short paragraphs]
+
+**Closing:**
+[Warm sign-off with blessing or encouragement - 1-2 sentences]
+
+TONE: Warm, personal, community-focused. Write as a letter from a friend, not a corporate newsletter.
+LENGTH: 400-600 words total.
+` : ''}
+
 ---
 
 # Church Social Media Handles
@@ -687,12 +724,14 @@ Return your response as a JSON object with this exact structure:
   ${hasBibleStudy ? `"bibleStudyGuide": "complete Bible study guide content (always a single string)",` : ''}
   ${hasDevotional ? `"devotional": "complete daily devotional content following Blended Approach format (always a single string)",` : ''}
   ${hasPodcastDescription ? `"podcastDescription": "complete podcast episode description (always a single string)",` : ''}
+  ${hasEmailNewsletter ? `"emailNewsletter": "complete email newsletter draft (always a single string)",` : ''}
 }
 
 ${hasSocialMedia ? 'IMPORTANT: Only include keys for the platforms that were requested.' : ''}
 ${hasBibleStudy ? 'IMPORTANT: The Bible Study Guide must be complete and properly formatted.' : ''}
 ${hasDevotional ? 'IMPORTANT: The devotional must be complete and follow the Blended Approach format exactly.' : ''}
 ${hasPodcastDescription ? 'IMPORTANT: The podcast description must be 150-250 words and include episode title, description, and tags.' : ''}
+${hasEmailNewsletter ? 'IMPORTANT: The email newsletter must be 400-600 words and include subject line, preview text, greeting, sermon highlights, devotional snippet, coming up section, and closing.' : ''}
 
 ${hasSocialMedia ? `
 FINAL LENGTH CHECK (VALIDATE BEFORE RETURNING):
@@ -745,6 +784,16 @@ FINAL PODCAST DESCRIPTION VALIDATION (CHECK BEFORE RETURNING):
 - Check tags are relevant and concise
 - MANDATORY: Search entire description for em dashes (—) and en dashes (–). If ANY found, rewrite those sentences
 - Use conversational, accessible tone throughout
+` : ''}
+
+${hasEmailNewsletter ? `
+FINAL EMAIL NEWSLETTER VALIDATION (CHECK BEFORE RETURNING):
+- Verify newsletter is 400-600 words
+- Ensure subject line is under 50 characters
+- Confirm all sections are present: greeting, sermon highlights, devotional snippet, coming up, closing
+- Check that tone is warm and personal throughout
+- MANDATORY: Search entire newsletter for em dashes (—) and en dashes (–). If ANY found, rewrite those sentences
+- Use natural sentence flow and conversational tone
 ` : ''}
 `;
 
@@ -929,6 +978,7 @@ FINAL PODCAST DESCRIPTION VALIDATION (CHECK BEFORE RETURNING):
         ...(hasBibleStudy ? [generatedContent.bibleStudyGuide].filter(Boolean) : []),
         ...(hasDevotional ? [generatedContent.devotional].filter(Boolean) : []),
         ...(hasPodcastDescription ? [generatedContent.podcastDescription].filter(Boolean) : []),
+        ...(hasEmailNewsletter ? [generatedContent.emailNewsletter].filter(Boolean) : []),
       ];
 
       for (const content of contentToValidate) {
@@ -965,6 +1015,10 @@ FINAL PODCAST DESCRIPTION VALIDATION (CHECK BEFORE RETURNING):
 
     if (hasPodcastDescription && generatedContent.podcastDescription) {
       englishContent.podcastDescription = generatedContent.podcastDescription;
+    }
+
+    if (hasEmailNewsletter && generatedContent.emailNewsletter) {
+      englishContent.emailNewsletter = generatedContent.emailNewsletter;
     }
 
     // Create response structure with content in all requested languages
@@ -1040,6 +1094,16 @@ FINAL PODCAST DESCRIPTION VALIDATION (CHECK BEFORE RETURNING):
             } catch (translateError) {
               console.error(`Error translating podcast description to ${targetLang}:`, translateError);
               translatedContent.podcastDescription = generatedContent.podcastDescription;
+            }
+          }
+
+          // Translate email newsletter
+          if (hasEmailNewsletter && generatedContent.emailNewsletter) {
+            try {
+              translatedContent.emailNewsletter = await translateText(generatedContent.emailNewsletter, targetLang);
+            } catch (translateError) {
+              console.error(`Error translating email newsletter to ${targetLang}:`, translateError);
+              translatedContent.emailNewsletter = generatedContent.emailNewsletter;
             }
           }
 
