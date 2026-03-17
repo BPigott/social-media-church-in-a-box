@@ -18,6 +18,9 @@ CREATE TABLE IF NOT EXISTS public.subscriptions (
   current_period_ends_at TIMESTAMPTZ,
   cancelled_at TIMESTAMPTZ,
 
+  -- Owner bypass: exempt users skip all billing checks
+  exempt BOOLEAN NOT NULL DEFAULT false,
+
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

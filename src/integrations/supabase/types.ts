@@ -270,6 +270,7 @@ export type Database = {
           trial_ends_at: string
           current_period_ends_at: string | null
           cancelled_at: string | null
+          exempt: boolean
           created_at: string
           updated_at: string
         }
@@ -285,6 +286,7 @@ export type Database = {
           trial_ends_at?: string
           current_period_ends_at?: string | null
           cancelled_at?: string | null
+          exempt?: boolean
           created_at?: string
           updated_at?: string
         }
@@ -300,6 +302,7 @@ export type Database = {
           trial_ends_at?: string
           current_period_ends_at?: string | null
           cancelled_at?: string | null
+          exempt?: boolean
           created_at?: string
           updated_at?: string
         }
