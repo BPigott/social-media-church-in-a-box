@@ -8,51 +8,44 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* IFO Brand Colors */
-    --background: 32 20% 97%; /* #F9F8F6 */
-    --foreground: 0 0% 10%; /* #1a1a1a - Darker for better contrast */
+    /* Ivangel Earthy Editorial Palette */
+    --background: 38 28% 94%; /* Sand #f5f2eb */
+    --foreground: 30 10% 20%; /* Earth #3a352f */
 
-    --card: 32 20% 97%;
-    --card-foreground: 0 0% 10%;
+    --card: 0 0% 100%; /* White */
+    --card-foreground: 30 10% 20%;
 
-    --popover: 32 20% 97%;
-    --popover-foreground: 0 0% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 30 10% 20%;
 
-    --primary: 85 14% 48%; /* #7A8367 */
+    --primary: 10 56% 54%; /* Terracotta #cb5d47 */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 40 30% 85%; /* #E1D8C9 */
-    --secondary-foreground: 0 0% 10%;
+    --secondary: 100 13% 54%; /* Sage #8b997b */
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 40 30% 90%;
-    --muted-foreground: 0 0% 40%; /* #666666 - Darker for better contrast */
+    --muted: 38 20% 90%;
+    --muted-foreground: 24 14% 42%; /* Clay #7c6a5d */
 
-    --accent: 85 14% 55%;
+    --accent: 36 62% 57%; /* Ochre #d69f4c */
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 40 20% 88%;
-    --input: 40 20% 88%;
-    --ring: 85 14% 48%;
+    --border: 38 15% 85%;
+    --input: 38 15% 85%;
+    --ring: 10 56% 54%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
