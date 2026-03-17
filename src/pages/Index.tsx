@@ -179,6 +179,47 @@ const Index = () => {
           </div>
         </div>
       </header>
+
+      {/* Problem Statement */}
+      <section className="py-20 md:py-28 relative z-10">
+        <div className="max-w-3xl mx-auto px-6 md:px-12 text-center">
+          <h2 className="text-3xl md:text-4xl font-playfair font-bold mb-8">
+            Sunday's message deserves more than a Monday morning scramble.
+          </h2>
+          <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+            Your communications volunteer spends hours every week reformatting the sermon into social posts, translating for your multilingual community, and drafting study materials. By Wednesday, the momentum is gone.
+          </p>
+          <p className="text-lg text-muted-foreground leading-relaxed">
+            What if all of that was done before they finished their Monday morning coffee?
+          </p>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section id="how-it-works" className="py-20 md:py-28 bg-card relative z-10">
+        <div className="max-w-5xl mx-auto px-6 md:px-12">
+          <h2 className="text-3xl md:text-4xl font-playfair font-bold text-center mb-16">
+            Three steps. Five minutes.
+          </h2>
+          <div className="grid md:grid-cols-3 gap-12">
+            <div className="text-center">
+              <span className="text-5xl font-playfair font-bold text-primary block mb-4">1</span>
+              <h3 className="text-xl font-bold mb-2">Paste your transcript</h3>
+              <p className="text-muted-foreground">Upload, paste, or type your sermon. That's it.</p>
+            </div>
+            <div className="text-center">
+              <span className="text-5xl font-playfair font-bold text-primary block mb-4">2</span>
+              <h3 className="text-xl font-bold mb-2">Choose your content</h3>
+              <p className="text-muted-foreground">Social posts, study guides, devotionals, newsletters, podcast descriptions — pick what you need.</p>
+            </div>
+            <div className="text-center">
+              <span className="text-5xl font-playfair font-bold text-primary block mb-4">3</span>
+              <h3 className="text-xl font-bold mb-2">Edit and publish</h3>
+              <p className="text-muted-foreground">Review, tweak if you like, then copy or export. Done in minutes.</p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };
