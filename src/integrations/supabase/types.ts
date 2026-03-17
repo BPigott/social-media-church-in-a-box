@@ -257,6 +257,62 @@ export type Database = {
           },
         ]
       }
+      subscriptions: {
+        Row: {
+          id: string
+          user_id: string
+          church_id: string | null
+          ls_subscription_id: string | null
+          ls_customer_id: string | null
+          ls_variant_id: string | null
+          ls_order_id: string | null
+          status: 'trialing' | 'active' | 'cancelled' | 'expired' | 'past_due'
+          trial_ends_at: string
+          current_period_ends_at: string | null
+          cancelled_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          church_id?: string | null
+          ls_subscription_id?: string | null
+          ls_customer_id?: string | null
+          ls_variant_id?: string | null
+          ls_order_id?: string | null
+          status?: 'trialing' | 'active' | 'cancelled' | 'expired' | 'past_due'
+          trial_ends_at?: string
+          current_period_ends_at?: string | null
+          cancelled_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          church_id?: string | null
+          ls_subscription_id?: string | null
+          ls_customer_id?: string | null
+          ls_variant_id?: string | null
+          ls_order_id?: string | null
+          status?: 'trialing' | 'active' | 'cancelled' | 'expired' | 'past_due'
+          trial_ends_at?: string
+          current_period_ends_at?: string | null
+          cancelled_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "churches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           church_id: string
@@ -316,6 +372,7 @@ export type Database = {
     }
     Enums: {
       app_role: "owner" | "admin" | "editor" | "viewer"
+      subscription_status: "trialing" | "active" | "cancelled" | "expired" | "past_due"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -447,6 +504,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["owner", "admin", "editor", "viewer"],
+      subscription_status: ["trialing", "active", "cancelled", "expired", "past_due"],
     },
   },
 } as const
