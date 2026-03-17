@@ -109,7 +109,9 @@ export type Database = {
           email_newsletter: string | null
           email_newsletter_english: string | null
           posts_per_platform: number | null
+          sermon_series_id: string | null
           sermon_transcript_id: string | null
+          series_week_number: number | null
           tiktok_post: string[] | null
           tiktok_post_english: Json | null
           twitter_post: string[] | null
@@ -138,7 +140,9 @@ export type Database = {
           email_newsletter?: string | null
           email_newsletter_english?: string | null
           posts_per_platform?: number | null
+          sermon_series_id?: string | null
           sermon_transcript_id?: string | null
+          series_week_number?: number | null
           tiktok_post?: string[] | null
           tiktok_post_english?: Json | null
           twitter_post?: string[] | null
@@ -167,7 +171,9 @@ export type Database = {
           email_newsletter?: string | null
           email_newsletter_english?: string | null
           posts_per_platform?: number | null
+          sermon_series_id?: string | null
           sermon_transcript_id?: string | null
+          series_week_number?: number | null
           tiktok_post?: string[] | null
           tiktok_post_english?: Json | null
           twitter_post?: string[] | null
@@ -182,10 +188,55 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "generated_content_sermon_series_id_fkey"
+            columns: ["sermon_series_id"]
+            isOneToOne: false
+            referencedRelation: "sermon_series"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "generated_content_sermon_transcript_id_fkey"
             columns: ["sermon_transcript_id"]
             isOneToOne: false
             referencedRelation: "sermon_transcripts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sermon_series: {
+        Row: {
+          id: string
+          church_id: string
+          name: string
+          description: string | null
+          total_weeks: number | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          church_id: string
+          name: string
+          description?: string | null
+          total_weeks?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          church_id?: string
+          name?: string
+          description?: string | null
+          total_weeks?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sermon_series_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "churches"
             referencedColumns: ["id"]
           },
         ]

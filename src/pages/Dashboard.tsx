@@ -19,7 +19,8 @@ import { CircleNotch, Copy, Download, Upload, CheckCircle, CaretDown, ArrowCount
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { jsPDF } from "jspdf";
 import { Document, Packer, Paragraph, TextRun } from "docx";
-import type { Platform } from "@/types/database";
+import type { Platform, SermonSeries } from "@/types/database";
+import { SeriesSelector } from "@/components/dashboard/SeriesSelector";
 import mammoth from "mammoth";
 import * as pdfjsLib from "pdfjs-dist";
 import ReactMarkdown from "react-markdown";
@@ -342,6 +343,11 @@ const Dashboard = () => {
   const [emailNewsletterSelected, setEmailNewsletterSelected] = useState(false);
   const [retranslating, setRetranslating] = useState(false);
 
+  // Sermon series state
+  const [seriesList, setSeriesList] = useState<SermonSeries[]>([]);
+  const [selectedSeriesId, setSelectedSeriesId] = useState<string | null>(null);
+  const [seriesWeekNumber, setSeriesWeekNumber] = useState<number | null>(null);
+
   // Editing state for inline content editing
   const [editingContent, setEditingContent] = useState<Record<string, boolean>>({});
   const [editedContent, setEditedContent] = useState<Record<string, string>>({});
@@ -383,6 +389,22 @@ const Dashboard = () => {
       navigate("/login");
     }
   }, [user, loading, navigate]);
+
+  // Fetch sermon series for the current church
+  useEffect(() => {
+    if (!primaryChurch?.id) return;
+    const fetchSeries = async () => {
+      const { data, error } = await supabase
+        .from('sermon_series')
+        .select('*')
+        .eq('church_id', primaryChurch.id)
+        .order('created_at', { ascending: false });
+      if (!error && data) {
+        setSeriesList(data as unknown as SermonSeries[]);
+      }
+    };
+    fetchSeries();
+  }, [primaryChurch?.id]);
 
   // Sync languages and set editing mode for English content when content is generated
   useEffect(() => {
@@ -1370,7 +1392,11 @@ const Dashboard = () => {
         socialHandles: primaryChurch.social_handles || {},
         contentTypes,
         outputLanguages,
-        primaryLanguage
+        primaryLanguage,
+        seriesName: selectedSeriesId ? seriesList.find(s => s.id === selectedSeriesId)?.name || null : null,
+        seriesDescription: selectedSeriesId ? seriesList.find(s => s.id === selectedSeriesId)?.description || null : null,
+        seriesWeekNumber: seriesWeekNumber || null,
+        seriesTotalWeeks: selectedSeriesId ? seriesList.find(s => s.id === selectedSeriesId)?.total_weeks || null : null,
       };
 
       console.log('=== FRONTEND REQUEST ===');
@@ -1430,6 +1456,8 @@ const Dashboard = () => {
         podcast_description_english: data.englishVersions?.podcastDescription || null,
         email_newsletter: data.emailNewsletter || null,
         email_newsletter_english: data.englishVersions?.emailNewsletter || null,
+        sermon_series_id: selectedSeriesId || null,
+        series_week_number: seriesWeekNumber || null,
         output_language: primaryLanguage,
         content_types: contentTypes,
         output_languages: outputLanguages
@@ -1456,6 +1484,8 @@ const Dashboard = () => {
           bible_study_guide_english: data.englishVersions?.bibleStudyGuide || null,
           podcast_description: data.podcastDescription || null,
           podcast_description_english: data.englishVersions?.podcastDescription || null,
+          sermon_series_id: selectedSeriesId || null,
+          series_week_number: seriesWeekNumber || null,
           email_newsletter: data.emailNewsletter || null,
           email_newsletter_english: data.englishVersions?.emailNewsletter || null,
           output_language: primaryLanguage,
@@ -1721,6 +1751,23 @@ const Dashboard = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Sermon Series Selection */}
+              {primaryChurch && (
+                <Card className="border-2 border-primary/30 bg-primary/5">
+                  <CardContent className="pt-6">
+                    <SeriesSelector
+                      churchId={primaryChurch.id}
+                      seriesList={seriesList}
+                      selectedSeriesId={selectedSeriesId}
+                      seriesWeekNumber={seriesWeekNumber}
+                      onSeriesChange={setSelectedSeriesId}
+                      onWeekNumberChange={setSeriesWeekNumber}
+                      onSeriesCreated={(series) => setSeriesList((prev) => [series, ...prev])}
+                    />
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Events, Announcements & Calls-to-Action - Prominent Section */}
               <Card className="border-2 border-primary/30 bg-primary/5">
