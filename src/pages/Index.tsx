@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { List, CheckCircle } from "phosphor-react";
 
 const languageNodes = [
@@ -708,6 +709,106 @@ const Index = () => {
           </p>
         </div>
       </section>
+
+      {/* FAQ */}
+      <section id="faq" className="py-20 md:py-28 relative z-10">
+        <div className="max-w-3xl mx-auto px-6 md:px-12">
+          <h2 className="text-3xl md:text-4xl font-playfair font-bold text-center mb-12">
+            Frequently Asked Questions
+          </h2>
+
+          <Accordion type="single" collapsible className="w-full space-y-3">
+            <AccordionItem value="item-1" className="border border-border/50 rounded-xl px-6">
+              <AccordionTrigger className="text-left font-semibold hover:no-underline py-4">
+                What kind of content does Ivangel create?
+              </AccordionTrigger>
+              <AccordionContent>
+                Ivangel generates text-based content only: social media posts, bible study guides, daily devotionals, podcast descriptions, email newsletters, and event promotions. No images or video — just well-crafted words ready to copy, edit, and share.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-2" className="border border-border/50 rounded-xl px-6">
+              <AccordionTrigger className="text-left font-semibold hover:no-underline py-4">
+                How does the free trial work?
+              </AccordionTrigger>
+              <AccordionContent>
+                You get 14 days of full access to every feature — all content types, all languages, style guide matching. No credit card required to start. Cancel anytime.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-3" className="border border-border/50 rounded-xl px-6">
+              <AccordionTrigger className="text-left font-semibold hover:no-underline py-4">
+                Can it match our church's voice and style?
+              </AccordionTrigger>
+              <AccordionContent>
+                Yes. Provide your church website URL and Ivangel analyses your tone, vocabulary, and theological emphasis. Every output is shaped by your voice, not a generic template.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-4" className="border border-border/50 rounded-xl px-6">
+              <AccordionTrigger className="text-left font-semibold hover:no-underline py-4">
+                What languages are supported?
+              </AccordionTrigger>
+              <AccordionContent>
+                15+ languages including Spanish, Korean, Arabic, French, Portuguese, German, Mandarin, Hindi, Tagalog, Welsh, and more. Generate up to 3 languages simultaneously.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-5" className="border border-border/50 rounded-xl px-6">
+              <AccordionTrigger className="text-left font-semibold hover:no-underline py-4">
+                Do I need technical skills to use this?
+              </AccordionTrigger>
+              <AccordionContent>
+                Not at all. Paste your sermon transcript, choose what you want, and copy the results. If you can use email, you can use Ivangel.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+      </section>
+
+      {/* Warm CTA */}
+      <section className="py-20 md:py-28 bg-primary relative z-10">
+        <div className="max-w-4xl mx-auto text-center px-6 md:px-12">
+          <h2 className="text-4xl md:text-5xl font-playfair font-bold mb-6 text-primary-foreground">
+            Ready to give your team their week back?
+          </h2>
+          <p className="text-xl text-primary-foreground/80 mb-10 max-w-2xl mx-auto">
+            Join the beta. Keep your voice. Save your team hours. Welcome everyone in their language.
+          </p>
+          <Button asChild variant="secondary" size="lg" className="text-lg px-8 py-6">
+            <Link to="/signup">Start your 14-day free trial</Link>
+          </Button>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="w-full px-6 md:px-12 py-10 border-t border-border/50 relative z-10">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            {/* Left: Logo */}
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full bg-primary" />
+              <span className="font-playfair font-bold text-lg">Ivangel</span>
+            </div>
+
+            {/* Center: Links */}
+            <div className="flex gap-6 text-sm font-medium text-muted-foreground">
+              <Link to="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
+              <a href="#" className="hover:text-primary transition-colors">Privacy</a>
+              <a href="mailto:support@ivangel.co" className="hover:text-primary transition-colors">Support</a>
+            </div>
+
+            {/* Right: Company info */}
+            <p className="text-xs text-muted-foreground text-center md:text-right">
+              IN FOCUS OPERATIONS LIMITED<br />Company No. 16707659
+            </p>
+          </div>
+
+          <p className="text-xs text-muted-foreground text-center mt-6">
+            Built with care for the modern church.
+          </p>
+        </div>
+      </footer>
     </div>
     </>
   );
