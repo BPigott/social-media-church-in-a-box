@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.220.1/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { translateText, translateMultiple } from '../_shared/translate.ts';
 import { validateInput, validateGeneratedContent } from '../_shared/content-safety.ts';
