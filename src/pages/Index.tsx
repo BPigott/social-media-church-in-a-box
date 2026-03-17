@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +7,27 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { List, CheckCircle } from "phosphor-react";
+
+function useScrollReveal() {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add("opacity-100", "translate-y-0");
+          el.classList.remove("opacity-0", "translate-y-8");
+          observer.unobserve(el);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  return ref;
+}
 
 const languageNodes = [
   { id: 'en', name: 'English', color: 'hsl(100 13% 54%)', text: "Don't just broadcast. Converse. Bring your community closer, no matter what language they speak at home.", pos: { top: '40%', left: '50%' } },
@@ -20,6 +41,17 @@ const Index = () => {
   const { user } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeLang, setActiveLang] = useState(languageNodes[0]);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const problemRef = useScrollReveal();
+  const howItWorksRef = useScrollReveal();
+  const contentTypesRef = useScrollReveal();
+  const tapestryRef = useScrollReveal();
+  const featuresRef = useScrollReveal();
+  const pricingRef = useScrollReveal();
+  const faqRef = useScrollReveal();
+  const ctaRef = useScrollReveal();
 
   return (
     <>
@@ -47,7 +79,7 @@ const Index = () => {
       />
 
       {/* Nav */}
-      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/40">
+      <nav className={`sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/40 transition-opacity duration-200 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
         <div className="px-6 md:px-12 py-6 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-3">
@@ -153,16 +185,16 @@ const Index = () => {
         <div className="flex flex-col md:flex-row items-center gap-12">
           {/* Left side */}
           <div className="flex-1">
-            <span className="inline-block px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide mb-6 bg-secondary/20 text-secondary">
+            <span className={`inline-block px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide mb-6 bg-secondary/20 text-secondary transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
               For Church Communications Teams
             </span>
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-playfair font-bold leading-[1.05] tracking-tight mb-6 text-foreground">
+            <h1 className={`text-5xl md:text-6xl lg:text-7xl font-playfair font-bold leading-[1.05] tracking-tight mb-6 text-foreground transition-all duration-500 delay-100 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
               Your sermon satisfies Sunday.<br />What about the other six days?
             </h1>
-            <p className="text-xl text-muted-foreground leading-relaxed max-w-xl mb-8">
+            <p className={`text-xl text-muted-foreground leading-relaxed max-w-xl mb-8 transition-all duration-500 delay-200 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
               Ivangel transforms your sermon into social posts, study guides, devotionals, newsletters, and more — in 15+ languages. Text content only, ready to copy and publish.
             </p>
-            <Button asChild size="lg" className="text-lg px-8 py-6">
+            <Button asChild size="lg" className={`text-lg px-8 py-6 transition-all duration-500 delay-300 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
               <Link to={user ? "/dashboard" : "/signup"}>
                 {user ? "Go to Dashboard" : "Start your 14-day free trial"}
               </Link>
@@ -170,7 +202,7 @@ const Index = () => {
           </div>
 
           {/* Right side — decorative cards, hidden on mobile */}
-          <div className="flex-1 hidden md:block">
+          <div className={`flex-1 hidden md:block transition-all duration-700 delay-500 ${mounted ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'}`}>
             <div className="relative w-full h-[400px]">
               {/* White/card — tilted right */}
               <div
@@ -207,7 +239,7 @@ const Index = () => {
 
       {/* Problem Statement */}
       <section className="py-20 md:py-28 relative z-10">
-        <div className="max-w-3xl mx-auto px-6 md:px-12 text-center">
+        <div ref={problemRef} className="max-w-3xl mx-auto px-6 md:px-12 text-center opacity-0 translate-y-8 transition-all duration-700 ease-out">
           <h2 className="text-3xl md:text-4xl font-playfair font-bold mb-8">
             Sunday's message deserves more than a Monday morning scramble.
           </h2>
@@ -222,7 +254,7 @@ const Index = () => {
 
       {/* How It Works */}
       <section id="how-it-works" className="py-20 md:py-28 bg-card relative z-10">
-        <div className="max-w-5xl mx-auto px-6 md:px-12">
+        <div ref={howItWorksRef} className="max-w-5xl mx-auto px-6 md:px-12 opacity-0 translate-y-8 transition-all duration-700 ease-out">
           <h2 className="text-3xl md:text-4xl font-playfair font-bold text-center mb-16">
             Three steps. Five minutes.
           </h2>
@@ -248,7 +280,7 @@ const Index = () => {
 
       {/* Content Types Tabbed Showcase */}
       <section className="py-20 md:py-28 relative z-10">
-        <div className="max-w-5xl mx-auto px-6 md:px-12">
+        <div ref={contentTypesRef} className="max-w-5xl mx-auto px-6 md:px-12 opacity-0 translate-y-8 transition-all duration-700 ease-out">
           <h2 className="text-3xl md:text-4xl font-playfair font-bold text-center mb-4">
             One sermon. Six ways to reach your community.
           </h2>
@@ -475,7 +507,7 @@ const Index = () => {
 
       {/* Tapestry Map — Language Feature */}
       <section className="py-20 md:py-28 bg-card relative z-10">
-        <div className="max-w-5xl mx-auto px-6 md:px-12 flex flex-col items-center">
+        <div ref={tapestryRef} className="max-w-5xl mx-auto px-6 md:px-12 flex flex-col items-center opacity-0 translate-y-8 transition-all duration-700 ease-out">
           {/* Section header */}
           <div className="text-center max-w-2xl mb-16">
             <h2 className="font-playfair text-4xl md:text-5xl font-bold mb-4">
@@ -529,7 +561,7 @@ const Index = () => {
 
       {/* Features — 3 Focused Blocks */}
       <section id="features" className="py-20 md:py-28 relative z-10">
-        <div className="max-w-6xl mx-auto px-6 md:px-12">
+        <div ref={featuresRef} className="max-w-6xl mx-auto px-6 md:px-12 opacity-0 translate-y-8 transition-all duration-700 ease-out">
 
           {/* Block 1: Your voice, not ours */}
           <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
@@ -614,7 +646,7 @@ const Index = () => {
 
       {/* Pricing */}
       <section id="pricing" className="py-20 md:py-28 bg-card relative z-10">
-        <div className="max-w-4xl mx-auto px-6 md:px-12">
+        <div ref={pricingRef} className="max-w-4xl mx-auto px-6 md:px-12 opacity-0 translate-y-8 transition-all duration-700 ease-out">
           <h2 className="text-3xl md:text-4xl font-playfair font-bold text-center mb-4">
             Simple, honest pricing.
           </h2>
@@ -712,7 +744,7 @@ const Index = () => {
 
       {/* FAQ */}
       <section id="faq" className="py-20 md:py-28 relative z-10">
-        <div className="max-w-3xl mx-auto px-6 md:px-12">
+        <div ref={faqRef} className="max-w-3xl mx-auto px-6 md:px-12 opacity-0 translate-y-8 transition-all duration-700 ease-out">
           <h2 className="text-3xl md:text-4xl font-playfair font-bold text-center mb-12">
             Frequently Asked Questions
           </h2>
@@ -768,7 +800,7 @@ const Index = () => {
 
       {/* Warm CTA */}
       <section className="py-20 md:py-28 bg-primary relative z-10">
-        <div className="max-w-4xl mx-auto text-center px-6 md:px-12">
+        <div ref={ctaRef} className="max-w-4xl mx-auto text-center px-6 md:px-12 opacity-0 translate-y-8 transition-all duration-700 ease-out">
           <h2 className="text-4xl md:text-5xl font-playfair font-bold mb-6 text-primary-foreground">
             Ready to give your team their week back?
           </h2>
