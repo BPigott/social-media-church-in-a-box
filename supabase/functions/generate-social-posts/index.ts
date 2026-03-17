@@ -158,9 +158,10 @@ serve(async (req)=>{
     const hasSocialMedia = contentTypes.includes('social_media');
     const hasBibleStudy = contentTypes.includes('bible_study');
     const hasDevotional = contentTypes.includes('devotional');
-    console.log('Content type flags:', { hasSocialMedia, hasBibleStudy, hasDevotional });
-    
-    if (!hasSocialMedia && !hasBibleStudy && !hasDevotional) {
+    const hasPodcastDescription = contentTypes.includes('podcast_description');
+    console.log('Content type flags:', { hasSocialMedia, hasBibleStudy, hasDevotional, hasPodcastDescription });
+
+    if (!hasSocialMedia && !hasBibleStudy && !hasDevotional && !hasPodcastDescription) {
       console.error('VALIDATION FAILED: No content types selected');
       return new Response(JSON.stringify({
         error: 'Please select at least one content type to generate.'
@@ -607,6 +608,34 @@ DEVOTIONAL FORMAT REQUIREMENTS:
 TONE: Warm, relational (not "religious"), accessible language, story-driven, practical, hopeful
 ` : ''}
 
+${hasPodcastDescription ? `
+# Podcast Episode Description Generation Requirements
+${hasTranscript ? `
+- Create a podcast episode description (150-250 words) based on the sermon transcript
+- Extract the core message and key talking points from the sermon
+` : `
+- Create a podcast episode description (150-250 words) based on the event/announcement
+- Highlight the key themes and why listeners should tune in
+`}
+
+Generate the Podcast Episode Description in UK English spelling with this structure:
+
+PODCAST DESCRIPTION FORMAT REQUIREMENTS:
+**Episode Title:** [Compelling episode title that hooks listeners]
+
+**Episode Description:**
+[Opening hook/teaser sentence that creates curiosity - 1-2 sentences]
+
+[Key topics and themes covered in this episode - 2-3 sentences summarising what listeners will learn or be challenged by]
+
+[Call-to-listen: why this episode matters and what listeners will take away - 1-2 sentences]
+
+**Tags:** [3-5 relevant podcast tags, comma-separated]
+
+TONE: Conversational, inviting, accessible. Write as if describing the episode to a friend. Avoid churchy jargon.
+LENGTH: 150-250 words total for the description section.
+` : ''}
+
 ---
 
 # Church Social Media Handles
@@ -657,11 +686,13 @@ Return your response as a JSON object with this exact structure:
   ` : ''}
   ${hasBibleStudy ? `"bibleStudyGuide": "complete Bible study guide content (always a single string)",` : ''}
   ${hasDevotional ? `"devotional": "complete daily devotional content following Blended Approach format (always a single string)",` : ''}
+  ${hasPodcastDescription ? `"podcastDescription": "complete podcast episode description (always a single string)",` : ''}
 }
 
 ${hasSocialMedia ? 'IMPORTANT: Only include keys for the platforms that were requested.' : ''}
 ${hasBibleStudy ? 'IMPORTANT: The Bible Study Guide must be complete and properly formatted.' : ''}
 ${hasDevotional ? 'IMPORTANT: The devotional must be complete and follow the Blended Approach format exactly.' : ''}
+${hasPodcastDescription ? 'IMPORTANT: The podcast description must be 150-250 words and include episode title, description, and tags.' : ''}
 
 ${hasSocialMedia ? `
 FINAL LENGTH CHECK (VALIDATE BEFORE RETURNING):
@@ -705,8 +736,18 @@ FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
 - Ensure natural sentence flow and conversational tone throughout
 - Check that punctuation follows guidelines (commas for parentheticals, colons for lists, periods for clarity)
 ` : ''}
+
+${hasPodcastDescription ? `
+FINAL PODCAST DESCRIPTION VALIDATION (CHECK BEFORE RETURNING):
+- Verify description is 150-250 words
+- Ensure episode title is compelling and specific
+- Confirm description includes hook, key topics, and call-to-listen
+- Check tags are relevant and concise
+- MANDATORY: Search entire description for em dashes (—) and en dashes (–). If ANY found, rewrite those sentences
+- Use conversational, accessible tone throughout
+` : ''}
 `;
-      
+
       console.log('User prompt constructed, length:', userPrompt.length);
       console.log('=== PROMPT CONSTRUCTION COMPLETE ===');
       console.log('System prompt length:', systemPrompt.length, 'characters');
@@ -887,6 +928,7 @@ FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
         ].filter(Boolean) : []),
         ...(hasBibleStudy ? [generatedContent.bibleStudyGuide].filter(Boolean) : []),
         ...(hasDevotional ? [generatedContent.devotional].filter(Boolean) : []),
+        ...(hasPodcastDescription ? [generatedContent.podcastDescription].filter(Boolean) : []),
       ];
 
       for (const content of contentToValidate) {
@@ -919,6 +961,10 @@ FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
     
     if (hasDevotional && generatedContent.devotional) {
       englishContent.devotional = generatedContent.devotional;
+    }
+
+    if (hasPodcastDescription && generatedContent.podcastDescription) {
+      englishContent.podcastDescription = generatedContent.podcastDescription;
     }
 
     // Create response structure with content in all requested languages
@@ -984,6 +1030,16 @@ FINAL DEVOTIONAL VALIDATION (CHECK BEFORE RETURNING):
             } catch (translateError) {
               console.error(`Error translating devotional to ${targetLang}:`, translateError);
               translatedContent.devotional = generatedContent.devotional;
+            }
+          }
+
+          // Translate podcast description
+          if (hasPodcastDescription && generatedContent.podcastDescription) {
+            try {
+              translatedContent.podcastDescription = await translateText(generatedContent.podcastDescription, targetLang);
+            } catch (translateError) {
+              console.error(`Error translating podcast description to ${targetLang}:`, translateError);
+              translatedContent.podcastDescription = generatedContent.podcastDescription;
             }
           }
 
