@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { House, FileText, Gear as SettingsIcon, SignOut } from "phosphor-react";
+import { House, FileText, Gear as SettingsIcon, CreditCard, SignOut } from "phosphor-react";
 import { cn } from "@/lib/utils";
 import { signOut } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
@@ -14,6 +14,7 @@ export const Navigation = () => {
     { to: "/dashboard", label: "Dashboard", icon: House },
     { to: "/library", label: "Library", icon: FileText },
     { to: "/settings", label: "Settings", icon: SettingsIcon },
+    { to: "/billing", label: "Billing", icon: CreditCard },
   ];
 
   const handleSignOut = async () => {

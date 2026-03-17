@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react";
 import { useAuth } from "@/hooks/useAuth";
 import { useChurch } from "@/hooks/useChurch";
+import { useSubscription } from "@/hooks/useSubscription";
+import { TrialBanner } from "@/components/TrialBanner";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -15,6 +17,8 @@ import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import Library from "./pages/Library";
 import Settings from "./pages/Settings";
+import Billing from "./pages/Billing";
+import Upgrade from "./pages/Upgrade";
 import TermsOfService from "./pages/TermsOfService";
 import NotFound from "./pages/NotFound";
 
@@ -41,19 +45,10 @@ const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   const { hasChurch, loading: churchLoading, error: churchError } = useChurch(user?.id);
+  const { isActive, isLoading: subLoading } = useSubscription();
 
-  console.log('🛡️ ProtectedRoute check:', {
-    user: !!user,
-    loading,
-    churchLoading,
-    hasChurch,
-    churchError: churchError?.message,
-    userId: user?.id
-  });
-
-  // Wait for both auth and church data to finish loading
-  if (loading || churchLoading) {
-    console.log('⏳ ProtectedRoute: Loading auth or church data...');
+  // Wait for auth, church, and subscription data to finish loading
+  if (loading || churchLoading || subLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <p>Loading...</p>
@@ -62,25 +57,24 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!user) {
-    console.log('🚫 ProtectedRoute: No user, redirecting to login');
     return <Navigate to="/login" replace />;
   }
 
   // If there was an error loading church data, allow access anyway
-  // This prevents users from being locked out due to temporary database issues
   if (churchError) {
-    console.warn('⚠️ ProtectedRoute: Error loading church data, allowing access:', churchError.message);
+    console.warn('ProtectedRoute: Error loading church data, allowing access:', churchError.message);
     return <>{children}</>;
   }
 
-  // Only redirect to onboarding if we're certain the user has no church
-  // (not during loading state or error state)
   if (!hasChurch) {
-    console.log('⚠️ ProtectedRoute: No church found, redirecting to onboarding');
     return <Navigate to="/onboarding" replace />;
   }
 
-  console.log('✅ ProtectedRoute: Access granted');
+  // Subscription check: redirect to upgrade if not active
+  if (!isActive) {
+    return <Navigate to="/upgrade" replace />;
+  }
+
   return <>{children}</>;
 };
 
@@ -98,6 +92,22 @@ const App = () => (
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/terms" element={<TermsOfService />} />
+          <Route
+            path="/upgrade"
+            element={
+              <AuthenticatedRoute>
+                <Upgrade />
+              </AuthenticatedRoute>
+            }
+          />
+          <Route
+            path="/billing"
+            element={
+              <AuthenticatedRoute>
+                <Billing />
+              </AuthenticatedRoute>
+            }
+          />
           <Route
             path="/onboarding"
             element={
