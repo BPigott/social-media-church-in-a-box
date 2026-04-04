@@ -7,6 +7,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { List, CheckCircle } from "phosphor-react";
+import { Facebook, Instagram, Twitter, Mail, FileText, Clipboard, Music } from "lucide-react";
 
 function useScrollReveal() {
   const ref = useRef<HTMLDivElement>(null);
@@ -202,36 +203,57 @@ const Index = () => {
             <div className="relative w-full h-[400px]">
               {/* White/card — tilted right */}
               <div
-                className="absolute top-8 right-8 w-72 p-6 bg-card rounded-2xl rotate-3 z-10"
-                style={{
-                  boxShadow:
-                    "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)",
-                }}
+                className="absolute top-8 right-8 w-72 p-6 bg-card rounded-2xl rotate-3 z-10 border border-border/40 backdrop-blur-sm shadow-tactile"
               >
-                <div className="w-8 h-8 rounded-full bg-accent mb-4" />
-                <p className="font-medium text-card-foreground mb-4">Daily Devotional</p>
-                <div className="w-full h-2 bg-muted rounded-full mb-2" />
-                <div className="w-full h-2 bg-muted rounded-full mb-2" />
-                <div className="w-full h-2 bg-muted rounded-full" />
+                <div className="flex items-center justify-between mb-4 border-b border-border/50 pb-3">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Daily Devotional</p>
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                </div>
+                <p className="font-playfair text-lg text-foreground leading-snug mb-3">
+                  "Grace isn't about waiting for people to come to you; it's about going to where they are..."
+                </p>
+                <p className="text-xs font-medium text-muted-foreground italic">Day 1 &bull; 2 min read</p>
               </div>
 
               {/* Sage card — tilted left */}
               <div
-                className="absolute top-32 left-0 w-64 p-6 bg-secondary text-secondary-foreground rounded-2xl -rotate-6 z-20"
-                style={{
-                  boxShadow:
-                    "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)",
-                }}
+                className="absolute top-32 left-0 w-64 p-6 bg-secondary text-secondary-foreground rounded-2xl -rotate-6 z-20 border border-white/10 shadow-tactile"
               >
-                <div className="w-8 h-8 rounded-full bg-white/30 mb-4" />
-                <p className="font-medium mb-4">Guía de Estudio</p>
-                <div className="w-full h-2 bg-white/20 rounded-full mb-2" />
-                <div className="w-full h-2 bg-white/20 rounded-full" />
+                <div className="flex items-center justify-between mb-4 border-b border-white/20 pb-3">
+                  <p className="text-[10px] font-bold uppercase tracking-widest opacity-80">Guía de Estudio</p>
+                </div>
+                <p className="text-sm font-medium leading-relaxed mb-3">
+                  1. ¿Cómo podemos practicar esta gracia activa en nuestra comunidad esta semana?
+                </p>
+                <p className="text-[10px] uppercase tracking-wider opacity-60">Pregunta 01</p>
               </div>
             </div>
           </div>
         </div>
       </header>
+
+      {/* Social Proof Strip */}
+      <div className="relative z-10 border-t border-border/30 py-8">
+        <div className="max-w-4xl mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
+          <p className="text-sm text-muted-foreground font-medium uppercase tracking-widest">Built for churches like yours</p>
+          <div className="flex items-center gap-8 md:gap-12 text-muted-foreground/50">
+            <div className="text-center">
+              <p className="text-2xl font-playfair font-bold text-foreground">15+</p>
+              <p className="text-xs text-muted-foreground">Languages</p>
+            </div>
+            <div className="w-px h-8 bg-border/50" />
+            <div className="text-center">
+              <p className="text-2xl font-playfair font-bold text-foreground">6</p>
+              <p className="text-xs text-muted-foreground">Content types</p>
+            </div>
+            <div className="w-px h-8 bg-border/50" />
+            <div className="text-center">
+              <p className="text-2xl font-playfair font-bold text-foreground">&lt;5 min</p>
+              <p className="text-xs text-muted-foreground">Per sermon</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Problem Statement */}
       <section className="py-20 md:py-28 relative z-10">
@@ -249,254 +271,220 @@ const Index = () => {
       </section>
 
       {/* How It Works */}
-      <section id="how-it-works" className="py-20 md:py-28 bg-card relative z-10">
-        <div ref={howItWorksRef} className="max-w-5xl mx-auto px-6 md:px-12 opacity-0 translate-y-8 transition-all duration-700 ease-out">
-          <h2 className="text-3xl md:text-4xl font-playfair font-bold text-center mb-16">
-            Three steps. Five minutes.
-          </h2>
-          <div className="grid md:grid-cols-3 gap-12">
-            <div className="text-center">
-              <span className="text-5xl font-playfair font-bold text-primary block mb-4">1</span>
-              <h3 className="text-xl font-bold mb-2">Paste your transcript</h3>
-              <p className="text-muted-foreground">Upload, paste, or type your sermon. That's it.</p>
+      <section id="how-it-works" className="py-24 md:py-32 bg-background relative z-10 border-t border-border/30">
+        <div ref={howItWorksRef} className="max-w-6xl mx-auto px-6 md:px-12 opacity-0 translate-y-8 transition-all duration-700 ease-out">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-20">
+
+            {/* Sticky Left Column */}
+            <div className="md:col-span-5">
+              <div className="sticky top-32">
+                <span className="text-xs font-bold uppercase tracking-widest text-primary mb-4 block">The Methodology</span>
+                <h2 className="text-4xl md:text-5xl font-playfair font-bold leading-tight mb-6">
+                  Your message, <br/>architected for the week.
+                </h2>
+                <p className="text-lg text-muted-foreground">We removed the friction between the pulpit and the digital world.</p>
+              </div>
             </div>
-            <div className="text-center">
-              <span className="text-5xl font-playfair font-bold text-primary block mb-4">2</span>
-              <h3 className="text-xl font-bold mb-2">Choose your content</h3>
-              <p className="text-muted-foreground">Social posts, study guides, devotionals, newsletters, podcast descriptions — pick what you need.</p>
-            </div>
-            <div className="text-center">
-              <span className="text-5xl font-playfair font-bold text-primary block mb-4">3</span>
-              <h3 className="text-xl font-bold mb-2">Edit and publish</h3>
-              <p className="text-muted-foreground">Review, tweak if you like, then copy or export. Done in minutes.</p>
+
+            {/* Scrolling Right Column */}
+            <div className="md:col-span-6 md:col-start-7 space-y-16 mt-12 md:mt-0">
+
+              {/* Step 1 */}
+              <div className="relative pl-8 md:pl-12 border-l border-border/60">
+                <span className="absolute -left-[18px] top-0 text-sm font-bold bg-background text-primary py-1 px-2 font-playfair italic">I.</span>
+                <h3 className="text-2xl font-playfair font-bold mb-3">The Ingestion</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Upload your raw audio, video, or pasted text transcript. The engine instantly analyzes your theological framework, tone, and pacing.
+                </p>
+              </div>
+
+              {/* Step 2 */}
+              <div className="relative pl-8 md:pl-12 border-l border-border/60">
+                <span className="absolute -left-[20px] top-0 text-sm font-bold bg-background text-primary py-1 px-2 font-playfair italic">II.</span>
+                <h3 className="text-2xl font-playfair font-bold mb-3">The Expansion</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Select your required outputs. Within moments, the AI generates highly contextual social threads, study guides, and devotionals in up to 22 languages simultaneously.
+                </p>
+              </div>
+
+              {/* Step 3 */}
+              <div className="relative pl-8 md:pl-12 border-l border-border/60">
+                <span className="absolute -left-[22px] top-0 text-sm font-bold bg-background text-primary py-1 px-2 font-playfair italic">III.</span>
+                <h3 className="text-2xl font-playfair font-bold mb-3">The Deployment</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Review your perfectly formatted text. Edit on the fly, export to PDF, or copy directly to your clipboard for instant scheduling.
+                </p>
+              </div>
+
             </div>
           </div>
         </div>
       </section>
 
-      {/* Content Types Tabbed Showcase */}
+      {/* Content Types — Editorial Index */}
       <section className="py-20 md:py-28 relative z-10">
-        <div ref={contentTypesRef} className="max-w-5xl mx-auto px-6 md:px-12 opacity-0 translate-y-8 transition-all duration-700 ease-out">
-          <h2 className="text-3xl md:text-4xl font-playfair font-bold text-center mb-4">
+        <div ref={contentTypesRef} className="max-w-6xl mx-auto px-6 md:px-12 opacity-0 translate-y-8 transition-all duration-700 ease-out">
+          <span className="text-xs font-bold uppercase tracking-widest text-primary mb-4 block">What You Get</span>
+          <h2 className="text-4xl md:text-5xl font-playfair font-bold mb-4">
             One sermon. Six ways to reach your community.
           </h2>
-          <p className="text-lg text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
+          <p className="text-lg text-muted-foreground mb-16 max-w-2xl">
             Choose the content types you need — Ivangel generates them all from a single transcript.
           </p>
 
           <Tabs defaultValue="social" className="w-full">
-            <TabsList className="flex flex-wrap justify-center gap-2 bg-transparent h-auto mb-8">
-              <TabsTrigger value="social" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium">
-                Social Media Posts
-              </TabsTrigger>
-              <TabsTrigger value="study" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium">
-                Bible Study Guides
-              </TabsTrigger>
-              <TabsTrigger value="devotional" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium">
-                Daily Devotionals
-              </TabsTrigger>
-              <TabsTrigger value="podcast" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium">
-                Podcast Descriptions
-              </TabsTrigger>
-              <TabsTrigger value="newsletter" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium">
-                Email Newsletters
-              </TabsTrigger>
-              <TabsTrigger value="event" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium">
-                Event Promotions
-              </TabsTrigger>
-            </TabsList>
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-16">
 
-            {/* Social Media Posts */}
-            <TabsContent value="social">
-              <div className="grid md:grid-cols-2 gap-8 items-center">
-                <div>
-                  <h3 className="text-2xl font-playfair font-bold mb-4">Social Media Posts</h3>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Platform-optimised posts for Facebook, Instagram, TikTok, and X. Multiple variations, hashtags included.
-                  </p>
-                </div>
-                <div className="flex justify-center">
-                  <div
-                    className="bg-card rounded-2xl p-6 w-full max-w-sm rotate-2"
-                    style={{ boxShadow: "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)" }}
-                  >
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 rounded-full bg-accent" />
+              {/* Left: Vertical Tab Nav */}
+              <TabsList className="md:col-span-4 flex flex-col items-start bg-transparent h-auto gap-0 border-l border-border/40">
+                <TabsTrigger value="social" className="w-full justify-start text-left pl-6 py-4 text-base rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:font-bold data-[state=active]:shadow-none data-[state=active]:border-l-2 data-[state=active]:border-primary data-[state=active]:-ml-px text-muted-foreground hover:text-foreground transition-colors">
+                  Social Media Posts
+                </TabsTrigger>
+                <TabsTrigger value="study" className="w-full justify-start text-left pl-6 py-4 text-base rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:font-bold data-[state=active]:shadow-none data-[state=active]:border-l-2 data-[state=active]:border-primary data-[state=active]:-ml-px text-muted-foreground hover:text-foreground transition-colors">
+                  Bible Study Guides
+                </TabsTrigger>
+                <TabsTrigger value="devotional" className="w-full justify-start text-left pl-6 py-4 text-base rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:font-bold data-[state=active]:shadow-none data-[state=active]:border-l-2 data-[state=active]:border-primary data-[state=active]:-ml-px text-muted-foreground hover:text-foreground transition-colors">
+                  Daily Devotionals
+                </TabsTrigger>
+                <TabsTrigger value="podcast" className="w-full justify-start text-left pl-6 py-4 text-base rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:font-bold data-[state=active]:shadow-none data-[state=active]:border-l-2 data-[state=active]:border-primary data-[state=active]:-ml-px text-muted-foreground hover:text-foreground transition-colors">
+                  Podcast Descriptions
+                </TabsTrigger>
+                <TabsTrigger value="newsletter" className="w-full justify-start text-left pl-6 py-4 text-base rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:font-bold data-[state=active]:shadow-none data-[state=active]:border-l-2 data-[state=active]:border-primary data-[state=active]:-ml-px text-muted-foreground hover:text-foreground transition-colors">
+                  Email Newsletters
+                </TabsTrigger>
+                <TabsTrigger value="event" className="w-full justify-start text-left pl-6 py-4 text-base rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:font-bold data-[state=active]:shadow-none data-[state=active]:border-l-2 data-[state=active]:border-primary data-[state=active]:-ml-px text-muted-foreground hover:text-foreground transition-colors">
+                  Event Promotions
+                </TabsTrigger>
+              </TabsList>
+
+              {/* Right: Content Panels */}
+              <div className="md:col-span-8">
+                {/* Social Media Posts */}
+                <TabsContent value="social" className="mt-0">
+                  <div className="bg-card rounded-2xl p-8 shadow-tactile border border-border/30">
+                    <div className="flex items-center gap-3 mb-5">
+                      <div className="w-10 h-10 rounded-full bg-accent" />
                       <div>
                         <p className="font-semibold text-sm text-card-foreground">Grace Community Church</p>
                         <p className="text-xs text-muted-foreground">@gracechurch</p>
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <div className="w-full h-2 bg-muted rounded-full" />
-                      <div className="w-5/6 h-2 bg-muted rounded-full" />
-                      <div className="w-4/6 h-2 bg-muted rounded-full" />
-                    </div>
-                    <div className="mt-4 flex gap-2 flex-wrap">
-                      <span className="text-xs text-primary">#faith</span>
-                      <span className="text-xs text-primary">#sermon</span>
-                      <span className="text-xs text-primary">#community</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-
-            {/* Bible Study Guides */}
-            <TabsContent value="study">
-              <div className="grid md:grid-cols-2 gap-8 items-center">
-                <div>
-                  <h3 className="text-2xl font-playfair font-bold mb-4">Bible Study Guides</h3>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Discussion questions, scripture references, and application points. Ready for your small group leaders.
-                  </p>
-                </div>
-                <div className="flex justify-center">
-                  <div
-                    className="bg-card rounded-2xl p-6 w-full max-w-sm -rotate-1"
-                    style={{ boxShadow: "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)" }}
-                  >
-                    <p className="font-semibold text-card-foreground mb-4">Discussion Questions</p>
-                    <div className="space-y-3">
-                      {[1, 2, 3].map((n) => (
-                        <div key={n} className="flex gap-3 items-start">
-                          <span className="text-xs font-bold text-primary mt-0.5">{n}.</span>
-                          <div className="flex-1 space-y-1">
-                            <div className="w-full h-2 bg-muted rounded-full" />
-                            <div className="w-4/5 h-2 bg-muted rounded-full" />
-                          </div>
-                        </div>
-                      ))}
+                    <p className="text-card-foreground leading-relaxed mb-4">
+                      "Grace isn't passive — it's the most active force in the universe. This Sunday we explored what it means to carry that into Monday morning."
+                    </p>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Tap the link in bio to read the full devotional series this week.
+                    </p>
+                    <div className="flex gap-2 flex-wrap">
+                      <span className="text-xs text-primary font-medium">#SundaySermon</span>
+                      <span className="text-xs text-primary font-medium">#ActiveGrace</span>
+                      <span className="text-xs text-primary font-medium">#ChurchLife</span>
                     </div>
                   </div>
-                </div>
-              </div>
-            </TabsContent>
+                </TabsContent>
 
-            {/* Daily Devotionals */}
-            <TabsContent value="devotional">
-              <div className="grid md:grid-cols-2 gap-8 items-center">
-                <div>
-                  <h3 className="text-2xl font-playfair font-bold mb-4">Daily Devotionals</h3>
-                  <p className="text-muted-foreground leading-relaxed">
-                    A week of devotionals from one sermon. Blended format with scripture and reflection.
-                  </p>
-                </div>
-                <div className="flex justify-center">
-                  <div
-                    className="bg-card rounded-2xl p-6 w-full max-w-sm rotate-1"
-                    style={{ boxShadow: "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)" }}
-                  >
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Day 1</p>
-                    <p className="font-semibold text-card-foreground mb-4">Monday Devotional</p>
-                    <div className="space-y-2">
-                      <div className="w-full h-2 bg-muted rounded-full" />
-                      <div className="w-full h-2 bg-muted rounded-full" />
-                      <div className="w-3/4 h-2 bg-muted rounded-full" />
-                    </div>
-                    <div className="mt-4 pt-4 border-t border-border">
-                      <p className="text-xs font-medium text-muted-foreground italic">Reflection prompt below...</p>
+                {/* Bible Study Guides */}
+                <TabsContent value="study" className="mt-0">
+                  <div className="bg-card rounded-2xl p-8 shadow-tactile border border-border/30">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-4">Small Group Discussion Guide</p>
+                    <div className="space-y-5">
+                      <div className="flex gap-4 items-start">
+                        <span className="text-sm font-bold text-primary font-playfair italic mt-0.5">1.</span>
+                        <p className="text-card-foreground leading-relaxed">What does "active grace" look like in your workplace or neighbourhood this week?</p>
+                      </div>
+                      <div className="flex gap-4 items-start">
+                        <span className="text-sm font-bold text-primary font-playfair italic mt-0.5">2.</span>
+                        <p className="text-card-foreground leading-relaxed">Read James 2:14–17. How does this passage reframe the sermon's central idea?</p>
+                      </div>
+                      <div className="flex gap-4 items-start">
+                        <span className="text-sm font-bold text-primary font-playfair italic mt-0.5">3.</span>
+                        <p className="text-card-foreground leading-relaxed">Share a moment when someone extended grace to you unexpectedly. What changed?</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            </TabsContent>
+                </TabsContent>
 
-            {/* Podcast Descriptions */}
-            <TabsContent value="podcast">
-              <div className="grid md:grid-cols-2 gap-8 items-center">
-                <div>
-                  <h3 className="text-2xl font-playfair font-bold mb-4">Podcast Descriptions</h3>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Episode summaries with timestamps, tags, and SEO-friendly descriptions. 150–250 words.
-                  </p>
-                </div>
-                <div className="flex justify-center">
-                  <div
-                    className="bg-card rounded-2xl p-6 w-full max-w-sm -rotate-2"
-                    style={{ boxShadow: "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)" }}
-                  >
-                    <p className="text-xs text-muted-foreground mb-1">Episode 42</p>
-                    <p className="font-semibold text-card-foreground mb-4">[Sermon Title Here]</p>
-                    <div className="space-y-2 mb-4">
-                      <div className="w-full h-2 bg-muted rounded-full" />
-                      <div className="w-full h-2 bg-muted rounded-full" />
-                      <div className="w-5/6 h-2 bg-muted rounded-full" />
+                {/* Daily Devotionals */}
+                <TabsContent value="devotional" className="mt-0">
+                  <div className="bg-card rounded-2xl p-8 shadow-tactile border border-border/30">
+                    <div className="flex items-center justify-between mb-5 border-b border-border/50 pb-4">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Day 1 &bull; Monday</p>
+                      <p className="text-xs text-muted-foreground italic">2 min read</p>
                     </div>
-                    <div className="flex gap-2">
-                      <span className="text-xs bg-muted px-2 py-0.5 rounded-full text-muted-foreground">faith</span>
-                      <span className="text-xs bg-muted px-2 py-0.5 rounded-full text-muted-foreground">church</span>
+                    <h4 className="font-playfair text-xl font-bold mb-3 text-card-foreground">The Weight of a Small Kindness</h4>
+                    <p className="text-card-foreground leading-relaxed mb-4">
+                      "Carry each other's burdens, and in this way you will fulfil the law of Christ." — Galatians 6:2
+                    </p>
+                    <p className="text-muted-foreground leading-relaxed text-sm">
+                      Today's reflection: grace doesn't always announce itself. Sometimes it arrives as a text message, a meal left on a doorstep, or five quiet minutes of listening.
+                    </p>
+                    <div className="mt-5 pt-4 border-t border-border/40">
+                      <p className="text-xs font-medium text-primary italic">Reflect: Who in your circle needs a small kindness today?</p>
                     </div>
                   </div>
-                </div>
-              </div>
-            </TabsContent>
+                </TabsContent>
 
-            {/* Email Newsletters */}
-            <TabsContent value="newsletter">
-              <div className="grid md:grid-cols-2 gap-8 items-center">
-                <div>
-                  <h3 className="text-2xl font-playfair font-bold mb-4">Email Newsletters</h3>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Subject line, preview text, and full draft. 400–600 words, structured sections.
-                  </p>
-                </div>
-                <div className="flex justify-center">
-                  <div
-                    className="bg-card rounded-2xl p-6 w-full max-w-sm rotate-1"
-                    style={{ boxShadow: "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)" }}
-                  >
-                    <div className="space-y-3">
+                {/* Podcast Descriptions */}
+                <TabsContent value="podcast" className="mt-0">
+                  <div className="bg-card rounded-2xl p-8 shadow-tactile border border-border/30">
+                    <p className="text-xs text-muted-foreground mb-1">Episode 42 &bull; Season 3</p>
+                    <h4 className="font-playfair text-xl font-bold mb-3 text-card-foreground">Active Grace: Beyond the Pew</h4>
+                    <p className="text-card-foreground leading-relaxed mb-4">
+                      Pastor James unpacks what happens when Sunday's message meets Monday's reality. Drawing from James 2 and personal stories from the congregation, this episode challenges us to move grace from concept to practice.
+                    </p>
+                    <div className="border-t border-border/40 pt-4 space-y-2">
+                      <p className="text-xs text-muted-foreground"><span className="font-semibold">00:00</span> — Introduction &amp; recap</p>
+                      <p className="text-xs text-muted-foreground"><span className="font-semibold">04:30</span> — The theology of active grace</p>
+                      <p className="text-xs text-muted-foreground"><span className="font-semibold">18:15</span> — Congregation stories</p>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                {/* Email Newsletters */}
+                <TabsContent value="newsletter" className="mt-0">
+                  <div className="bg-card rounded-2xl p-8 shadow-tactile border border-border/30">
+                    <div className="space-y-4">
                       <div>
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Subject</p>
-                        <p className="text-sm font-medium text-card-foreground">This Week at [Church Name]</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Subject Line</p>
+                        <p className="text-base font-medium text-card-foreground">This week: turning Sunday's grace into Monday's action</p>
                       </div>
-                      <div className="border-t border-border pt-3 space-y-2">
-                        <div className="w-full h-2 bg-muted rounded-full" />
-                        <div className="w-full h-2 bg-muted rounded-full" />
-                        <div className="w-4/5 h-2 bg-muted rounded-full" />
+                      <div className="border-t border-border/40 pt-4">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Preview</p>
+                        <p className="text-sm text-card-foreground leading-relaxed">
+                          Dear Grace Community family — this Sunday, Pastor James reminded us that grace is a verb. Here's how to live it out this week, plus your devotional guide, small group questions, and details on next Saturday's community outreach...
+                        </p>
                       </div>
-                      <div className="border-t border-border pt-3 space-y-2">
-                        <div className="w-full h-2 bg-muted rounded-full" />
-                        <div className="w-3/5 h-2 bg-muted rounded-full" />
+                      <div className="border-t border-border/40 pt-4">
+                        <p className="text-xs text-muted-foreground italic">Estimated read time: 3 minutes &bull; 480 words</p>
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            </TabsContent>
+                </TabsContent>
 
-            {/* Event Promotions */}
-            <TabsContent value="event">
-              <div className="grid md:grid-cols-2 gap-8 items-center">
-                <div>
-                  <h3 className="text-2xl font-playfair font-bold mb-4">Event Promotions</h3>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Not from a sermon — structured event fields for announcements, outreach, and special services.
-                  </p>
-                </div>
-                <div className="flex justify-center">
-                  <div
-                    className="bg-card rounded-2xl p-6 w-full max-w-sm -rotate-1"
-                    style={{ boxShadow: "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)" }}
-                  >
-                    <p className="font-semibold text-card-foreground mb-4">Easter Sunday Service</p>
-                    <div className="space-y-3">
+                {/* Event Promotions */}
+                <TabsContent value="event" className="mt-0">
+                  <div className="bg-card rounded-2xl p-8 shadow-tactile border border-border/30">
+                    <h4 className="font-playfair text-xl font-bold mb-4 text-card-foreground">Easter Sunday Service</h4>
+                    <div className="space-y-3 border-t border-border/40 pt-4">
                       {[
                         { label: "Date", value: "April 20, 2025" },
                         { label: "Time", value: "9:00 AM & 11:00 AM" },
                         { label: "Location", value: "Main Sanctuary" },
+                        { label: "Childcare", value: "Available for ages 0–5" },
                       ].map(({ label, value }) => (
-                        <div key={label} className="flex justify-between text-sm">
+                        <div key={label} className="flex justify-between text-sm py-1 border-b border-border/20 last:border-0">
                           <span className="text-muted-foreground font-medium">{label}</span>
                           <span className="text-card-foreground">{value}</span>
                         </div>
                       ))}
                     </div>
+                    <p className="text-sm text-muted-foreground mt-4 leading-relaxed">
+                      Join us for a morning of celebration, worship, and community. Invite your neighbours — everyone is welcome.
+                    </p>
                   </div>
-                </div>
+                </TabsContent>
               </div>
-            </TabsContent>
+            </div>
           </Tabs>
         </div>
       </section>
@@ -506,19 +494,20 @@ const Index = () => {
         <div ref={tapestryRef} className="max-w-5xl mx-auto px-6 md:px-12 flex flex-col items-center opacity-0 translate-y-8 transition-all duration-700 ease-out">
           {/* Section header */}
           <div className="text-center max-w-2xl mb-16">
+            <span className="text-xs font-bold uppercase tracking-widest text-primary mb-4 block">Multilingual Outreach</span>
             <h2 className="font-playfair text-4xl md:text-5xl font-bold mb-4">
-              Speak to their heart.
+              One sermon, every language your community speaks.
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Hover over a language to see how your pastoral voice translates across cultures. 15+ languages supported.
+              Hover over a language to see how your pastoral voice translates across cultures. 15+ languages supported — instantly.
             </p>
           </div>
 
           {/* Interactive Map Area */}
-          <div className="w-full max-w-4xl h-[500px] relative bg-background rounded-3xl overflow-hidden shadow-[0_10px_40px_-10px_rgba(58,53,47,0.1),0_2px_10px_-2px_rgba(58,53,47,0.05)] border border-border/50">
+          <div className="w-full max-w-4xl h-[500px] relative bg-background rounded-3xl overflow-hidden shadow-tactile border border-border/50">
 
             {/* Central Display Card */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-md bg-card p-8 rounded-2xl shadow-[0_10px_40px_-10px_rgba(58,53,47,0.1)] z-30 transition-all duration-500">
+            <div aria-live="polite" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-md bg-card p-8 rounded-2xl shadow-tactile z-30 transition-all duration-500">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-4 h-4 rounded-full" style={{ backgroundColor: activeLang.color }} />
                 <span className="font-bold text-lg" style={{ color: activeLang.color }}>{activeLang.name}</span>
@@ -552,7 +541,7 @@ const Index = () => {
 
           {/* Note below map */}
           <p className="text-muted-foreground text-center mt-6 text-sm">
-            Also available in: French, Portuguese, German, Mandarin, Hindi, Tagalog, and more.
+            Also available in: French, Portuguese, German, Mandarin, Hindi, Swahili, and more.
           </p>
         </div>
       </section>
@@ -566,19 +555,53 @@ const Index = () => {
             {/* Text side — left on desktop */}
             <div>
               <h3 className="text-3xl md:text-4xl font-playfair font-bold mb-6">Your voice, not ours.</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed">Ivangel crawls your church website and learns your tone, vocabulary, and style. Every output sounds like you wrote it — because it's built on your words, your theology, your heart for your community.</p>
+              <p className="text-lg text-muted-foreground leading-relaxed mb-4">During onboarding, Ivangel crawls your church website and analyses your sermons to learn your tone, vocabulary, theological emphasis, and pastoral style. It builds a voice profile unique to your ministry.</p>
+              <p className="text-lg text-muted-foreground leading-relaxed">Every output sounds like you wrote it — because it's built on your words. And you can refine your voice profile at any time from your settings.</p>
             </div>
             {/* Visual side — right on desktop */}
             <div
-              className="w-full h-72 rounded-3xl p-8 flex flex-col justify-end -rotate-2 bg-primary"
-              style={{ boxShadow: "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)" }}
+              className="w-full min-h-[320px] rounded-3xl p-8 flex flex-col justify-between -rotate-2 bg-primary shadow-tactile"
             >
+              <div className="text-primary-foreground/60 text-[10px] font-bold uppercase tracking-widest mb-4">Voice Profile</div>
+              <div className="space-y-3 flex-1">
+                <div className="bg-white/10 rounded-xl px-4 py-3 backdrop-blur-sm">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-primary-foreground text-xs font-semibold">Theological Tone</span>
+                    <span className="text-primary-foreground/80 text-xs">Reformed · Pastoral</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-white/15 rounded-full overflow-hidden">
+                    <div className="w-[88%] h-full bg-primary-foreground/90 rounded-full" />
+                  </div>
+                </div>
+                <div className="bg-white/10 rounded-xl px-4 py-3 backdrop-blur-sm">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-primary-foreground text-xs font-semibold">Warmth &amp; Approachability</span>
+                    <span className="text-primary-foreground/80 text-xs">High</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-white/15 rounded-full overflow-hidden">
+                    <div className="w-[94%] h-full bg-primary-foreground/90 rounded-full" />
+                  </div>
+                </div>
+                <div className="bg-white/10 rounded-xl px-4 py-3 backdrop-blur-sm">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-primary-foreground text-xs font-semibold">Scripture Usage</span>
+                    <span className="text-primary-foreground/80 text-xs">Frequent · NIV</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-white/15 rounded-full overflow-hidden">
+                    <div className="w-[76%] h-full bg-primary-foreground/90 rounded-full" />
+                  </div>
+                </div>
+              </div>
               <div
-                className="bg-card p-6 rounded-2xl w-4/5 ml-auto translate-y-4"
-                style={{ boxShadow: "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)" }}
+                className="bg-card p-4 rounded-2xl mt-4 shadow-tactile"
               >
-                <p className="font-semibold mb-1">Voice Match: 94%</p>
-                <p className="text-sm text-muted-foreground">Grace Community Church</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold text-sm">Voice Match: 94%</p>
+                    <p className="text-xs text-muted-foreground">Grace Community Church</p>
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Editable</span>
+                </div>
               </div>
             </div>
           </div>
@@ -587,33 +610,32 @@ const Index = () => {
           <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center mt-20">
             {/* Visual side — left on desktop */}
             <div
-              className="order-2 md:order-1 w-full h-72 rounded-3xl p-8 flex flex-col justify-center rotate-2 bg-secondary"
-              style={{ boxShadow: "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)" }}
+              className="order-2 md:order-1 w-full h-72 rounded-3xl p-8 flex flex-col justify-center rotate-2 bg-secondary shadow-tactile"
             >
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <div
-                  className="bg-card p-4 rounded-xl w-2/5"
-                  style={{ boxShadow: "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)" }}
+                  className="bg-card p-4 rounded-xl w-[45%] shadow-tactile"
                 >
-                  <p className="font-semibold text-sm mb-2">Week 3</p>
-                  <div className="w-full h-2 bg-muted rounded-full mb-1.5" />
-                  <div className="w-4/5 h-2 bg-muted rounded-full" />
+                  <p className="font-semibold text-xs mb-2">Week 3 <span className="font-normal text-muted-foreground">· Forgiveness</span></p>
+                  <p className="text-[11px] text-muted-foreground leading-snug">"As we explored last week, grace precedes forgiveness..."</p>
                 </div>
-                <div className="border-t-2 border-dashed border-white/40 w-8 flex-shrink-0" />
+                <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                  <div className="border-t-2 border-dashed border-white/40 w-6" />
+                  <span className="text-[9px] text-white/50 font-bold uppercase tracking-wider">linked</span>
+                  <div className="border-t-2 border-dashed border-white/40 w-6" />
+                </div>
                 <div
-                  className="bg-card p-4 rounded-xl w-2/5"
-                  style={{ boxShadow: "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)" }}
+                  className="bg-card p-4 rounded-xl w-[45%] shadow-tactile"
                 >
-                  <p className="font-semibold text-sm mb-2">Week 4</p>
-                  <div className="w-full h-2 bg-muted rounded-full mb-1.5" />
-                  <div className="w-4/5 h-2 bg-muted rounded-full" />
+                  <p className="font-semibold text-xs mb-2">Week 4 <span className="font-normal text-muted-foreground">· Restoration</span></p>
+                  <p className="text-[11px] text-muted-foreground leading-snug">"Building on last week's theme of forgiveness, we turn to restoration..."</p>
                 </div>
               </div>
             </div>
             {/* Text side — right on desktop */}
             <div className="order-1 md:order-2">
               <h3 className="text-3xl md:text-4xl font-playfair font-bold mb-6">Series-aware content.</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed">Running a sermon series? Ivangel connects this week's message to last week's. Cross-references, callbacks, and continuity across every content type — your community gets a coherent journey, not isolated fragments.</p>
+              <p className="text-lg text-muted-foreground leading-relaxed">Running a sermon series? Ivangel keeps track. Tag each sermon with its series and week number, and the AI weaves that context into every output — referencing the series theme, maintaining consistent messaging, and framing each week within the bigger story.</p>
             </div>
           </div>
 
@@ -626,16 +648,44 @@ const Index = () => {
             </div>
             {/* Visual side — right on desktop */}
             <div
-              className="w-full h-72 rounded-3xl p-8 flex flex-wrap items-center justify-center gap-3 -rotate-1 bg-accent/20 border border-accent/30"
-              style={{ boxShadow: "0 10px 40px -10px rgba(58,53,47,0.1), 0 2px 10px -2px rgba(58,53,47,0.05)" }}
+              className="w-full min-h-[288px] rounded-3xl p-8 flex flex-wrap items-center justify-center gap-4 -rotate-1 bg-accent/20 border border-accent/30 shadow-tactile"
             >
-              <span className="bg-card rounded-lg px-4 py-2 text-sm font-medium shadow-sm">Facebook</span>
-              <span className="bg-card rounded-lg px-4 py-2 text-sm font-medium shadow-sm">Instagram</span>
-              <span className="bg-card rounded-lg px-4 py-2 text-sm font-medium shadow-sm">TikTok</span>
-              <span className="bg-card rounded-lg px-4 py-2 text-sm font-medium shadow-sm">X</span>
-              <span className="bg-card rounded-lg px-4 py-2 text-sm font-medium shadow-sm">PDF</span>
-              <span className="bg-card rounded-lg px-4 py-2 text-sm font-medium shadow-sm">DOCX</span>
-              <span className="bg-card rounded-lg px-4 py-2 text-sm font-medium shadow-sm">Clipboard</span>
+              <div className="bg-card rounded-xl px-5 py-3 flex items-center gap-3 shadow-sm hover:shadow-tactile transition-shadow">
+                <Facebook size={20} className="text-[#1877F2]" />
+                <span className="text-sm font-medium">Facebook</span>
+              </div>
+              <div className="bg-card rounded-xl px-5 py-3 flex items-center gap-3 shadow-sm hover:shadow-tactile transition-shadow">
+                <Instagram size={20} className="text-[#E4405F]" />
+                <span className="text-sm font-medium">Instagram</span>
+              </div>
+              <div className="bg-card rounded-xl px-5 py-3 flex items-center gap-3 shadow-sm hover:shadow-tactile transition-shadow">
+                <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V8.89a8.1 8.1 0 0 0 4.76 1.52V6.97a4.83 4.83 0 0 1-1-.28z"/></svg>
+                <span className="text-sm font-medium">TikTok</span>
+              </div>
+              <div className="bg-card rounded-xl px-5 py-3 flex items-center gap-3 shadow-sm hover:shadow-tactile transition-shadow">
+                <Twitter size={20} />
+                <span className="text-sm font-medium">X</span>
+              </div>
+              <div className="bg-card rounded-xl px-5 py-3 flex items-center gap-3 shadow-sm hover:shadow-tactile transition-shadow">
+                <Mail size={20} className="text-muted-foreground" />
+                <span className="text-sm font-medium">Email</span>
+              </div>
+              <div className="bg-card rounded-xl px-5 py-3 flex items-center gap-3 shadow-sm hover:shadow-tactile transition-shadow">
+                <FileText size={20} className="text-[#D32F2F]" />
+                <span className="text-sm font-medium">PDF</span>
+              </div>
+              <div className="bg-card rounded-xl px-5 py-3 flex items-center gap-3 shadow-sm hover:shadow-tactile transition-shadow">
+                <FileText size={20} className="text-[#2B579A]" />
+                <span className="text-sm font-medium">DOCX</span>
+              </div>
+              <div className="bg-card rounded-xl px-5 py-3 flex items-center gap-3 shadow-sm hover:shadow-tactile transition-shadow">
+                <Clipboard size={20} className="text-muted-foreground" />
+                <span className="text-sm font-medium">Clipboard</span>
+              </div>
+              <div className="bg-card rounded-xl px-5 py-3 flex items-center gap-3 shadow-sm hover:shadow-tactile transition-shadow">
+                <Music size={20} className="text-[#8B5CF6]" />
+                <span className="text-sm font-medium">Podcast</span>
+              </div>
             </div>
           </div>
 
@@ -654,7 +704,7 @@ const Index = () => {
 
           <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
             {/* Single Church */}
-            <Card className="shadow-[0_10px_40px_-10px_rgba(58,53,47,0.1),0_2px_10px_-2px_rgba(58,53,47,0.05)]">
+            <Card className="shadow-tactile">
               <CardHeader className="text-center pb-4">
                 <CardTitle className="text-lg font-medium text-muted-foreground">Single Church</CardTitle>
                 <div className="mt-2">
@@ -692,7 +742,10 @@ const Index = () => {
             </Card>
 
             {/* Multi-site */}
-            <Card className="border-primary border-2 shadow-[0_10px_40px_-10px_rgba(58,53,47,0.1),0_2px_10px_-2px_rgba(58,53,47,0.05)]">
+            <Card className="border-primary border-2 shadow-tactile relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest rounded-full">
+                Most Popular
+              </div>
               <CardHeader className="text-center pb-4">
                 <CardTitle className="text-lg font-medium text-muted-foreground">Multi-site</CardTitle>
                 <div className="mt-2">
@@ -728,9 +781,9 @@ const Index = () => {
             Frequently Asked Questions
           </h2>
 
-          <Accordion type="single" collapsible className="w-full space-y-3">
-            <AccordionItem value="item-1" className="border border-border/50 rounded-xl px-6">
-              <AccordionTrigger className="text-left font-semibold hover:no-underline py-4">
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1" className="border-b border-border/40 px-0 bg-transparent">
+              <AccordionTrigger className="text-left font-playfair text-xl md:text-2xl hover:no-underline py-6 text-foreground/90">
                 What kind of content does Ivangel create?
               </AccordionTrigger>
               <AccordionContent>
@@ -738,8 +791,8 @@ const Index = () => {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-2" className="border border-border/50 rounded-xl px-6">
-              <AccordionTrigger className="text-left font-semibold hover:no-underline py-4">
+            <AccordionItem value="item-2" className="border-b border-border/40 px-0 bg-transparent">
+              <AccordionTrigger className="text-left font-playfair text-xl md:text-2xl hover:no-underline py-6 text-foreground/90">
                 How does the free trial work?
               </AccordionTrigger>
               <AccordionContent>
@@ -747,8 +800,8 @@ const Index = () => {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-3" className="border border-border/50 rounded-xl px-6">
-              <AccordionTrigger className="text-left font-semibold hover:no-underline py-4">
+            <AccordionItem value="item-3" className="border-b border-border/40 px-0 bg-transparent">
+              <AccordionTrigger className="text-left font-playfair text-xl md:text-2xl hover:no-underline py-6 text-foreground/90">
                 Can it match our church's voice and style?
               </AccordionTrigger>
               <AccordionContent>
@@ -756,8 +809,8 @@ const Index = () => {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-4" className="border border-border/50 rounded-xl px-6">
-              <AccordionTrigger className="text-left font-semibold hover:no-underline py-4">
+            <AccordionItem value="item-4" className="border-b border-border/40 px-0 bg-transparent">
+              <AccordionTrigger className="text-left font-playfair text-xl md:text-2xl hover:no-underline py-6 text-foreground/90">
                 What languages are supported?
               </AccordionTrigger>
               <AccordionContent>
@@ -765,8 +818,8 @@ const Index = () => {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-5" className="border border-border/50 rounded-xl px-6">
-              <AccordionTrigger className="text-left font-semibold hover:no-underline py-4">
+            <AccordionItem value="item-5" className="border-b border-border/40 px-0 bg-transparent">
+              <AccordionTrigger className="text-left font-playfair text-xl md:text-2xl hover:no-underline py-6 text-foreground/90">
                 Do I need technical skills to use this?
               </AccordionTrigger>
               <AccordionContent>
@@ -780,11 +833,12 @@ const Index = () => {
       {/* Warm CTA */}
       <section className="py-20 md:py-28 bg-primary relative z-10">
         <div ref={ctaRef} className="max-w-4xl mx-auto text-center px-6 md:px-12 opacity-0 translate-y-8 transition-all duration-700 ease-out">
+          <p className="text-sm font-bold uppercase tracking-widest text-primary-foreground/60 mb-6">Save 8+ hours every week</p>
           <h2 className="text-4xl md:text-5xl font-playfair font-bold mb-6 text-primary-foreground">
             Ready to give your team their week back?
           </h2>
           <p className="text-xl text-primary-foreground/80 mb-10 max-w-2xl mx-auto">
-            Join the beta. Keep your voice. Save your team hours. Welcome everyone in their language.
+            Keep your voice. Reach every language. Turn one sermon into a full week of content — before Monday morning coffee.
           </p>
           <Button asChild variant="secondary" size="lg" className="text-lg px-8 py-6">
             <Link to="/signup">Start your 14-day free trial</Link>
