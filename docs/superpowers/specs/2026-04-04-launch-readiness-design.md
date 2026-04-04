@@ -215,7 +215,8 @@ Runs once on first login. Accessible again from Settings. Lives at `/welcome` ro
 - UI shows 5 slots with the ability to add more. Progress indicator: "3 of 5 sermons added."
 - Secondary: newsletter excerpt, bulletin notice, social post
 - Copy: "Paste at least 5 recent sermon transcripts — this is the clearest window into your church's voice. The more you add, the better Ivangel knows how you speak."
-- Churches without 5 sermons ready see: "Add what you have now — you can complete this from Settings before your first generation."
+- Hard gate: the "Next" button on Step 3 is disabled until 5 sermons are submitted. No bypass.
+- Copy for churches in progress: "You've added 3 of 5 sermons. Add 2 more to continue — this is what makes Ivangel sound like you."
 - Sermons are stored, named, and reusable as source material for future generations
 
 **Step 4 — Style guide preview** (required)
@@ -235,7 +236,7 @@ Runs once on first login. Accessible again from Settings. Lives at `/welcome` ro
 
 - Completing all 5 steps creates a church profile, style guide record, and at least one generation record in DB
 - Scraper failure on Step 2 shows manual paste fallback, not an error screen
-- Attempting to skip the sermon input on Step 3 shows the warning copy
+- "Next" button on Step 3 is disabled with fewer than 5 sermons — no way to proceed
 - Style guide preview displays generated content from the scrape + sermon inputs
 - Completing the flow sets an `onboarding_completed` flag; flow does not show again on next login
 
