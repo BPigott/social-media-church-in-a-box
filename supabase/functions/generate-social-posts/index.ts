@@ -1323,13 +1323,33 @@ FINAL EMAIL NEWSLETTER VALIDATION (CHECK BEFORE RETURNING):
       }
     }
 
-    return new Response(JSON.stringify({
+    // === GENERATION LEDGER: UPDATE TO COMPLETED ===
+    const inputTokens = aiData?.usage?.input_tokens ?? 0;
+    const outputTokens = aiData?.usage?.output_tokens ?? 0;
+    // Haiku pricing: $1/M input, $5/M output
+    const estimatedCostUsd = (inputTokens / 1_000_000 * 1.0) + (outputTokens / 1_000_000 * 5.0);
+
+    const responsePayload = {
       ...cleanResponseContent,
       englishVersions: (primaryLanguage !== 'en' || outputLanguages.length > 1) ? englishContent : null,
       multiLanguageVersions: nonEnglishLanguages.length > 0 ? multiLanguageContent : null,
       outputLanguages,
       primaryLanguage
-    }), {
+    };
+
+    await supabase
+      .from('generations')
+      .update({
+        status: 'completed',
+        completed_at: new Date().toISOString(),
+        input_tokens: inputTokens,
+        output_tokens: outputTokens,
+        estimated_cost_usd: estimatedCostUsd,
+        result: responsePayload
+      })
+      .eq('idempotency_key', idempotencyKey);
+
+    return new Response(JSON.stringify(responsePayload), {
       headers: {
         ...corsHeaders,
         'Content-Type': 'application/json'
@@ -1341,14 +1361,27 @@ FINAL EMAIL NEWSLETTER VALIDATION (CHECK BEFORE RETURNING):
     console.error('Error type:', error instanceof Error ? error.constructor.name : typeof error);
     console.error('Error message:', error instanceof Error ? error.message : String(error));
     console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-    
+
+    // Mark generation as failed if we have an idempotency key
+    if (typeof idempotencyKey === 'string') {
+      const supabaseForCleanup = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      );
+      await supabaseForCleanup
+        .from('generations')
+        .update({ status: 'failed', completed_at: new Date().toISOString() })
+        .eq('idempotency_key', idempotencyKey)
+        .catch(() => {}); // best-effort, don't mask the original error
+    }
+
     // Try to stringify the error object
     try {
       console.error('Full error:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
     } catch (stringifyError) {
       console.error('Could not stringify error:', stringifyError);
     }
-    
+
     // Return a user-friendly error message
     const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     const isConfigError = errorMessage.includes('not configured') || errorMessage.includes('API key');
