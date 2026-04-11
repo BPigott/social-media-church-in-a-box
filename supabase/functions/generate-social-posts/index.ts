@@ -141,6 +141,16 @@ serve(async (req)=>{
       });
     }
 
+    // === IDEMPOTENCY KEY VALIDATION ===
+    const clonedBody = await req.clone().json().catch(() => ({}));
+    const idempotencyKey = clonedBody.idempotency_key;
+    if (!idempotencyKey) {
+      return new Response(JSON.stringify({ error: 'idempotency_key required' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
     console.log('=== PARSING REQUEST BODY ===');
     let requestBody;
     try {
@@ -257,7 +267,78 @@ serve(async (req)=>{
         }
       });
     }
-    
+
+    // === TOKEN BUDGET PRE-FLIGHT ===
+    if (!subscription.exempt) {
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const { data: usageRows } = await supabase
+        .from('generations')
+        .select('estimated_cost_usd')
+        .eq('user_id', user.id)
+        .eq('status', 'completed')
+        .gte('created_at', thirtyDaysAgo);
+
+      const monthlyCostUsd = (usageRows ?? []).reduce(
+        (sum: number, row: { estimated_cost_usd: number | null }) => sum + (row.estimated_cost_usd ?? 0),
+        0
+      );
+
+      // £25/month plan: allow up to $6 USD of compute (~200 full generations)
+      const MONTHLY_LIMIT_USD = 6.0;
+      if (monthlyCostUsd >= MONTHLY_LIMIT_USD) {
+        return new Response(JSON.stringify({
+          error: 'Monthly generation limit reached. Your limit resets in 30 days.',
+          monthly_cost_usd: monthlyCostUsd,
+          limit_usd: MONTHLY_LIMIT_USD
+        }), {
+          status: 402,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
+    // === GENERATION LEDGER: CHECK FOR EXISTING + INSERT PENDING ===
+    const { data: existingGeneration } = await supabase
+      .from('generations')
+      .select('status, result')
+      .eq('idempotency_key', idempotencyKey)
+      .maybeSingle();
+
+    if (existingGeneration?.status === 'completed') {
+      console.log('Returning cached generation for idempotency_key:', idempotencyKey);
+      return new Response(JSON.stringify(existingGeneration.result), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    if (existingGeneration?.status === 'pending') {
+      return new Response(JSON.stringify({ error: 'Generation already in progress' }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    const { error: insertError } = await supabase
+      .from('generations')
+      .insert({
+        idempotency_key: idempotencyKey,
+        user_id: user.id,
+        church_id: churchId,
+        content_types: contentTypes,
+        platforms: platforms,
+        generation_mode: generationMode,
+        status: 'pending'
+      });
+
+    if (insertError) {
+      // Race condition — another concurrent request inserted first
+      return new Response(JSON.stringify({ error: 'Generation already in progress' }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
     if (CONTENT_SAFETY_ENABLED) {
       // Validate input content for inappropriate material
       if (transcript) {
