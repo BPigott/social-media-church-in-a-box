@@ -108,7 +108,39 @@ serve(async (req)=>{
     if (userError || !user) {
       throw new Error('Unauthorized');
     }
-    
+
+    // === SERVER-SIDE SUBSCRIPTION ENFORCEMENT ===
+    const { data: subscription, error: subError } = await supabase
+      .from('subscriptions')
+      .select('status, trial_ends_at, exempt')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (subError || !subscription) {
+      return new Response(JSON.stringify({
+        error: 'No active subscription found. Please sign up to continue.'
+      }), {
+        status: 402,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    const trialValid = subscription.status === 'trialing' &&
+      new Date(subscription.trial_ends_at) > new Date();
+    const isSubscriptionActive = subscription.exempt ||
+      subscription.status === 'active' ||
+      trialValid;
+
+    if (!isSubscriptionActive) {
+      return new Response(JSON.stringify({
+        error: 'Subscription required',
+        subscription_status: subscription.status
+      }), {
+        status: 402,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
     console.log('=== PARSING REQUEST BODY ===');
     let requestBody;
     try {
