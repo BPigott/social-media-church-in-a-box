@@ -29,6 +29,10 @@ import MDEditor from '@uiw/react-md-editor';
 // Configure PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
+// localStorage key used by the restore-on-focus effect to skip generations
+// that the user has explicitly cleared via "Start Fresh".
+const DASHBOARD_CLEARED_AT_KEY = 'ivangel:dashboardClearedAt';
+
 // Language names mapping
 const LANGUAGE_NAMES: Record<string, string> = {
   'en': 'English',
@@ -424,11 +428,16 @@ const Dashboard = () => {
       if (restoringRef.current) return;
       restoringRef.current = true;
       try {
-        const { data, error } = await supabase
+        const clearedAt = (() => {
+          try { return localStorage.getItem(DASHBOARD_CLEARED_AT_KEY); } catch { return null; }
+        })();
+        let query = supabase
           .from('generations')
           .select('result')
           .eq('user_id', uid)
-          .eq('status', 'completed')
+          .eq('status', 'completed');
+        if (clearedAt) query = query.gt('created_at', clearedAt);
+        const { data, error } = await query
           .order('created_at', { ascending: false })
           .limit(1)
           .maybeSingle();
@@ -1360,7 +1369,12 @@ const Dashboard = () => {
   };
 
   const handleStartFresh = () => {
-    // Clear all generated content and reset form
+    // Clear all generated content and reset form. Persist a dismissal timestamp
+    // so the restore-on-focus effect does not repopulate the cleared content.
+    try {
+      localStorage.setItem(DASHBOARD_CLEARED_AT_KEY, new Date().toISOString());
+    } catch { /* localStorage unavailable */ }
+
     setGeneratedContent(null);
     setTranscriptText('');
     setTranscriptFile(null);
