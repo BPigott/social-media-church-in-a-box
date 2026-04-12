@@ -14,8 +14,19 @@ export function useAuth() {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
+        // Only clear user on explicit sign-out. Transient null sessions
+        // during TOKEN_REFRESHED on tab focus should not unmount the app.
+        if (event === 'SIGNED_OUT') {
+          setSession(null);
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+
+        if (session) {
+          setSession(session);
+          setUser(session.user);
+        }
         setLoading(false);
 
         // On first sign-in, ensure a trial subscription exists
