@@ -77,6 +77,7 @@ serve(async (req)=>{
       headers: corsHeaders
     });
   }
+  let idempotencyKey: string | undefined;
   try {
     console.log('=== FUNCTION START ===');
     console.log('Request method:', req.method);
@@ -141,7 +142,7 @@ serve(async (req)=>{
 
     // === IDEMPOTENCY KEY VALIDATION ===
     const clonedBody = await req.clone().json().catch(() => ({}));
-    const idempotencyKey = clonedBody.idempotency_key;
+    idempotencyKey = clonedBody.idempotency_key;
     if (!idempotencyKey) {
       return new Response(JSON.stringify({ error: 'idempotency_key required' }), {
         status: 400,
@@ -1294,15 +1295,18 @@ FINAL PODCAST DESCRIPTION VALIDATION (CHECK BEFORE RETURNING):
 
     // Mark generation as failed if we have an idempotency key
     if (typeof idempotencyKey === 'string') {
-      const supabaseForCleanup = createClient(
-        Deno.env.get('SUPABASE_URL') ?? '',
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-      );
-      await supabaseForCleanup
-        .from('generations')
-        .update({ status: 'failed', completed_at: new Date().toISOString() })
-        .eq('idempotency_key', idempotencyKey)
-        .catch(() => {}); // best-effort, don't mask the original error
+      try {
+        const supabaseForCleanup = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+        );
+        await supabaseForCleanup
+          .from('generations')
+          .update({ status: 'failed', completed_at: new Date().toISOString() })
+          .eq('idempotency_key', idempotencyKey);
+      } catch (cleanupError) {
+        console.error('Failed to mark generation as failed:', cleanupError);
+      }
     }
 
     // Try to stringify the error object
