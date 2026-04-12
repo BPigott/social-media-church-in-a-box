@@ -414,6 +414,22 @@ const Dashboard = () => {
     fetchSeries();
   }, [primaryChurch?.id]);
 
+  // Restore the last completed generation so content survives tab switches and refreshes
+  useEffect(() => {
+    if (!user?.id || generatedContent) return;
+    supabase
+      .from('generations')
+      .select('result')
+      .eq('user_id', user.id)
+      .eq('status', 'completed')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single()
+      .then(({ data }) => {
+        if (data?.result) setGeneratedContent(data.result);
+      });
+  }, [user?.id]);
+
   // Sync languages and set editing mode for English content when content is generated
   useEffect(() => {
     if (generatedContent) {
