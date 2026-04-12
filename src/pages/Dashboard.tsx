@@ -1401,6 +1401,7 @@ const Dashboard = () => {
 
       // Step 2: Generate content
       const requestBody = {
+        idempotency_key: crypto.randomUUID(),
         transcript: transcriptText || null,
         styleGuide: styleGuideData.guide_content,
         platforms: contentTypes.includes('social_media') ? platforms : [],
