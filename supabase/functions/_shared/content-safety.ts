@@ -13,8 +13,8 @@ const PROHIBITED_PATTERNS = {
     /\b(fuck|shit|asshole|bitch|damn|hell)\b/gi, // Common misspellings
   ],
   blasphemy: [
-    /\b(god dammit|god damn|jesus christ|oh my god|omg)\b/gi, // Context-dependent, adjust as needed
-    // Add patterns that detect mocking or irreverent use of sacred terms
+    /\b(god dammit|god damn)\b/gi,
+    // Note: "jesus christ", "oh my god", "omg" intentionally excluded — normal church/sermon usage
   ],
   hate: [
     /\b(n\*\*ger|k\*\*ke|f\*\*got|sp\*\*c|ch\*\*k)\b/gi,
