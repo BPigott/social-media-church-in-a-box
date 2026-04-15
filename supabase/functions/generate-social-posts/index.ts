@@ -337,10 +337,20 @@ serve(async (req)=>{
       });
     }
 
+    // Helper to mark the pending generation as failed before returning an error
+    const failGeneration = async (errMsg: string) => {
+      await supabase
+        .from('generations')
+        .update({ status: 'failed', completed_at: new Date().toISOString() })
+        .eq('idempotency_key', idempotencyKey);
+      console.error('Generation marked failed:', errMsg);
+    };
+
     // Validate input content for inappropriate material
     if (transcript) {
       const transcriptValidation = validateInput(transcript);
       if (!transcriptValidation.isSafe) {
+        await failGeneration('transcript safety violation');
         return new Response(JSON.stringify({
           error: `Your sermon transcript contains inappropriate content.`,
           violations: transcriptValidation.violations
@@ -357,6 +367,7 @@ serve(async (req)=>{
     if (customCTA) {
       const ctaValidation = validateInput(customCTA);
       if (!ctaValidation.isSafe) {
+        await failGeneration('CTA safety violation');
         return new Response(JSON.stringify({
           error: `Your CTA contains inappropriate content.`,
           violations: ctaValidation.violations
@@ -374,6 +385,7 @@ serve(async (req)=>{
       const speakerValidation = validateInput(speakerName);
       if (!speakerValidation.isSafe) {
         console.error('VALIDATION FAILED: Speaker name contains inappropriate content');
+        await failGeneration('speaker name safety violation');
         return new Response(JSON.stringify({
           error: `Speaker name contains inappropriate content. Please use an appropriate name.`,
           violations: speakerValidation.violations
@@ -913,6 +925,7 @@ FINAL PODCAST DESCRIPTION VALIDATION (CHECK BEFORE RETURNING):
       console.error('Error type:', promptError instanceof Error ? promptError.constructor.name : typeof promptError);
       console.error('Error message:', promptError instanceof Error ? promptError.message : String(promptError));
       console.error('Error stack:', promptError instanceof Error ? promptError.stack : 'No stack trace');
+      await failGeneration('prompt construction error');
       return new Response(JSON.stringify({
         error: 'Failed to construct prompts. Please try again or contact support if the issue persists.'
       }), {
