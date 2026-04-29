@@ -35,7 +35,7 @@
 - [ ] **Step 1: Create feature branch**
 
 ```bash
-cd /Users/bobpigott/Documents/social-media-church-in-a-box
+cd /Users/bobpigott/Documents/ivangel
 git checkout -b feature/backend-reliability
 ```
 
@@ -202,7 +202,7 @@ Deno.test("content safety blocks prohibited content", async () => {
 - [ ] **Step 2: Run to verify tests fail (function not yet updated)**
 
 ```bash
-cd /Users/bobpigott/Documents/social-media-church-in-a-box
+cd /Users/bobpigott/Documents/ivangel
 npx supabase functions serve generate-social-posts &
 deno test supabase/functions/generate-social-posts/index.test.ts --allow-net --allow-env
 ```

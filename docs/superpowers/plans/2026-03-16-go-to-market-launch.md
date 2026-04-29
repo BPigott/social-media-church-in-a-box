@@ -49,7 +49,7 @@
 
 - [ ] **Step 1: Run npm audit**
 ```bash
-cd /Users/bobpigott/Documents/social-media-church-in-a-box
+cd /Users/bobpigott/Documents/ivangel
 npm audit
 ```
 Expected: List of vulnerabilities by severity. Note any `high` or `critical` items.
