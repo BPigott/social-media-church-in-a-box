@@ -8,13 +8,12 @@
 // - "jesus christ", "oh my god", "omg" — normal reverent usage
 const PROHIBITED_PATTERNS = {
   erotic: [
-    /\b(erotic|porn|nude|naked|orgasm|xxx|adult content)\b/gi,
-    // Note: "sex" and "sexual" excluded — preachers regularly address sexual ethics/purity
+    /\b(erotic|porn|orgasm|xxx|adult content)\b/gi,
+    // Note: "sex", "sexual", "naked", "nude" excluded — all appear in normal scripture/sermon context
   ],
-  gambling: [
-    /\b(gambling|casino|betting|poker|slots|jackpot|lottery)\b/gi,
-    // Note: "bet", "wager", "stakes" excluded — common speech idioms in sermons
-  ],
+  // Note: gambling category removed entirely — pastors routinely preach about gambling,
+  // use "betting/slots/jackpot" as idioms, and discuss lottery in poverty/justice contexts.
+  // The AI system prompt guards against pro-gambling output content.
   profanity: [
     /\b(f\*\*k|sh\*t|a\*\*hole|b\*\*ch)\b/gi,
     /\b(fuck|shit|asshole|bitch)\b/gi,

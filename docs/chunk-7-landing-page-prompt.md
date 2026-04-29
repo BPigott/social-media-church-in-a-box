@@ -2,7 +2,7 @@
 
 ## Project Context
 
-I'm working on **ivangel** — a React/TS/Vite SaaS app that generates social media content from church sermon transcripts. The codebase is at `/Users/bobpigott/Documents/social-media-church-in-a-box`.
+I'm working on **ivangel** — a React/TS/Vite SaaS app that generates social media content from church sermon transcripts. The codebase is at `/Users/bobpigott/Documents/ivangel`.
 
 **Tech stack:** React 18 + TypeScript + Vite, shadcn/ui + Tailwind CSS, Supabase (PostgreSQL + Edge Functions in Deno), LemonSqueezy billing, Vercel deployment.
 
