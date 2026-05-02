@@ -31,35 +31,31 @@ export function useAuth() {
 
         // On first sign-in, ensure a trial subscription exists
         if (event === 'SIGNED_IN' && session) {
-          supabase.functions.invoke('create-trial').catch(console.error);
-
-          // Check trial expiry: if trial ends within 3 days and no reminder sent, send email
-          setTimeout(async () => {
+          (async () => {
             try {
-              const { data: sub } = await supabase
-                .from('subscriptions')
-                .select('status, trial_ends_at, trial_reminder_sent_at')
-                .eq('user_id', session.user.id)
-                .single();
+              await supabase.functions.invoke('create-trial');
 
-              if (
-                sub?.status === 'trialing' &&
-                sub.trial_ends_at &&
-                sub.trial_reminder_sent_at === null &&
-                new Date(sub.trial_ends_at) <= new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
-              ) {
+              // Atomic: update only if all conditions are met
+              const { data: claimed } = await supabase
+                .from('subscriptions')
+                .update({ trial_reminder_sent_at: new Date().toISOString() })
+                .eq('user_id', session.user.id)
+                .eq('status', 'trialing')
+                .is('trial_reminder_sent_at', null)
+                .lte('trial_ends_at', new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString())
+                .not('trial_ends_at', 'is', null)
+                .select('id');
+
+              // Only send email if this request won the race (update modified a row)
+              if (claimed && claimed.length > 0) {
                 await supabase.functions.invoke('send-email', {
                   body: { type: 'trial_expiring', user_ids: [session.user.id] },
                 });
-                await supabase
-                  .from('subscriptions')
-                  .update({ trial_reminder_sent_at: new Date().toISOString() })
-                  .eq('user_id', session.user.id);
               }
             } catch (err) {
-              console.error('Trial expiry check failed:', err);
+              console.error('Sign-in setup failed:', err);
             }
-          }, 2000); // short delay to let create-trial complete first
+          })();
         }
       }
     );
