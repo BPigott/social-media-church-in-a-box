@@ -16,7 +16,7 @@ const TermsOfService = () => {
 
           <div className="prose prose-slate dark:prose-invert max-w-none">
             <h1 className="text-4xl md:text-5xl font-playfair font-bold mb-2">Terms of Service</h1>
-            <p className="text-muted-foreground mb-8">Last updated: October 2025</p>
+            <p className="text-muted-foreground mb-8">Last updated: May 2026</p>
 
             <div className="space-y-8 text-foreground">
               {/* Introduction */}
@@ -47,7 +47,7 @@ const TermsOfService = () => {
                   or uses the Service.</li>
                   <li><strong>"Content"</strong> means any text, data, information, or materials uploaded, generated, or stored through the Service.</li>
                   <li><strong>"Subscription"</strong> means the monthly subscription plan purchased to access the Service.</li>
-                  <li><strong>"Free Trial"</strong> means the initial 10-day period during which new users can access the Service without payment.</li>
+                  <li><strong>"Free Trial"</strong> means the initial 14-day period during which new users can access the Service without payment.</li>
                 </ul>
               </section>
 
@@ -98,18 +98,16 @@ const TermsOfService = () => {
                 <h2 className="text-2xl font-playfair font-bold mb-4">5. Subscription Terms</h2>
                 <h3 className="text-xl font-semibold mb-3">5.1 Free Trial</h3>
                 <p className="mb-4">
-                  New users may be eligible for a free 10-day trial period ("Free Trial"). During the Free Trial, you will have full access to all 
-                  features of the Service. To start your Free Trial, you must provide payment information (credit card, debit card, or other accepted 
-                  payment method); however, no payment will be charged during the Free Trial period.
+                  New users may be eligible for a free 14-day trial period ("Free Trial"). During the Free Trial, you will have full access to all
+                  features of the Service. No payment information is required to start your Free Trial.
                 </p>
                 <p className="mb-4">
-                  At the end of the Free Trial period, your subscription will automatically commence and you will be charged the Subscription Fee 
-                  unless you cancel before the trial ends. You may cancel your Free Trial at any time during the trial period through your account 
-                  settings or by contacting us at hello@infocusoperations.co.uk, and no charge will be made.
+                  At the end of the Free Trial period, you will be invited to provide payment information to subscribe and continue using the Service.
+                  You may cancel at any time during the trial period through your account settings, and no charge will be made.
                 </p>
                 <p className="mb-4">
-                  If you cancel your Free Trial or do not subscribe, your account access will be restricted, but your generated content will be retained 
-                  for 30 days should you decide to subscribe later.
+                  If you do not subscribe after your Free Trial, your account access will be restricted. You may contact us at support@ivangel.co
+                  to request deletion of your data at any time.
                 </p>
 
                 <h3 className="text-xl font-semibold mb-3 mt-6">5.2 Subscription Plans</h3>
@@ -264,9 +262,9 @@ const TermsOfService = () => {
                   end of the paid period.
                 </p>
                 <p className="mb-4">
-                  Once you cancel, your subscription will not automatically renew, and you will lose access to the Service at the end of your current 
-                  billing period. Your account and generated content will be retained for 30 days after cancellation, after which they may be deleted 
-                  in accordance with our data retention policies.
+                  Once you cancel, your subscription will not automatically renew, and you will lose access to the Service at the end of your current
+                  billing period. Your account and generated content will be retained. To request permanent deletion of your account and all associated
+                  data, please contact us at hello@infocusoperations.co.uk with "Account Deletion" in the subject line.
                 </p>
 
                 <h3 className="text-xl font-semibold mb-3 mt-6">9.2 Cooling-Off Period</h3>
@@ -400,19 +398,24 @@ const TermsOfService = () => {
                 <h3 className="text-xl font-semibold mb-3 mt-6">10.5 Who We Share Your Data With</h3>
                 <p className="mb-4">We may share your personal data with:</p>
                 <ul className="list-disc pl-6 space-y-2 mb-4">
-                  <li><strong>AI Service Providers:</strong> We use third-party AI services (including Anthropic Claude) to generate content. Your 
-                  uploaded materials may be processed by these services to create Generated Content. These providers are bound by strict confidentiality 
-                  and data processing agreements.</li>
-                  <li><strong>Translation Services:</strong> We use Google Translate API for multi-language content generation. Your content may be 
-                  sent to Google for translation purposes.</li>
-                  <li><strong>IT Service Providers:</strong> Service providers who maintain our systems, hosting infrastructure, and technical support</li>
-                  <li><strong>Payment Processors:</strong> Companies that process subscription payments on our behalf</li>
-                  <li><strong>Analytics Providers:</strong> Services that help us understand how the Service is used (see Section 10.6 below)</li>
+                  <li><strong>AI Service Providers (Anthropic):</strong> We use Anthropic Claude to generate content. Your sermon transcripts, church
+                  profile information, and style guide data are sent to Anthropic's API for content generation. Anthropic processes this data in
+                  accordance with their usage policies.</li>
+                  <li><strong>Translation Services (Google Cloud):</strong> We use the Google Cloud Translation API for multi-language content generation.
+                  All generated content that is translated is sent to Google for this purpose.</li>
+                  <li><strong>Website Scraping Services (Firecrawl):</strong> During onboarding, we crawl your church's public website using Firecrawl
+                  to extract tone, style, and content information to build your voice profile. Only publicly accessible pages are scraped.</li>
+                  <li><strong>Payment Processors (Paddle):</strong> Paddle processes subscription payments on our behalf. Your email address and
+                  subscription details are shared with Paddle to manage billing.</li>
+                  <li><strong>Hosting and Infrastructure (Supabase, Vercel):</strong> Your data is stored and processed on Supabase (EU West region)
+                  and our frontend is hosted on Vercel.</li>
+                  <li><strong>Analytics Providers (Vercel Analytics):</strong> We use Vercel Analytics to understand how the Service is used. See
+                  Section 10.6 below for details.</li>
                   <li><strong>Professional Advisers:</strong> Including accountants, lawyers, and insurers</li>
                   <li><strong>Government Authorities:</strong> Where required by law or to respond to lawful requests</li>
                 </ul>
                 <p className="mb-4">
-                  We do not sell your personal data to third parties. All third-party service providers are required to implement appropriate security 
+                  We do not sell your personal data to third parties. All third-party service providers are required to implement appropriate security
                   measures and are bound by data processing agreements where required by law.
                 </p>
 
@@ -423,9 +426,11 @@ const TermsOfService = () => {
                 </p>
                 <p className="mb-4">We use cookies for the following purposes:</p>
                 <ul className="list-disc pl-6 space-y-2 mb-4">
-                  <li><strong>Essential Cookies:</strong> Required for the Service to function properly, such as authentication and session management</li>
-                  <li><strong>Analytics Cookies:</strong> Help us understand how visitors interact with the Service, which pages are visited, and how 
-                  features are used</li>
+                  <li><strong>Essential Cookies:</strong> Required for the Service to function properly, such as authentication and session management
+                  (provided by Supabase)</li>
+                  <li><strong>Analytics Cookies (Vercel Analytics):</strong> We use Vercel Analytics to understand how visitors interact with the
+                  Service — which pages are visited, how features are used, and general usage patterns. Vercel Analytics is privacy-friendly and does
+                  not use cross-site tracking cookies.</li>
                   <li><strong>Functional Cookies:</strong> Remember your preferences and settings to enhance your experience</li>
                 </ul>
                 <p className="mb-4">
@@ -436,16 +441,15 @@ const TermsOfService = () => {
                 <p className="mb-4">We retain personal data for as long as necessary to fulfil the purposes we collected it for, including:</p>
                 <ul className="list-disc pl-6 space-y-2 mb-4">
                   <li><strong>Account Information:</strong> While your account is active and for 6 years after account closure (for legal and tax purposes)</li>
-                  <li><strong>Generated Content:</strong> Retained in your account for as long as your account is active. Content may be retained for 
-                  30 days after account cancellation before deletion</li>
+                  <li><strong>Sermon Transcripts:</strong> Transcripts you upload are stored in your account and may be retained while your account
+                  is active. You may delete transcripts at any time from within the Service, or request deletion by contacting us.</li>
+                  <li><strong>Generated Content:</strong> Retained in your account for as long as your account is active. Upon account closure,
+                  content is retained until you submit a deletion request to hello@infocusoperations.co.uk.</li>
+                  <li><strong>Church Style Profile:</strong> Your church profile, voice guide, and website-crawl data are stored and used to
+                  personalise content generation. You may update or request deletion at any time.</li>
                   <li><strong>Payment Records:</strong> 6 years after the transaction (for legal and tax compliance)</li>
-                  <li><strong>Marketing Contacts:</strong> Until you unsubscribe or request removal</li>
                   <li><strong>Usage Analytics:</strong> Aggregated and anonymised data may be retained for longer periods for service improvement</li>
                 </ul>
-                <p className="mb-4">
-                  <strong>Important:</strong> We do not store your original sermon transcripts after they have been processed to generate content. Only 
-                  the Generated Content and your church profile information are stored.
-                </p>
 
                 <h3 className="text-xl font-semibold mb-3 mt-6">10.8 Your Rights</h3>
                 <p className="mb-4">Under the UK GDPR, you have the following rights:</p>
@@ -480,7 +484,15 @@ const TermsOfService = () => {
                   Clauses approved by the UK Information Commissioner's Office.
                 </p>
 
-                <h3 className="text-xl font-semibold mb-3 mt-6">10.11 Complaints</h3>
+                <h3 className="text-xl font-semibold mb-3 mt-6">10.11 Content Safety Screening</h3>
+                <p className="mb-4">
+                  Before your sermon transcripts and other uploaded content are sent to our AI service provider for processing, they are automatically
+                  screened by our content safety system. This screening checks for content that would be inappropriate for the Service's intended
+                  purpose (such as explicit material or hate speech). Content that fails these checks will not be processed. This screening is
+                  performed server-side and is a necessary part of providing the Service.
+                </p>
+
+                <h3 className="text-xl font-semibold mb-3 mt-6">10.12 Complaints</h3>
                 <p className="mb-4">
                   If you believe your data protection rights have been breached, you may lodge a complaint with the UK Information Commissioner's Office 
                   (ICO) at https://ico.org.uk/make-a-complaint/ or by calling 0303 123 1113.
@@ -661,8 +673,8 @@ const TermsOfService = () => {
                   agree to these Terms, you must not use the Service.
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  In Focus Operations Limited Terms of Service Version 1.0<br />
-                  Last updated: October 2025<br />
+                  In Focus Operations Limited Terms of Service Version 1.1<br />
+                  Last updated: May 2026<br />
                   © 2025 In Focus Operations Limited. All rights reserved.
                 </p>
               </section>
