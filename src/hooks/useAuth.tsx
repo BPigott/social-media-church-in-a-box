@@ -32,6 +32,34 @@ export function useAuth() {
         // On first sign-in, ensure a trial subscription exists
         if (event === 'SIGNED_IN' && session) {
           supabase.functions.invoke('create-trial').catch(console.error);
+
+          // Check trial expiry: if trial ends within 3 days and no reminder sent, send email
+          setTimeout(async () => {
+            try {
+              const { data: sub } = await supabase
+                .from('subscriptions')
+                .select('status, trial_ends_at, trial_reminder_sent_at')
+                .eq('user_id', session.user.id)
+                .single();
+
+              if (
+                sub?.status === 'trialing' &&
+                sub.trial_ends_at &&
+                sub.trial_reminder_sent_at === null &&
+                new Date(sub.trial_ends_at) <= new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
+              ) {
+                await supabase.functions.invoke('send-email', {
+                  body: { type: 'trial_expiring', user_ids: [session.user.id] },
+                });
+                await supabase
+                  .from('subscriptions')
+                  .update({ trial_reminder_sent_at: new Date().toISOString() })
+                  .eq('user_id', session.user.id);
+              }
+            } catch (err) {
+              console.error('Trial expiry check failed:', err);
+            }
+          }, 2000); // short delay to let create-trial complete first
         }
       }
     );
