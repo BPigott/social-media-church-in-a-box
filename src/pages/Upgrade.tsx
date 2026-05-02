@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const checkoutUrl = import.meta.env.VITE_LS_SINGLE_CHECKOUT_URL || "#";
+const checkoutUrl = import.meta.env.VITE_PADDLE_SINGLE_CHECKOUT_URL || "#";
 
 const Upgrade = () => {
   const { isActive, isLoading, subscription } = useSubscription();
