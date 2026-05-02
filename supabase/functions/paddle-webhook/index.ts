@@ -108,7 +108,7 @@ serve(async (req) => {
       }, { onConflict: 'user_id' });
 
       if (eventType === 'subscription.past_due') {
-        await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-email`, {
+        fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-email`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
