@@ -11,6 +11,19 @@ const FROM_ADDRESS = 'ivangel <noreply@ivangel.co>';
 const BRAND_COLOUR = '#4F46E5';
 
 // ---------------------------------------------------------------------------
+// HTML escape helper (Fix 3)
+// ---------------------------------------------------------------------------
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// ---------------------------------------------------------------------------
 // HTML template helpers
 // ---------------------------------------------------------------------------
 
@@ -20,7 +33,7 @@ function buildEmailHtml(bodyText: string, ctaLabel: string, ctaHref: string): st
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>${ctaLabel}</title>
+  <title>${escapeHtml(ctaLabel)}</title>
 </head>
 <body style="margin:0;padding:0;background:#f9fafb;font-family:sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;padding:40px 16px;">
@@ -41,17 +54,17 @@ function buildEmailHtml(bodyText: string, ctaLabel: string, ctaHref: string): st
           <tr>
             <td style="padding:32px;">
               <p style="margin:0 0 24px;color:#111827;font-size:16px;line-height:1.6;">
-                ${bodyText}
+                ${escapeHtml(bodyText)}
               </p>
               <!-- CTA button -->
               <table cellpadding="0" cellspacing="0">
                 <tr>
                   <td style="border-radius:6px;background:${BRAND_COLOUR};">
-                    <a href="${ctaHref}"
+                    <a href="${escapeHtml(ctaHref)}"
                        style="display:inline-block;padding:12px 24px;color:#ffffff;
                               font-size:15px;font-weight:600;text-decoration:none;
                               border-radius:6px;">
-                      ${ctaLabel}
+                      ${escapeHtml(ctaLabel)}
                     </a>
                   </td>
                 </tr>
@@ -127,10 +140,32 @@ serve(async (req) => {
     });
   }
 
+  // Fix 1 — caller authentication
+  const authHeader = req.headers.get('Authorization');
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  if (!token) {
+    return new Response(JSON.stringify({ error: 'Unauthorised' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+  const isServiceRole = Boolean(serviceRoleKey && token === serviceRoleKey);
+
   const resendApiKey = Deno.env.get('RESEND_API_KEY');
   if (!resendApiKey) {
     return new Response(JSON.stringify({ error: 'RESEND_API_KEY is not configured' }), {
-      status: 401,
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  // Fix 2 — guard SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  if (!supabaseUrl || !supabaseServiceKey) {
+    return new Response(JSON.stringify({ error: 'Server misconfiguration' }), {
+      status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
@@ -146,9 +181,17 @@ serve(async (req) => {
   }
 
   // -------------------------------------------------------------------------
-  // Pattern 1 — generic send
+  // Pattern 1 — generic send (service role only)
   // -------------------------------------------------------------------------
   if (!payload.type) {
+    // Fix 1 — Pattern 1 requires service role
+    if (!isServiceRole) {
+      return new Response(JSON.stringify({ error: 'Forbidden' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const { to, subject, html } = payload as { to?: string; subject?: string; html?: string };
 
     if (!to || !subject || !html) {
@@ -189,11 +232,24 @@ serve(async (req) => {
 
   // -------------------------------------------------------------------------
   // Patterns 2 & 3 — typed sends requiring Supabase auth admin
+  // Fix 1 — accept service role OR valid user JWT
   // -------------------------------------------------------------------------
-  const supabase = createClient(
-    Deno.env.get('SUPABASE_URL') ?? '',
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-  );
+  if (!isServiceRole) {
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+    const verifyClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: `Bearer ${token}` } },
+    });
+    const { data: { user }, error } = await verifyClient.auth.getUser();
+    if (error || !user) {
+      return new Response(JSON.stringify({ error: 'Unauthorised' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+  }
+
+  // Fix 2 — use guarded supabaseUrl and supabaseServiceKey (not ?? '')
+  const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
   // -------------------------------------------------------------------------
   // Pattern 2 — trial_expiring (batch)
@@ -208,8 +264,9 @@ serve(async (req) => {
       );
     }
 
+    // Fix 5 — use PADDLE_CHECKOUT_URL with absolute fallback
     const upgradeUrl =
-      Deno.env.get('VITE_PADDLE_SINGLE_CHECKOUT_URL') ?? '/upgrade';
+      Deno.env.get('PADDLE_CHECKOUT_URL') ?? `${Deno.env.get('APP_URL') ?? 'https://ivangel.co'}/upgrade`;
 
     const results: Array<{ user_id: string; success: boolean; error?: string }> = [];
 
@@ -287,10 +344,11 @@ serve(async (req) => {
         });
       }
 
+      // Fix 4 — replace relative /billing with absolute URL
       const html = buildEmailHtml(
         "We couldn't process your payment. Update your billing details to restore access.",
         'Update Payment',
-        '/billing',
+        `${Deno.env.get('APP_URL') ?? 'https://ivangel.co'}/billing`,
       );
 
       const result = await sendViaResend({
