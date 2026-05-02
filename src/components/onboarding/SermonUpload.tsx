@@ -1,8 +1,9 @@
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, X, FileText } from "phosphor-react";
+import { Upload, X, FileText, CheckCircle } from "phosphor-react";
 
 interface SermonUploadProps {
   onFilesSelected: (files: File[]) => void;
@@ -14,8 +15,8 @@ interface SermonUploadProps {
 export const SermonUpload = ({
   onFilesSelected,
   onContinue,
-  minFiles = 3,
-  maxFiles = 6,
+  minFiles = 7,
+  maxFiles = 20,
 }: SermonUploadProps) => {
   const { toast } = useToast();
   const [files, setFiles] = useState<File[]>([]);
@@ -27,7 +28,7 @@ export const SermonUpload = ({
       'text/plain',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ];
-    
+
     if (!validTypes.includes(file.type)) {
       toast({
         variant: "destructive",
@@ -113,16 +114,19 @@ export const SermonUpload = ({
     onContinue();
   };
 
+  const remaining = minFiles - files.length;
+  const progressValue = Math.min((files.length / minFiles) * 100, 100);
+  const hasMetMinimum = files.length >= minFiles;
+
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
         <h3 className="text-2xl font-playfair font-semibold">Upload Sermon Documents</h3>
         <p className="text-muted-foreground">
-          Upload {minFiles}-{maxFiles} recent sermon transcripts to help us understand your church's voice
+          Upload at least {minFiles} recent sermon transcripts to help us understand your church's voice
         </p>
       </div>
 
-      {/* Educational Note */}
       <Card className="bg-primary/5 border-primary/20">
         <CardContent className="pt-6">
           <div className="flex gap-3">
@@ -136,14 +140,13 @@ export const SermonUpload = ({
               <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• More sermons = better style guide accuracy</li>
                 <li>• Choose sermons from different preaching series to showcase teaching variety</li>
-                <li>• Recommended: 3-6 sermons from different topics and speakers</li>
+                <li>• Upload at least 7 sermons from different series and speakers for the best style guide</li>
               </ul>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Drag and Drop Zone */}
       <div
         className={`
           border-2 border-dashed rounded-lg p-12 text-center
@@ -172,12 +175,22 @@ export const SermonUpload = ({
         />
       </div>
 
-      {/* File List */}
       {files.length > 0 && (
-        <div className="space-y-2">
-          <p className="text-sm font-medium">
-            Uploaded Files ({files.length}/{maxFiles})
-          </p>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {hasMetMinimum && (
+                <CheckCircle size={18} className="text-green-500" weight="fill" />
+              )}
+              <p className="text-sm font-medium">
+                {files.length} of {minFiles} sermons uploaded
+              </p>
+            </div>
+            {hasMetMinimum && (
+              <span className="text-xs text-green-600 font-medium">Minimum reached</span>
+            )}
+          </div>
+          <Progress value={progressValue} className="h-2" />
           <div className="space-y-2">
             {files.map((file, index) => (
               <div
@@ -213,9 +226,9 @@ export const SermonUpload = ({
         className="w-full"
         disabled={files.length < minFiles}
       >
-        {files.length < minFiles
-          ? `Upload at least ${minFiles} files to continue`
-          : "Continue to Generate Style Guide"}
+        {hasMetMinimum
+          ? "Continue to Generate Style Guide"
+          : `Upload ${remaining} more sermon${remaining === 1 ? '' : 's'} to continue`}
       </Button>
     </div>
   );
