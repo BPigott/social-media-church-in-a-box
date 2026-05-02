@@ -702,13 +702,13 @@ const Index = () => {
             Professional ministry tools that fit your church budget.
           </p>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
-            {/* Single Church */}
-            <Card className="shadow-tactile">
+          <div className="max-w-md mx-auto">
+            {/* Church Plan */}
+            <Card className="border-primary border-2 shadow-tactile">
               <CardHeader className="text-center pb-4">
-                <CardTitle className="text-lg font-medium text-muted-foreground">Single Church</CardTitle>
+                <CardTitle className="text-lg font-medium text-muted-foreground">Church Plan</CardTitle>
                 <div className="mt-2">
-                  <span className="text-4xl font-playfair font-bold">£19</span>
+                  <span className="text-4xl font-playfair font-bold">£25</span>
                   <span className="text-lg text-muted-foreground">/month</span>
                 </div>
               </CardHeader>
@@ -734,31 +734,9 @@ const Index = () => {
                     <CheckCircle size={20} className="text-secondary flex-shrink-0" weight="fill" />
                     <span className="text-sm">PDF &amp; DOCX export</span>
                   </li>
-                </ul>
-                <Button asChild className="w-full" size="lg">
-                  <Link to="/signup">Start 14-day free trial</Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Multi-site */}
-            <Card className="border-primary border-2 shadow-tactile relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest rounded-full">
-                Most Popular
-              </div>
-              <CardHeader className="text-center pb-4">
-                <CardTitle className="text-lg font-medium text-muted-foreground">Multi-site</CardTitle>
-                <div className="mt-2">
-                  <span className="text-4xl font-playfair font-bold">£49</span>
-                  <span className="text-lg text-muted-foreground">/month</span>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">Everything in Single Church, plus:</p>
-                <ul className="space-y-3 mb-8">
                   <li className="flex items-center gap-3">
                     <CheckCircle size={20} className="text-secondary flex-shrink-0" weight="fill" />
-                    <span className="text-sm">Multiple church profiles</span>
+                    <span className="text-sm">Unlimited content generation</span>
                   </li>
                 </ul>
                 <Button asChild className="w-full" size="lg">
@@ -857,9 +835,10 @@ const Index = () => {
             </div>
 
             {/* Center: Links */}
-            <div className="flex gap-6 text-sm font-medium text-muted-foreground">
+            <div className="flex flex-wrap justify-center gap-6 text-sm font-medium text-muted-foreground">
               <Link to="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
-              <a href="#" className="hover:text-primary transition-colors">Privacy</a>
+              <Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
+              <Link to="/refund-policy" className="hover:text-primary transition-colors">Refund Policy</Link>
               <a href="mailto:support@ivangel.co" className="hover:text-primary transition-colors">Support</a>
             </div>
 
