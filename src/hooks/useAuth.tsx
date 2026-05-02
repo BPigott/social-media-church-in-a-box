@@ -36,7 +36,7 @@ export function useAuth() {
               await supabase.functions.invoke('create-trial');
 
               // Atomic: update only if all conditions are met
-              const { data: claimed } = await supabase
+              const { data: claimed, error: claimErr } = await supabase
                 .from('subscriptions')
                 .update({ trial_reminder_sent_at: new Date().toISOString() })
                 .eq('user_id', session.user.id)
@@ -45,6 +45,7 @@ export function useAuth() {
                 .lte('trial_ends_at', new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString())
                 .not('trial_ends_at', 'is', null)
                 .select('id');
+              if (claimErr) throw claimErr;
 
               // Only send email if this request won the race (update modified a row)
               if (claimed && claimed.length > 0) {
