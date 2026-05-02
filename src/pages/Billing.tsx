@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-const singleCheckoutUrl = import.meta.env.VITE_LS_SINGLE_CHECKOUT_URL || "#";
+const singleCheckoutUrl = import.meta.env.VITE_PADDLE_SINGLE_CHECKOUT_URL || "#";
 
 const STATUS_LABELS: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   trialing: { label: "Free Trial", variant: "secondary" },
@@ -101,9 +101,9 @@ const Billing = () => {
                     {nextBillingDate}
                   </p>
                 )}
-                {subscription?.ls_subscription_id && (
+                {subscription?.paddle_subscription_id && (
                   <p className="text-xs text-muted-foreground">
-                    Subscription ID: {subscription.ls_subscription_id}
+                    Subscription ID: {subscription.paddle_subscription_id}
                   </p>
                 )}
               </div>
