@@ -44,7 +44,7 @@
 - [ ] **Step 1: Create feature branch**
 
 ```bash
-cd /Users/bobpigott/Documents/social-media-church-in-a-box
+cd /Users/bobpigott/Documents/ivangel
 git checkout main
 git checkout -b feature/dashboard-redesign
 ```

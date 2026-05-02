@@ -23,8 +23,6 @@ const LANGUAGE_NAMES = {
   'ru': 'Russian',
   'ja': 'Japanese'
 };
-const CONTENT_SAFETY_ENABLED = false;
-
 const PLATFORM_GUIDELINES = {
   facebook: `
 Facebook Guidelines:
@@ -79,6 +77,7 @@ serve(async (req)=>{
       headers: corsHeaders
     });
   }
+  let idempotencyKey: string | undefined;
   try {
     console.log('=== FUNCTION START ===');
     console.log('Request method:', req.method);
@@ -108,7 +107,49 @@ serve(async (req)=>{
     if (userError || !user) {
       throw new Error('Unauthorized');
     }
-    
+
+    // === SERVER-SIDE SUBSCRIPTION ENFORCEMENT ===
+    const { data: subscription, error: subError } = await supabase
+      .from('subscriptions')
+      .select('status, trial_ends_at, exempt')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (subError || !subscription) {
+      return new Response(JSON.stringify({
+        error: 'No active subscription found. Please sign up to continue.'
+      }), {
+        status: 402,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    const trialValid = subscription.status === 'trialing' &&
+      new Date(subscription.trial_ends_at) > new Date();
+    const isSubscriptionActive = subscription.exempt ||
+      subscription.status === 'active' ||
+      trialValid;
+
+    if (!isSubscriptionActive) {
+      return new Response(JSON.stringify({
+        error: 'Subscription required',
+        subscription_status: subscription.status
+      }), {
+        status: 402,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // === IDEMPOTENCY KEY VALIDATION ===
+    const clonedBody = await req.clone().json().catch(() => ({}));
+    idempotencyKey = clonedBody.idempotency_key;
+    if (!idempotencyKey) {
+      return new Response(JSON.stringify({ error: 'idempotency_key required' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
     console.log('=== PARSING REQUEST BODY ===');
     let requestBody;
     try {
@@ -159,10 +200,9 @@ serve(async (req)=>{
     const hasBibleStudy = contentTypes.includes('bible_study');
     const hasDevotional = contentTypes.includes('devotional');
     const hasPodcastDescription = contentTypes.includes('podcast_description');
-    const hasEmailNewsletter = contentTypes.includes('email_newsletter');
-    console.log('Content type flags:', { hasSocialMedia, hasBibleStudy, hasDevotional, hasPodcastDescription, hasEmailNewsletter });
+    console.log('Content type flags:', { hasSocialMedia, hasBibleStudy, hasDevotional, hasPodcastDescription });
 
-    if (!hasSocialMedia && !hasBibleStudy && !hasDevotional && !hasPodcastDescription && !hasEmailNewsletter) {
+    if (!hasSocialMedia && !hasBibleStudy && !hasDevotional && !hasPodcastDescription) {
       console.error('VALIDATION FAILED: No content types selected');
       return new Response(JSON.stringify({
         error: 'Please select at least one content type to generate.'
@@ -225,56 +265,138 @@ serve(async (req)=>{
         }
       });
     }
-    
-    if (CONTENT_SAFETY_ENABLED) {
-      // Validate input content for inappropriate material
-      if (transcript) {
-        const transcriptValidation = validateInput(transcript);
-        if (!transcriptValidation.isSafe) {
-          return new Response(JSON.stringify({
-            error: `Your sermon transcript contains inappropriate content: ${transcriptValidation.violations.join(', ')}. Please review and remove inappropriate content before generating.`
-          }), {
-            status: 400,
-            headers: {
-              ...corsHeaders,
-              'Content-Type': 'application/json'
-            }
-          });
-        }
-      }
 
-      if (customCTA) {
-        const ctaValidation = validateInput(customCTA);
-        if (!ctaValidation.isSafe) {
-          return new Response(JSON.stringify({
-            error: `Your event/announcement contains inappropriate content: ${ctaValidation.violations.join(', ')}. Please review and remove inappropriate content before generating.`
-          }), {
-            status: 400,
-            headers: {
-              ...corsHeaders,
-              'Content-Type': 'application/json'
-            }
-          });
-        }
-      }
+    // === TOKEN BUDGET PRE-FLIGHT ===
+    if (!subscription.exempt) {
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const { data: usageRows } = await supabase
+        .from('generations')
+        .select('estimated_cost_usd')
+        .eq('user_id', user.id)
+        .eq('status', 'completed')
+        .gte('created_at', thirtyDaysAgo);
 
-      if (speakerName) {
-        const speakerValidation = validateInput(speakerName);
-        if (!speakerValidation.isSafe) {
-          console.error('VALIDATION FAILED: Speaker name contains inappropriate content');
-          return new Response(JSON.stringify({
-            error: `Speaker name contains inappropriate content. Please use an appropriate name.`
-          }), {
-            status: 400,
-            headers: {
-              ...corsHeaders,
-              'Content-Type': 'application/json'
-            }
-          });
-        }
+      const monthlyCostUsd = (usageRows ?? []).reduce(
+        (sum: number, row: { estimated_cost_usd: number | null }) => sum + (row.estimated_cost_usd ?? 0),
+        0
+      );
+
+      // £25/month plan: allow up to $6 USD of compute (~200 full generations)
+      const MONTHLY_LIMIT_USD = 6.0;
+      if (monthlyCostUsd >= MONTHLY_LIMIT_USD) {
+        return new Response(JSON.stringify({
+          error: 'Monthly generation limit reached. Your limit resets in 30 days.',
+          monthly_cost_usd: monthlyCostUsd,
+          limit_usd: MONTHLY_LIMIT_USD
+        }), {
+          status: 402,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
       }
-    } else {
-      console.warn('⚠️ Content safety input validation disabled for testing');
+    }
+
+    // === GENERATION LEDGER: CHECK FOR EXISTING + INSERT PENDING ===
+    const { data: existingGeneration } = await supabase
+      .from('generations')
+      .select('status, result')
+      .eq('idempotency_key', idempotencyKey)
+      .maybeSingle();
+
+    if (existingGeneration?.status === 'completed') {
+      console.log('Returning cached generation for idempotency_key:', idempotencyKey);
+      return new Response(JSON.stringify(existingGeneration.result), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    if (existingGeneration?.status === 'pending') {
+      return new Response(JSON.stringify({ error: 'Generation already in progress' }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    const { error: insertError } = await supabase
+      .from('generations')
+      .insert({
+        idempotency_key: idempotencyKey,
+        user_id: user.id,
+        church_id: churchId,
+        content_types: contentTypes,
+        platforms: platforms,
+        generation_mode: generationMode,
+        status: 'pending'
+      });
+
+    if (insertError) {
+      // Race condition — another concurrent request inserted first
+      return new Response(JSON.stringify({ error: 'Generation already in progress' }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Helper to mark the pending generation as failed before returning an error
+    const failGeneration = async (errMsg: string) => {
+      await supabase
+        .from('generations')
+        .update({ status: 'failed', completed_at: new Date().toISOString() })
+        .eq('idempotency_key', idempotencyKey);
+      console.error('Generation marked failed:', errMsg);
+    };
+
+    // Validate input content for inappropriate material
+    if (transcript) {
+      const transcriptValidation = validateInput(transcript);
+      if (!transcriptValidation.isSafe) {
+        await failGeneration('transcript safety violation');
+        return new Response(JSON.stringify({
+          error: `Your sermon transcript contains inappropriate content.`,
+          violations: transcriptValidation.violations
+        }), {
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          }
+        });
+      }
+    }
+
+    if (customCTA) {
+      const ctaValidation = validateInput(customCTA);
+      if (!ctaValidation.isSafe) {
+        await failGeneration('CTA safety violation');
+        return new Response(JSON.stringify({
+          error: `Your CTA contains inappropriate content.`,
+          violations: ctaValidation.violations
+        }), {
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          }
+        });
+      }
+    }
+
+    if (speakerName) {
+      const speakerValidation = validateInput(speakerName);
+      if (!speakerValidation.isSafe) {
+        console.error('VALIDATION FAILED: Speaker name contains inappropriate content');
+        await failGeneration('speaker name safety violation');
+        return new Response(JSON.stringify({
+          error: `Speaker name contains inappropriate content. Please use an appropriate name.`,
+          violations: speakerValidation.violations
+        }), {
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          }
+        });
+      }
     }
     
     console.log('=== ALL VALIDATIONS PASSED ===');
@@ -680,42 +802,6 @@ TONE: Conversational, inviting, accessible. Write as if describing the episode t
 LENGTH: 150-250 words total for the description section.
 ` : ''}
 
-${hasEmailNewsletter ? `
-# Email Newsletter Draft Generation Requirements
-${hasTranscript ? `
-- Create a weekly email newsletter draft (400-600 words) based on the sermon transcript
-- Extract key themes, memorable quotes, and practical takeaways from the sermon
-` : `
-- Create a weekly email newsletter draft (400-600 words) based on the event/announcement
-- Highlight the key details and why the community should engage
-`}
-
-Generate the Email Newsletter in UK English spelling with this structure:
-
-EMAIL NEWSLETTER FORMAT REQUIREMENTS:
-**Subject Line:** [Compelling subject line, under 50 characters]
-
-**Preview Text:** [Email preview text, under 100 characters - what shows in inbox before opening]
-
-**Greeting:**
-[Warm, personal opening addressing the church community - 1-2 sentences]
-
-**Sermon Highlights:**
-[Key themes and takeaways from the sermon - 2-3 paragraphs covering the main message, a memorable quote or scripture, and why it matters for daily life]
-
-**Devotional Snippet:**
-[A brief devotional thought or reflection question tied to the sermon theme - 2-3 sentences]
-
-**Coming Up:**
-[Upcoming events, announcements, or calls to action${customCTA ? ' - incorporate the provided CTA here' : ''} - bullet points or short paragraphs]
-
-**Closing:**
-[Warm sign-off with blessing or encouragement - 1-2 sentences]
-
-TONE: Warm, personal, community-focused. Write as a letter from a friend, not a corporate newsletter.
-LENGTH: 400-600 words total.
-` : ''}
-
 ---
 
 # Church Social Media Handles
@@ -767,14 +853,12 @@ Return your response as a JSON object with this exact structure:
   ${hasBibleStudy ? `"bibleStudyGuide": "complete Bible study guide content (always a single string)",` : ''}
   ${hasDevotional ? `"devotional": "complete daily devotional content following Blended Approach format (always a single string)",` : ''}
   ${hasPodcastDescription ? `"podcastDescription": "complete podcast episode description (always a single string)",` : ''}
-  ${hasEmailNewsletter ? `"emailNewsletter": "complete email newsletter draft (always a single string)",` : ''}
 }
 
 ${hasSocialMedia ? 'IMPORTANT: Only include keys for the platforms that were requested.' : ''}
 ${hasBibleStudy ? 'IMPORTANT: The Bible Study Guide must be complete and properly formatted.' : ''}
 ${hasDevotional ? 'IMPORTANT: The devotional must be complete and follow the Blended Approach format exactly.' : ''}
 ${hasPodcastDescription ? 'IMPORTANT: The podcast description must be 150-250 words and include episode title, description, and tags.' : ''}
-${hasEmailNewsletter ? 'IMPORTANT: The email newsletter must be 400-600 words and include subject line, preview text, greeting, sermon highlights, devotional snippet, coming up section, and closing.' : ''}
 
 ${hasSocialMedia ? `
 FINAL LENGTH CHECK (VALIDATE BEFORE RETURNING):
@@ -829,15 +913,6 @@ FINAL PODCAST DESCRIPTION VALIDATION (CHECK BEFORE RETURNING):
 - Use conversational, accessible tone throughout
 ` : ''}
 
-${hasEmailNewsletter ? `
-FINAL EMAIL NEWSLETTER VALIDATION (CHECK BEFORE RETURNING):
-- Verify newsletter is 400-600 words
-- Ensure subject line is under 50 characters
-- Confirm all sections are present: greeting, sermon highlights, devotional snippet, coming up, closing
-- Check that tone is warm and personal throughout
-- MANDATORY: Search entire newsletter for em dashes (—) and en dashes (–). If ANY found, rewrite those sentences
-- Use natural sentence flow and conversational tone
-` : ''}
 `;
 
       console.log('User prompt constructed, length:', userPrompt.length);
@@ -850,6 +925,7 @@ FINAL EMAIL NEWSLETTER VALIDATION (CHECK BEFORE RETURNING):
       console.error('Error type:', promptError instanceof Error ? promptError.constructor.name : typeof promptError);
       console.error('Error message:', promptError instanceof Error ? promptError.message : String(promptError));
       console.error('Error stack:', promptError instanceof Error ? promptError.stack : 'No stack trace');
+      await failGeneration('prompt construction error');
       return new Response(JSON.stringify({
         error: 'Failed to construct prompts. Please try again or contact support if the issue persists.'
       }), {
@@ -1008,33 +1084,28 @@ FINAL EMAIL NEWSLETTER VALIDATION (CHECK BEFORE RETURNING):
     console.log('Content generated successfully in UK English');
     
     // Validate generated content for safety
-    if (CONTENT_SAFETY_ENABLED) {
-      console.log('Validating generated content for safety...');
-      const contentToValidate = [
-        ...(hasSocialMedia ? [
-          generatedContent.facebook,
-          generatedContent.instagram,
-          generatedContent.tiktok,
-          generatedContent.twitter,
-          generatedContent.executiveSummary
-        ].filter(Boolean) : []),
-        ...(hasBibleStudy ? [generatedContent.bibleStudyGuide].filter(Boolean) : []),
-        ...(hasDevotional ? [generatedContent.devotional].filter(Boolean) : []),
-        ...(hasPodcastDescription ? [generatedContent.podcastDescription].filter(Boolean) : []),
-        ...(hasEmailNewsletter ? [generatedContent.emailNewsletter].filter(Boolean) : []),
-      ];
+    console.log('Validating generated content for safety...');
+    const contentToValidate = [
+      ...(hasSocialMedia ? [
+        generatedContent.facebook,
+        generatedContent.instagram,
+        generatedContent.tiktok,
+        generatedContent.twitter,
+        generatedContent.executiveSummary
+      ].filter(Boolean) : []),
+      ...(hasBibleStudy ? [generatedContent.bibleStudyGuide].filter(Boolean) : []),
+      ...(hasDevotional ? [generatedContent.devotional].filter(Boolean) : []),
+      ...(hasPodcastDescription ? [generatedContent.podcastDescription].filter(Boolean) : []),
+    ];
 
-      for (const content of contentToValidate) {
-        const validation = validateGeneratedContent(content);
-        if (!validation.isSafe) {
-          console.error('SAFETY VIOLATION DETECTED:', validation.violations);
-          throw new Error(`Generated content contains inappropriate material: ${validation.violations.join(', ')}. Content generation blocked.`);
-        }
+    for (const content of contentToValidate) {
+      const validation = validateGeneratedContent(content);
+      if (!validation.isSafe) {
+        console.error('SAFETY VIOLATION DETECTED:', validation.violations);
+        throw new Error(`Generated content contains inappropriate material: ${validation.violations.join(', ')}. Content generation blocked.`);
       }
-      console.log('Content validation passed - all content is safe');
-    } else {
-      console.warn('⚠️ Skipping generated content safety validation (disabled for testing)');
     }
+    console.log('Content validation passed - all content is safe');
     
     // Store the original UK English versions
     // Only include fields that were actually requested
@@ -1058,10 +1129,6 @@ FINAL EMAIL NEWSLETTER VALIDATION (CHECK BEFORE RETURNING):
 
     if (hasPodcastDescription && generatedContent.podcastDescription) {
       englishContent.podcastDescription = generatedContent.podcastDescription;
-    }
-
-    if (hasEmailNewsletter && generatedContent.emailNewsletter) {
-      englishContent.emailNewsletter = generatedContent.emailNewsletter;
     }
 
     // Create response structure with content in all requested languages
@@ -1140,16 +1207,6 @@ FINAL EMAIL NEWSLETTER VALIDATION (CHECK BEFORE RETURNING):
             }
           }
 
-          // Translate email newsletter
-          if (hasEmailNewsletter && generatedContent.emailNewsletter) {
-            try {
-              translatedContent.emailNewsletter = await translateText(generatedContent.emailNewsletter, targetLang);
-            } catch (translateError) {
-              console.error(`Error translating email newsletter to ${targetLang}:`, translateError);
-              translatedContent.emailNewsletter = generatedContent.emailNewsletter;
-            }
-          }
-
           return { language: targetLang, content: translatedContent };
         });
 
@@ -1210,13 +1267,33 @@ FINAL EMAIL NEWSLETTER VALIDATION (CHECK BEFORE RETURNING):
       }
     }
 
-    return new Response(JSON.stringify({
+    // === GENERATION LEDGER: UPDATE TO COMPLETED ===
+    const inputTokens = aiData?.usage?.input_tokens ?? 0;
+    const outputTokens = aiData?.usage?.output_tokens ?? 0;
+    // Haiku pricing: $1/M input, $5/M output
+    const estimatedCostUsd = (inputTokens / 1_000_000 * 1.0) + (outputTokens / 1_000_000 * 5.0);
+
+    const responsePayload = {
       ...cleanResponseContent,
       englishVersions: (primaryLanguage !== 'en' || outputLanguages.length > 1) ? englishContent : null,
       multiLanguageVersions: nonEnglishLanguages.length > 0 ? multiLanguageContent : null,
       outputLanguages,
       primaryLanguage
-    }), {
+    };
+
+    await supabase
+      .from('generations')
+      .update({
+        status: 'completed',
+        completed_at: new Date().toISOString(),
+        input_tokens: inputTokens,
+        output_tokens: outputTokens,
+        estimated_cost_usd: estimatedCostUsd,
+        result: responsePayload
+      })
+      .eq('idempotency_key', idempotencyKey);
+
+    return new Response(JSON.stringify(responsePayload), {
       headers: {
         ...corsHeaders,
         'Content-Type': 'application/json'
@@ -1228,14 +1305,30 @@ FINAL EMAIL NEWSLETTER VALIDATION (CHECK BEFORE RETURNING):
     console.error('Error type:', error instanceof Error ? error.constructor.name : typeof error);
     console.error('Error message:', error instanceof Error ? error.message : String(error));
     console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-    
+
+    // Mark generation as failed if we have an idempotency key
+    if (typeof idempotencyKey === 'string') {
+      try {
+        const supabaseForCleanup = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+        );
+        await supabaseForCleanup
+          .from('generations')
+          .update({ status: 'failed', completed_at: new Date().toISOString() })
+          .eq('idempotency_key', idempotencyKey);
+      } catch (cleanupError) {
+        console.error('Failed to mark generation as failed:', cleanupError);
+      }
+    }
+
     // Try to stringify the error object
     try {
       console.error('Full error:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
     } catch (stringifyError) {
       console.error('Could not stringify error:', stringifyError);
     }
-    
+
     // Return a user-friendly error message
     const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     const isConfigError = errorMessage.includes('not configured') || errorMessage.includes('API key');
