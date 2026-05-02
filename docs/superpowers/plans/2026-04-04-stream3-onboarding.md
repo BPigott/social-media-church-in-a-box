@@ -38,7 +38,7 @@
 - [ ] **Step 1: Create feature branch (from main after Stream 1 is merged)**
 
 ```bash
-cd /Users/bobpigott/Documents/social-media-church-in-a-box
+cd /Users/bobpigott/Documents/ivangel
 git checkout main
 git pull origin main  # ensure Stream 1 is merged first
 git checkout -b feature/onboarding

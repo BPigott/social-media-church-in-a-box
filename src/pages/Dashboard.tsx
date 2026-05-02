@@ -29,6 +29,10 @@ import MDEditor from '@uiw/react-md-editor';
 // Configure PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
+// localStorage key used by the restore-on-focus effect to skip generations
+// that the user has explicitly cleared via "Start Fresh".
+const DASHBOARD_CLEARED_AT_KEY = 'ivangel:dashboardClearedAt';
+
 // Language names mapping
 const LANGUAGE_NAMES: Record<string, string> = {
   'en': 'English',
@@ -392,11 +396,9 @@ const Dashboard = () => {
   const canRetranslateBible = hasNonEnglishLanguages && englishBibleSource.trim().length > 0;
   const canRetranslateDevotional = hasNonEnglishLanguages && englishDevotionalSource.trim().length > 0;
 
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate("/login");
-    }
-  }, [user, loading, navigate]);
+  // Auth redirects are handled by ProtectedRoute in App.tsx.
+  // A duplicate redirect here would race with transient TOKEN_REFRESHED events
+  // on tab focus and unmount the Dashboard, wiping generatedContent.
 
   // Fetch sermon series for the current church
   useEffect(() => {
@@ -413,6 +415,54 @@ const Dashboard = () => {
     };
     fetchSeries();
   }, [primaryChurch?.id]);
+
+  // Restore the last completed generation so content survives tab switches and refreshes.
+  // Also re-runs on visibilitychange as a belt-and-suspenders fallback in case Supabase
+  // auth events briefly nulled user?.id during a token refresh.
+  const restoringRef = useRef(false);
+  useEffect(() => {
+    const restoreIfNeeded = async () => {
+      const uid = user?.id;
+      if (!uid) return;
+      if (generatedContent) return;
+      if (restoringRef.current) return;
+      restoringRef.current = true;
+      try {
+        const clearedAt = (() => {
+          try { return localStorage.getItem(DASHBOARD_CLEARED_AT_KEY); } catch { return null; }
+        })();
+        let query = supabase
+          .from('generations')
+          .select('result')
+          .eq('user_id', uid)
+          .eq('status', 'completed');
+        if (clearedAt) query = query.gt('created_at', clearedAt);
+        const { data, error } = await query
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (error) {
+          console.warn('Dashboard: restore query failed', error.message);
+          return;
+        }
+        if (data?.result) {
+          setGeneratedContent(data.result);
+        }
+      } finally {
+        restoringRef.current = false;
+      }
+    };
+
+    restoreIfNeeded();
+
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') {
+        restoreIfNeeded();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [user?.id, generatedContent]);
 
   // Sync languages and set editing mode for English content when content is generated
   useEffect(() => {
@@ -1319,7 +1369,12 @@ const Dashboard = () => {
   };
 
   const handleStartFresh = () => {
-    // Clear all generated content and reset form
+    // Clear all generated content and reset form. Persist a dismissal timestamp
+    // so the restore-on-focus effect does not repopulate the cleared content.
+    try {
+      localStorage.setItem(DASHBOARD_CLEARED_AT_KEY, new Date().toISOString());
+    } catch { /* localStorage unavailable */ }
+
     setGeneratedContent(null);
     setTranscriptText('');
     setTranscriptFile(null);
@@ -1401,6 +1456,7 @@ const Dashboard = () => {
 
       // Step 2: Generate content
       const requestBody = {
+        idempotency_key: crypto.randomUUID(),
         transcript: transcriptText || null,
         styleGuide: styleGuideData.guide_content,
         platforms: contentTypes.includes('social_media') ? platforms : [],

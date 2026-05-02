@@ -1,24 +1,30 @@
 // Content safety validation utilities
 
 // Patterns to detect inappropriate content
+// NOTE: This is a church/sermon app. Many common religious words must be excluded:
+// - "hell", "damn" — core theological concepts
+// - "stakes", "bet", "wager" — common idioms in speech/sermons ("the stakes are high", "I bet...")
+// - "sex", "sexual" — addressed in purity/marriage sermons
+// - "jesus christ", "oh my god", "omg" — normal reverent usage
 const PROHIBITED_PATTERNS = {
   erotic: [
-    /\b(erotic|porn|sex|sexual|nude|naked|orgasm|xxx|adult content)\b/gi,
+    /\b(erotic|porn|orgasm|xxx|adult content)\b/gi,
+    // Note: "sex", "sexual", "naked", "nude" excluded — all appear in normal scripture/sermon context
   ],
-  gambling: [
-    /\b(gambling|casino|bet|betting|poker|slots|jackpot|lottery|wager|stakes)\b/gi,
-  ],
+  // Note: gambling category removed entirely — pastors routinely preach about gambling,
+  // use "betting/slots/jackpot" as idioms, and discuss lottery in poverty/justice contexts.
+  // The AI system prompt guards against pro-gambling output content.
   profanity: [
-    /\b(f\*\*k|sh\*t|a\*\*hole|b\*\*ch|d\*\*n|h\*\*l)\b/gi,
-    /\b(fuck|shit|asshole|bitch|damn|hell)\b/gi, // Common misspellings
+    /\b(f\*\*k|sh\*t|a\*\*hole|b\*\*ch)\b/gi,
+    /\b(fuck|shit|asshole|bitch)\b/gi,
+    // Note: "hell" and "damn" excluded — core theological terms used in Christian preaching
   ],
   blasphemy: [
-    /\b(god dammit|god damn|jesus christ|oh my god|omg)\b/gi, // Context-dependent, adjust as needed
-    // Add patterns that detect mocking or irreverent use of sacred terms
+    /\b(god dammit|god damn)\b/gi,
+    // Note: "jesus christ", "oh my god", "omg" intentionally excluded — normal church usage
   ],
   hate: [
     /\b(n\*\*ger|k\*\*ke|f\*\*got|sp\*\*c|ch\*\*k)\b/gi,
-    // Add other hate speech patterns
   ],
 };
 
