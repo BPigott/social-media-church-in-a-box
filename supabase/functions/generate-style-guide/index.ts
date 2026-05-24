@@ -205,7 +205,7 @@ Your final response should contain only the style guide content, written accordi
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 6144,
+        max_tokens: 8192,
         system: systemPrompt,
         messages: [
           { role: 'user', content: userPrompt }
@@ -236,6 +236,9 @@ Your final response should contain only the style guide content, written accordi
     }
 
     const aiData = await aiResponse.json();
+    if (aiData.stop_reason === 'max_tokens') {
+      console.warn('[generate-style-guide] truncated at max_tokens — increase limit or shorten input');
+    }
     const styleGuide = aiData.content[0].text;
 
     console.log('Style guide generated successfully, length:', styleGuide.length);
