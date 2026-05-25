@@ -30,24 +30,48 @@ Deno.test("EditorialBriefSchema: accepts a minimal valid brief", () => {
   assertEquals(parsed, minimal);
 });
 
-Deno.test("EditorialBriefSchema: rejects fewer than 3 themes", () => {
+Deno.test("EditorialBriefSchema: accepts a single theme (minimum viable)", () => {
   const result = EditorialBriefSchema.safeParse({
     themes: ["only one"],
     scriptureReferences: [],
-    hookAngles: ["h1", "h2", "h3"],
-    suggestedCTAs: ["cta1", "cta2"],
+    hookAngles: ["h1"],
+    suggestedCTAs: ["cta1"],
+    toneNotes: "warm",
+    verbatimMoments: [],
+  });
+  assert(result.success);
+});
+
+Deno.test("EditorialBriefSchema: rejects 0 themes", () => {
+  const result = EditorialBriefSchema.safeParse({
+    themes: [],
+    scriptureReferences: [],
+    hookAngles: ["h1"],
+    suggestedCTAs: ["cta1"],
     toneNotes: "warm",
     verbatimMoments: [],
   });
   assert(!result.success);
 });
 
-Deno.test("EditorialBriefSchema: rejects fewer than 2 CTAs", () => {
+Deno.test("EditorialBriefSchema: rejects 0 hookAngles", () => {
   const result = EditorialBriefSchema.safeParse({
-    themes: ["a", "b", "c"],
+    themes: ["a"],
     scriptureReferences: [],
-    hookAngles: ["h1", "h2", "h3"],
+    hookAngles: [],
     suggestedCTAs: ["cta1"],
+    toneNotes: "warm",
+    verbatimMoments: [],
+  });
+  assert(!result.success);
+});
+
+Deno.test("EditorialBriefSchema: rejects 0 CTAs", () => {
+  const result = EditorialBriefSchema.safeParse({
+    themes: ["a"],
+    scriptureReferences: [],
+    hookAngles: ["h1"],
+    suggestedCTAs: [],
     toneNotes: "warm",
     verbatimMoments: [],
   });
@@ -64,6 +88,35 @@ Deno.test("EditorialBriefSchema: scripture refs allow niv-less entries", () => {
     verbatimMoments: [],
   });
   assertEquals(parsed.scriptureReferences.length, 1);
+});
+
+// Truncation behaviour — LLM occasionally over-produces; schema must normalise
+// rather than reject. A hard reject crashed an entire production generation.
+Deno.test("EditorialBriefSchema: truncates over-produced verbatimMoments to 5", () => {
+  const parsed = EditorialBriefSchema.parse({
+    themes: ["a", "b", "c"],
+    scriptureReferences: [],
+    hookAngles: ["h1", "h2", "h3"],
+    suggestedCTAs: ["cta1", "cta2"],
+    toneNotes: "warm",
+    verbatimMoments: ["v1", "v2", "v3", "v4", "v5", "v6", "v7"],
+  });
+  assertEquals(parsed.verbatimMoments.length, 5);
+  assertEquals(parsed.verbatimMoments, ["v1", "v2", "v3", "v4", "v5"]);
+});
+
+Deno.test("EditorialBriefSchema: truncates over-produced themes/hooks/CTAs", () => {
+  const parsed = EditorialBriefSchema.parse({
+    themes: ["t1", "t2", "t3", "t4", "t5", "t6", "t7"],
+    scriptureReferences: [],
+    hookAngles: ["h1", "h2", "h3", "h4", "h5", "h6"],
+    suggestedCTAs: ["c1", "c2", "c3", "c4", "c5", "c6"],
+    toneNotes: "warm",
+    verbatimMoments: [],
+  });
+  assertEquals(parsed.themes.length, 6);
+  assertEquals(parsed.hookAngles.length, 5);
+  assertEquals(parsed.suggestedCTAs.length, 5);
 });
 
 // -- Live integration tests (require ANTHROPIC_API_KEY) ---------------------

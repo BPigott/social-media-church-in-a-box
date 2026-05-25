@@ -16,13 +16,21 @@ export const ScriptureReferenceSchema = z.object({
   niv: z.string().optional(),
 });
 
+// Truncate over-production rather than reject it. LLM output is non-deterministic;
+// Claude occasionally returns 6 verbatim moments when the prompt asks for "up to 5",
+// and a hard reject crashes the entire generation. Mins are now "minimum viable"
+// rather than "quality floors": we accept a thin brief on a short sermon rather
+// than crash the whole pipeline. Downstream specialists tolerate sparse briefs.
+const cappedStringArray = (min: number, max: number) =>
+  z.array(z.string().min(1)).min(min).transform((arr) => arr.slice(0, max));
+
 export const EditorialBriefSchema = z.object({
-  themes: z.array(z.string().min(1)).min(3).max(6),
-  scriptureReferences: z.array(ScriptureReferenceSchema).min(0).max(8),
-  hookAngles: z.array(z.string().min(1)).min(3).max(5),
-  suggestedCTAs: z.array(z.string().min(1)).min(2).max(5),
+  themes: cappedStringArray(1, 6),
+  scriptureReferences: z.array(ScriptureReferenceSchema).min(0).transform((arr) => arr.slice(0, 8)),
+  hookAngles: cappedStringArray(1, 5),
+  suggestedCTAs: cappedStringArray(1, 5),
   toneNotes: z.string().min(1),
-  verbatimMoments: z.array(z.string().min(1)).min(0).max(5),
+  verbatimMoments: cappedStringArray(0, 5),
 });
 
 export type EditorialBrief = z.infer<typeof EditorialBriefSchema>;
@@ -219,10 +227,12 @@ export async function director(input: DirectorInput): Promise<DirectorOutput> {
 
   // Strip em/en dashes from the brief so specialists don't copy them downstream.
   // Safe round-trip: JSON.stringify → string replace → JSON.parse keeps structure intact.
+  // Require whitespace on at least one side of the dash so verse ranges like
+  // "Mark 6:30–44" (en dash, no surrounding whitespace) are preserved verbatim.
   const sanitisedBrief: EditorialBrief = JSON.parse(
     JSON.stringify(result.data)
-      .replace(/\s*—\s*/g, ", ")
-      .replace(/\s*–\s*/g, ", "),
+      .replace(/(?:\s+—\s*|\s*—\s+)/g, ", ")
+      .replace(/(?:\s+–\s*|\s*–\s+)/g, ", "),
   );
 
   const usage: AnthropicUsage = {

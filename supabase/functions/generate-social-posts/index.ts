@@ -257,8 +257,9 @@ serve(async (req) => {
     if (hasPodcastDescription) calls.push({ key: "podcastDescription", start: () => runPodcastSpecialist(brief, ctx) });
 
     // Anthropic per-account concurrent-connection cap is low (≈5-10).
-    // Cap specialist concurrency at 4 to leave headroom for the director call
-    // and any other in-flight requests on the same account.
+    // Cap specialist concurrency at 4 to stay well under the cap and leave
+    // headroom for any unrelated in-flight requests on the same account
+    // (the director call itself has already completed by the time we get here).
     const SPECIALIST_CONCURRENCY = 4;
     console.log(`Dispatching ${calls.length} specialist calls (max ${SPECIALIST_CONCURRENCY} concurrent)`);
     const settled = await runWithLimit(calls.map(c => c.start), SPECIALIST_CONCURRENCY);
