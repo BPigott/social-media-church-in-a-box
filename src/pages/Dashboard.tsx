@@ -267,6 +267,11 @@ const Dashboard = () => {
 
   // Helper function to get length indicator
   const getLengthIndicator = (text: string, platform: string) => {
+    // Defence in depth: some call paths (e.g., missing platformContent) may pass
+    // undefined/null. Return a neutral indicator rather than crashing.
+    if (!text) {
+      return { status: '', color: 'text-muted-foreground', message: '0 chars' };
+    }
     const charCount = text.length;
     const wordCount = countWords(text);
     switch (platform) {
@@ -2200,7 +2205,7 @@ const Dashboard = () => {
                     const currentPost = posts[activeIdx];
                     const contentKey = `${platform}-${activeIdx}`;
                     const isEditing = editingContent[contentKey];
-                    const displayContent = isEditing ? (editedContent[contentKey] || currentPost) : currentPost;
+                    const displayContent = (isEditing ? (editedContent[contentKey] || currentPost) : currentPost) ?? '';
                     const lengthInfo = getLengthIndicator(displayContent, platform);
 
                     // Get versions for multi-language display
