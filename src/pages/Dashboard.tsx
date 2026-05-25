@@ -33,6 +33,43 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 // that the user has explicitly cleared via "Start Fresh".
 const DASHBOARD_CLEARED_AT_KEY = 'ivangel:dashboardClearedAt';
 
+const SOCIAL_PLATFORM_KEYS = ['facebook', 'instagram', 'tiktok', 'twitter'] as const;
+
+// Strip null/non-string entries from social platform arrays so the render path
+// (getLengthIndicator, variation switcher, etc.) never sees nulls. Defends
+// against historical rows in `generations.result` written by earlier orchestrator
+// versions that produced sparse arrays when some specialist calls failed.
+const compactSocialArrays = (obj: Record<string, unknown>): Record<string, unknown> => {
+  const out = { ...obj };
+  for (const k of SOCIAL_PLATFORM_KEYS) {
+    const v = out[k];
+    if (Array.isArray(v)) {
+      const compact = v.filter((x): x is string => typeof x === 'string' && x.length > 0);
+      if (compact.length === 0) delete out[k];
+      else out[k] = compact.length === 1 ? compact[0] : compact;
+    }
+  }
+  return out;
+};
+
+const sanitiseGenerationResult = (result: unknown): unknown => {
+  if (!result || typeof result !== 'object') return result;
+  let out = compactSocialArrays(result as Record<string, unknown>);
+  const english = out.englishVersions;
+  if (english && typeof english === 'object') {
+    out = { ...out, englishVersions: compactSocialArrays(english as Record<string, unknown>) };
+  }
+  const multi = out.multiLanguageVersions;
+  if (multi && typeof multi === 'object') {
+    const cleaned: Record<string, unknown> = {};
+    for (const [lang, v] of Object.entries(multi)) {
+      cleaned[lang] = v && typeof v === 'object' ? compactSocialArrays(v as Record<string, unknown>) : v;
+    }
+    out = { ...out, multiLanguageVersions: cleaned };
+  }
+  return out;
+};
+
 // Language names mapping
 const LANGUAGE_NAMES: Record<string, string> = {
   'en': 'English',
@@ -446,7 +483,7 @@ const Dashboard = () => {
           return;
         }
         if (data?.result) {
-          setGeneratedContent(data.result);
+          setGeneratedContent(sanitiseGenerationResult(data.result));
         }
       } finally {
         restoringRef.current = false;
