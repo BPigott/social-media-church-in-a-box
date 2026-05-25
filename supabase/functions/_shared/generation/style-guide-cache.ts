@@ -16,16 +16,8 @@ const MODEL = "claude-haiku-4-5-20251001";
 
 // Stable across all churches and all specialists — lives at the top of the
 // cached prefix. Keep this block byte-stable to maximise cache hit rate.
-export const SHARED_VOICE_BLOCK = `# Content Safety
-- Prohibited: erotic, sexual, or explicit content
-- Prohibited: racist, discriminatory, or hateful language
-- Prohibited: gambling, betting, or casino references
-- Prohibited: blasphemous, irreverent, or mocking references to God, Jesus, the Holy Spirit, Scripture
-- Prohibited: violence, profanity, offensive language
-- Required: respectful tone, aligned with Christian values, accurate Scripture
-- If input material contains anything inappropriate, filter it out and refuse to generate based on it
-
-# Writing Style (these rules OVERRIDE any contrary patterns in the style guide examples below)
+export const SHARED_VOICE_BLOCK = `# Writing Style (these rules OVERRIDE any contrary patterns in the style guide examples below)
+- Maintain a respectful tone, aligned with Christian values, with accurate Scripture
 - Natural, conversational tone; vary sentence structure and length; straightforward language
 - UK English spelling throughout (colour, realise, centre)
 - NO emojis anywhere. Not in social posts, not in devotionals, not in podcast descriptions, not as section breaks. Zero emojis in any output.
@@ -103,11 +95,20 @@ export async function callSpecialist(
     messages: [{ role: "user", content: params.userPrompt }],
   });
 
-  // Single retry on 429 to ride out brief concurrent-connection contention.
-  // Orchestrator-level throttling is the primary defence; this is a safety net.
+  // Retry policy (max 3 attempts):
+  //   - 429 / rate_limit_error: retry ONCE after 1.5s to ride out brief
+  //     concurrent-connection contention. Orchestrator-level throttling is the
+  //     primary defence; this is a safety net.
+  //   - 400 with "content filtering" in body: retry ONCE immediately. Claude
+  //     samples non-deterministically at our temperature (0.6–0.7), so a fresh
+  //     sample usually clears the classifier. Frequent firings in logs would
+  //     mean the prompt still primes the filter and needs further work.
+  // Each error type gets at most one retry; we never compound.
   let response: Response;
   let errorText = "";
-  for (let attempt = 0; attempt < 2; attempt++) {
+  let rateLimitRetried = false;
+  let contentFilterRetried = false;
+  for (let attempt = 0; attempt < 3; attempt++) {
     response = await fetch(ANTHROPIC_API_URL, {
       method: "POST",
       headers: {
@@ -120,15 +121,27 @@ export async function callSpecialist(
     if (response.ok) break;
     errorText = await response.text();
     const isRateLimit = response.status === 429 || errorText.includes("rate_limit_error");
-    if (!isRateLimit || attempt === 1) {
-      throw new Error(
-        `[${params.specialistName ?? "specialist"}] Anthropic API ${response.status}: ${errorText}`,
+    const isContentFilter =
+      response.status === 400 && /content filtering/i.test(errorText);
+
+    if (isRateLimit && !rateLimitRetried) {
+      rateLimitRetried = true;
+      console.warn(
+        `[${params.specialistName ?? "specialist"}] 429 rate-limited, retrying in 1.5s`,
       );
+      await new Promise((r) => setTimeout(r, 1500));
+      continue;
     }
-    console.warn(
-      `[${params.specialistName ?? "specialist"}] 429 rate-limited, retrying in 1.5s`,
+    if (isContentFilter && !contentFilterRetried) {
+      contentFilterRetried = true;
+      console.warn(
+        `[${params.specialistName ?? "specialist"}] 400 content-filter trip, retrying once (non-deterministic sampling)`,
+      );
+      continue;
+    }
+    throw new Error(
+      `[${params.specialistName ?? "specialist"}] Anthropic API ${response.status}: ${errorText}`,
     );
-    await new Promise((r) => setTimeout(r, 1500));
   }
   // After loop, response is guaranteed assigned and ok (otherwise we threw).
   response = response!;
