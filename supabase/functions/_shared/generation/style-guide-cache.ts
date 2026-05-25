@@ -37,10 +37,12 @@ export const SHARED_VOICE_BLOCK = `# Content Safety
 //   2. Sanitise the editorial brief before specialists see it
 //   3. Sanitise every specialist's output as a final safety net
 // Byte-stable: same input → same output, so caches still hit.
+// Require whitespace on at least one side of the dash so verse ranges like
+// "Mark 6:30–44" (en dash, no surrounding whitespace) are preserved verbatim.
 export function stripDashes(raw: string): string {
   return raw
-    .replace(/\s*—\s*/g, ", ")
-    .replace(/\s*–\s*/g, ", ");
+    .replace(/(?:\s+—\s*|\s*—\s+)/g, ", ")
+    .replace(/(?:\s+–\s*|\s*–\s+)/g, ", ");
 }
 
 // Back-compat alias used inside buildCachedPrefix below.
