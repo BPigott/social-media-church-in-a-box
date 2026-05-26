@@ -54,6 +54,26 @@ export function isContentFilterError(err: unknown): boolean {
     && /content filtering/i.test(err.message);
 }
 
+// Rendering notes appended to the user prompt when failing over to Gemini.
+// Targets two Gemini-specific behaviours observed in production vs Anthropic
+// on the identical brief: (a) Gemini truncates each NIV reference to a single
+// verse rather than rendering the full passage from the brief, and (b) Gemini
+// does not consolidate overlapping references (e.g. "Acts 17:16-34" + "Acts
+// 17:27" as separate sections when 27 is inside the range).
+const GEMINI_RENDERING_NOTES = `
+
+## Rendering notes
+
+- For each Scripture Reference, render the FULL NIV text from the brief, not a single verse. If the brief provides several verses (e.g. Mark 6:30-44 with multiple verses of text), include all of them under the single heading.
+- If two references overlap (e.g. "Acts 17:16-34" already includes verses 27 and 28), render only the broader reference. Do not create separate sections for verses that are already inside a range reference.`;
+
+// Builds the Gemini failover user prompt by appending rendering notes to the
+// original prompt. Pure function so the addendum content can be unit-tested
+// without invoking Gemini.
+export function buildGeminiFailoverUserPrompt(originalUserPrompt: string): string {
+  return originalUserPrompt + GEMINI_RENDERING_NOTES;
+}
+
 export interface SpecialistCallParams {
   // Per-church style guide. The wrapper composes the full cached prefix as
   // SHARED_VOICE_BLOCK + "\n\n# Church Voice & Style (authoritative)\n" + styleGuide.
@@ -214,7 +234,7 @@ async function callGeminiFailover(
   const system = `${buildCachedPrefix(params.styleGuide)}\n\n${params.taskSystem}`;
   const result = await callGemini({
     system,
-    user: params.userPrompt,
+    user: buildGeminiFailoverUserPrompt(params.userPrompt),
     maxTokens: params.maxTokens,
     temperature: params.temperature ?? 0.6,
   });
