@@ -379,14 +379,13 @@ const Dashboard = () => {
   const [activeSocialPlatform, setActiveSocialPlatform] = useState<'facebook' | 'instagram' | 'tiktok' | 'twitter'>('facebook');
 
   // New state for enhanced features
-  const [contentTypes, setContentTypes] = useState<('social_media' | 'bible_study' | 'devotional' | 'podcast_description' | 'email_newsletter')[]>(['social_media']);
+  const [contentTypes, setContentTypes] = useState<('social_media' | 'bible_study' | 'devotional' | 'podcast_description')[]>(['social_media']);
   const [outputLanguages, setOutputLanguages] = useState<string[]>(['en']);
   const [primaryLanguage, setPrimaryLanguage] = useState('en');
   const [bibleStudySelected, setBibleStudySelected] = useState(false);
   const [socialMediaSelected, setSocialMediaSelected] = useState(true);
   const [devotionalSelected, setDevotionalSelected] = useState(false);
   const [podcastDescriptionSelected, setPodcastDescriptionSelected] = useState(false);
-  const [emailNewsletterSelected, setEmailNewsletterSelected] = useState(false);
   const [retranslating, setRetranslating] = useState(false);
 
   // Sermon series state
@@ -547,9 +546,6 @@ const Dashboard = () => {
         if (generatedContent.podcastDescription) {
           newEditingState['podcastDescription'] = true;
         }
-        if (generatedContent.emailNewsletter) {
-          newEditingState['emailNewsletter'] = true;
-        }
 
         setEditingContent(newEditingState);
 
@@ -564,8 +560,6 @@ const Dashboard = () => {
               newEditedContent[key] = generatedContent.devotional || '';
             } else if (key === 'podcastDescription') {
               newEditedContent[key] = generatedContent.podcastDescription || '';
-            } else if (key === 'emailNewsletter') {
-              newEditedContent[key] = generatedContent.emailNewsletter || '';
             } else if (key.includes('-')) {
               const [platform, idxStr] = key.split('-');
               const idx = parseInt(idxStr);
@@ -751,7 +745,7 @@ const Dashboard = () => {
     setPlatforms(prev => prev.includes(platform) ? prev.filter(p => p !== platform) : [...prev, platform]);
   };
 
-  const handleContentTypeToggle = (type: 'social_media' | 'bible_study' | 'devotional' | 'podcast_description' | 'email_newsletter') => {
+  const handleContentTypeToggle = (type: 'social_media' | 'bible_study' | 'devotional' | 'podcast_description') => {
     setContentTypes(prev => {
       const newTypes = prev.includes(type)
         ? prev.filter(t => t !== type)
@@ -770,8 +764,6 @@ const Dashboard = () => {
         setDevotionalSelected(newTypes.includes('devotional'));
       } else if (type === 'podcast_description') {
         setPodcastDescriptionSelected(newTypes.includes('podcast_description'));
-      } else if (type === 'email_newsletter') {
-        setEmailNewsletterSelected(newTypes.includes('email_newsletter'));
       }
 
       return newTypes;
@@ -805,8 +797,6 @@ const Dashboard = () => {
         updated.devotional = newContent;
       } else if (contentKey === 'podcastDescription') {
         updated.podcastDescription = newContent;
-      } else if (contentKey === 'emailNewsletter') {
-        updated.emailNewsletter = newContent;
       } else if (contentKey === 'bibleStudyGuide') {
         updated.bibleStudyGuide = newContent;
       } else if (contentKey.startsWith('facebook-')) {
@@ -849,8 +839,6 @@ const Dashboard = () => {
           dbUpdateFields = { devotional: newContent };
         } else if (contentKey === 'podcastDescription') {
           dbUpdateFields = { podcast_description: newContent };
-        } else if (contentKey === 'emailNewsletter') {
-          dbUpdateFields = { email_newsletter: newContent };
         } else if (contentKey.startsWith('facebook-')) {
           const idx = parseInt(contentKey.split('-')[1]);
           const currentPosts = Array.isArray(generatedContent.facebook)
@@ -1030,16 +1018,6 @@ const Dashboard = () => {
               podcast_description_english: englishSource
             };
           }
-        } else if (contentType === 'email_newsletter') {
-          if (primaryLanguage === 'en') {
-            englishSaveFields = {
-              email_newsletter: englishSource
-            };
-          } else {
-            englishSaveFields = {
-              email_newsletter_english: englishSource
-            };
-          }
         } else if (contentType.startsWith('facebook-') ||
                    contentType.startsWith('instagram-') ||
                    contentType.startsWith('tiktok-') ||
@@ -1113,13 +1091,6 @@ const Dashboard = () => {
               } else {
                 englishVersions.podcastDescription = englishSource;
               }
-            } else if (contentType === 'email_newsletter') {
-              if (primaryLanguage === 'en') {
-                updated.emailNewsletter = englishSource;
-                delete englishVersions.emailNewsletter;
-              } else {
-                englishVersions.emailNewsletter = englishSource;
-              }
             } else if (contentType.startsWith('facebook-') ||
                        contentType.startsWith('instagram-') ||
                        contentType.startsWith('tiktok-') ||
@@ -1150,8 +1121,6 @@ const Dashboard = () => {
               updated['devotional'] = englishSource;
             } else if (contentType === 'podcast_description') {
               updated['podcastDescription'] = englishSource;
-            } else if (contentType === 'email_newsletter') {
-              updated['emailNewsletter'] = englishSource;
             } else if (contentType.startsWith('facebook-') ||
                        contentType.startsWith('instagram-') ||
                        contentType.startsWith('tiktok-') ||
@@ -1296,31 +1265,6 @@ const Dashboard = () => {
           // Only include English reference field if primary language is not English
           if (primaryLanguage !== 'en') {
             dbUpdateFields.podcast_description_english = englishSource;
-          }
-        } else if (contentType === 'email_newsletter') {
-          if (primaryLanguage !== 'en') {
-            englishVersions.emailNewsletter = englishSource;
-          } else {
-            delete englishVersions.emailNewsletter;
-          }
-
-          Object.entries(translatedContents).forEach(([lang, translated]) => {
-            const languageContent = { ...(multiLanguageVersions[lang] || {}) };
-            languageContent.emailNewsletter = translated;
-            multiLanguageVersions[lang] = languageContent;
-
-            if (lang === primaryLanguage) {
-              updated.emailNewsletter = translated;
-            }
-          });
-
-          dbUpdateFields = {
-            email_newsletter: updated.emailNewsletter,
-            multi_language_versions: Object.keys(multiLanguageVersions).length > 0 ? multiLanguageVersions : null
-          };
-
-          if (primaryLanguage !== 'en') {
-            dbUpdateFields.email_newsletter_english = englishSource;
           }
         } else if (contentType.startsWith('facebook-') ||
                    contentType.startsWith('instagram-') ||
@@ -1601,8 +1545,6 @@ const Dashboard = () => {
         bible_study_guide_english: data.englishVersions?.bibleStudyGuide || null,
         podcast_description: data.podcastDescription || null,
         podcast_description_english: data.englishVersions?.podcastDescription || null,
-        email_newsletter: data.emailNewsletter || null,
-        email_newsletter_english: data.englishVersions?.emailNewsletter || null,
         sermon_series_id: generationMode === 'sermon' ? selectedSeriesId || null : null,
         series_week_number: generationMode === 'sermon' ? seriesWeekNumber || null : null,
         church_event_id: savedEventId,
@@ -1637,8 +1579,6 @@ const Dashboard = () => {
           series_week_number: generationMode === 'sermon' ? seriesWeekNumber || null : null,
           church_event_id: savedEventId,
           generation_mode: generationMode,
-          email_newsletter: data.emailNewsletter || null,
-          email_newsletter_english: data.englishVersions?.emailNewsletter || null,
           output_language: primaryLanguage,
           content_types: contentTypes,
           output_languages: outputLanguages
@@ -1660,8 +1600,7 @@ const Dashboard = () => {
           contentTypes.includes('social_media') ? 'social media posts' : '',
           contentTypes.includes('bible_study') ? 'Bible study guide' : '',
           contentTypes.includes('devotional') ? 'daily devotional' : '',
-          contentTypes.includes('podcast_description') ? 'podcast description' : '',
-          contentTypes.includes('email_newsletter') ? 'email newsletter' : ''
+          contentTypes.includes('podcast_description') ? 'podcast description' : ''
         ].filter(Boolean).join(', ')} are ready.`
       });
     } catch (error) {
@@ -1704,7 +1643,6 @@ const Dashboard = () => {
     if (generatedContent.bibleStudyGuide) sections.push(`=== BIBLE STUDY GUIDE ===\n${generatedContent.bibleStudyGuide}`);
     if (generatedContent.devotional) sections.push(`=== DAILY DEVOTIONAL ===\n${generatedContent.devotional}`);
     if (generatedContent.podcastDescription) sections.push(`=== PODCAST DESCRIPTION ===\n${generatedContent.podcastDescription}`);
-    if (generatedContent.emailNewsletter) sections.push(`=== EMAIL NEWSLETTER ===\n${generatedContent.emailNewsletter}`);
     return sections;
   };
 
@@ -1854,14 +1792,6 @@ const Dashboard = () => {
                       onCheckedChange={() => handleContentTypeToggle('podcast_description')}
                     />
                     <Label htmlFor="podcast-description">Podcast Description</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="email-newsletter"
-                      checked={contentTypes.includes('email_newsletter')}
-                      onCheckedChange={() => handleContentTypeToggle('email_newsletter')}
-                    />
-                    <Label htmlFor="email-newsletter">Email Newsletter</Label>
                   </div>
                 </div>
               </div>
@@ -2476,7 +2406,6 @@ const Dashboard = () => {
                           {generatedContent.bibleStudyGuide && <TabsTrigger value="bible-study">📖 Bible Study</TabsTrigger>}
                           {generatedContent.devotional && <TabsTrigger value="devotional">🙏 Devotional</TabsTrigger>}
                           {generatedContent.podcastDescription && <TabsTrigger value="podcast-description">🎙️ Podcast</TabsTrigger>}
-                          {generatedContent.emailNewsletter && <TabsTrigger value="email-newsletter">📧 Newsletter</TabsTrigger>}
                         </TabsList>
                       </div>
 
@@ -3089,163 +3018,6 @@ const Dashboard = () => {
                   </TabsContent>
                       )}
 
-                      {/* Email Newsletter Tab */}
-                      {generatedContent.emailNewsletter && (
-                  <TabsContent value="email-newsletter" className="space-y-3">
-                    {(() => {
-                      const englishNewsletter = generatedContent.englishVersions?.emailNewsletter;
-                      const multiLanguageVersions = generatedContent.multiLanguageVersions || {};
-                      const showMultiLanguage = Object.keys(multiLanguageVersions).length > 0 || hasNonEnglishLanguages;
-
-                      if (showMultiLanguage) {
-                        return (
-                          <div className="space-y-4">
-                            {/* Primary Language */}
-                            <div className="space-y-2">
-                              <div className="flex items-center justify-between">
-                                <Label className="text-sm font-semibold">
-                                  {LANGUAGE_NAMES[primaryLanguage] || primaryLanguage} (Primary)
-                                </Label>
-                                <span className="text-xs text-muted-foreground">Main version</span>
-                              </div>
-                              <div className="min-h-[500px]">
-                                <MDEditor
-                                  value={editedContent['emailNewsletter'] || generatedContent.emailNewsletter}
-                                  onChange={(val) => setEditedContent(prev => ({ ...prev, emailNewsletter: val || '' }))}
-                                  height={500}
-                                  preview="edit"
-                                />
-                              </div>
-                              <div className="flex justify-end gap-2">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => copyToClipboard(editedContent['emailNewsletter'] || generatedContent.emailNewsletter, "Email newsletter")}
-                                >
-                                  {copiedItem === "Email newsletter" ? <CheckCircle size={16} className="mr-2" /> : <Copy size={16} className="mr-2" />}
-                                  Copy
-                                </Button>
-                              </div>
-                            </div>
-
-                            {/* English version (if primary is not English) */}
-                            {primaryLanguage !== 'en' && englishNewsletter && (
-                              <div className="space-y-2">
-                                <div className="flex items-center justify-between">
-                                  <Label className="text-sm font-semibold">English (Original)</Label>
-                                  <div className="flex gap-2">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => handleRetranslate(englishNewsletter, 'email_newsletter')}
-                                      disabled={retranslating}
-                                    >
-                                      <RefreshCcw size={14} className={`mr-1 ${retranslating ? 'animate-spin' : ''}`} />
-                                      Re-translate
-                                    </Button>
-                                  </div>
-                                </div>
-                                <ScrollArea className="border rounded-lg h-[300px]">
-                                  <div className="bg-muted/50 p-4">
-                                    <ReactMarkdown>{englishNewsletter}</ReactMarkdown>
-                                  </div>
-                                </ScrollArea>
-                                <div className="flex justify-end">
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => copyToClipboard(englishNewsletter, "English newsletter")}
-                                  >
-                                    {copiedItem === "English newsletter" ? (
-                                      <CheckCircle size={16} className="mr-2" />
-                                    ) : (
-                                      <Copy size={16} className="mr-2" />
-                                    )}
-                                    Copy English
-                                  </Button>
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Other language versions */}
-                            {Object.entries(multiLanguageVersions).map(([langCode, langContent]: [string, any]) => {
-                              if (langCode === primaryLanguage || !langContent.emailNewsletter) return null;
-                              return (
-                                <div key={langCode} className="space-y-2">
-                                  <Label className="text-sm font-semibold">
-                                    {LANGUAGE_NAMES[langCode] || langCode}
-                                  </Label>
-                                  <ScrollArea className="border rounded-lg h-[300px]">
-                                    <div className="bg-muted/50 p-4">
-                                      <ReactMarkdown>{langContent.emailNewsletter}</ReactMarkdown>
-                                    </div>
-                                  </ScrollArea>
-                                  <div className="flex justify-end">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => copyToClipboard(langContent.emailNewsletter, `${LANGUAGE_NAMES[langCode] || langCode} newsletter`)}
-                                    >
-                                      {copiedItem === `${LANGUAGE_NAMES[langCode] || langCode} newsletter` ? (
-                                        <CheckCircle size={16} className="mr-2" />
-                                      ) : (
-                                        <Copy size={16} className="mr-2" />
-                                      )}
-                                      Copy
-                                    </Button>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        );
-                      } else {
-                        return (
-                          <>
-                            {editingContent['emailNewsletter'] ? (
-                              <div className="min-h-[500px]">
-                                <MDEditor
-                                  value={editedContent['emailNewsletter'] || generatedContent.emailNewsletter}
-                                  onChange={(val) => setEditedContent(prev => ({ ...prev, emailNewsletter: val || '' }))}
-                                  height={500}
-                                  preview="edit"
-                                />
-                              </div>
-                            ) : (
-                              <ScrollArea className="border rounded-lg h-[600px]">
-                                <div className="bg-muted p-4">
-                                  <p className="whitespace-pre-wrap">{generatedContent.emailNewsletter}</p>
-                                </div>
-                              </ScrollArea>
-                            )}
-                            <div className="flex gap-2">
-                              {editingContent['emailNewsletter'] ? (
-                                <>
-                                  <Button onClick={() => handleCancelEdit('emailNewsletter')} variant="outline" size="sm" className="flex-1">
-                                    Cancel
-                                  </Button>
-                                  <Button onClick={() => handleSaveEdit('emailNewsletter')} size="sm" className="flex-1">
-                                    Save
-                                  </Button>
-                                </>
-                              ) : (
-                                <>
-                                  <Button onClick={() => handleStartEdit('emailNewsletter', generatedContent.emailNewsletter)} variant="outline" size="sm" className="flex-1">
-                                    Edit
-                                  </Button>
-                                  <Button onClick={() => copyToClipboard(generatedContent.emailNewsletter, "Email newsletter")} variant="outline" size="sm" className="flex-1">
-                                    {copiedItem === "Email newsletter" ? <CheckCircle size={16} className="mr-2" /> : <Copy size={16} className="mr-2" />}
-                                    Copy
-                                  </Button>
-                                </>
-                              )}
-                            </div>
-                          </>
-                        );
-                      }
-                    })()}
-                  </TabsContent>
-                      )}
                     </Tabs>
                   );
                 })()}
