@@ -189,7 +189,7 @@ const Index = () => {
               Your sermon satisfies Sunday.<br />What about the other six days?
             </h1>
             <p className={`text-xl text-muted-foreground leading-relaxed max-w-xl mb-8 transition-all duration-500 delay-200 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
-              Ivangel transforms your sermon into social posts, study guides, devotionals, newsletters, and more — in 15+ languages. Text content only, ready to copy and publish.
+              Ivangel transforms your sermon into social posts, study guides, devotionals, and more — in 15+ languages. Text content only, ready to copy and publish.
             </p>
             <Button asChild size="lg" className={`text-lg px-8 py-6 transition-all duration-500 delay-300 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
               <Link to={user ? "/dashboard" : "/signup"}>
@@ -326,7 +326,7 @@ const Index = () => {
         <div ref={contentTypesRef} className="max-w-6xl mx-auto px-6 md:px-12 opacity-0 translate-y-8 transition-all duration-700 ease-out">
           <span className="text-xs font-bold uppercase tracking-widest text-primary mb-4 block">What You Get</span>
           <h2 className="text-4xl md:text-5xl font-playfair font-bold mb-4">
-            One sermon. Six ways to reach your community.
+            One sermon. Five ways to reach your community.
           </h2>
           <p className="text-lg text-muted-foreground mb-16 max-w-2xl">
             Choose the content types you need — Ivangel generates them all from a single transcript.
@@ -348,9 +348,6 @@ const Index = () => {
                 </TabsTrigger>
                 <TabsTrigger value="podcast" className="w-full justify-start text-left pl-6 py-4 text-base rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:font-bold data-[state=active]:shadow-none data-[state=active]:border-l-2 data-[state=active]:border-primary data-[state=active]:-ml-px text-muted-foreground hover:text-foreground transition-colors">
                   Podcast Descriptions
-                </TabsTrigger>
-                <TabsTrigger value="newsletter" className="w-full justify-start text-left pl-6 py-4 text-base rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:font-bold data-[state=active]:shadow-none data-[state=active]:border-l-2 data-[state=active]:border-primary data-[state=active]:-ml-px text-muted-foreground hover:text-foreground transition-colors">
-                  Email Newsletters
                 </TabsTrigger>
                 <TabsTrigger value="event" className="w-full justify-start text-left pl-6 py-4 text-base rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:font-bold data-[state=active]:shadow-none data-[state=active]:border-l-2 data-[state=active]:border-primary data-[state=active]:-ml-px text-muted-foreground hover:text-foreground transition-colors">
                   Event Promotions
@@ -436,27 +433,6 @@ const Index = () => {
                       <p className="text-xs text-muted-foreground"><span className="font-semibold">00:00</span> — Introduction &amp; recap</p>
                       <p className="text-xs text-muted-foreground"><span className="font-semibold">04:30</span> — The theology of active grace</p>
                       <p className="text-xs text-muted-foreground"><span className="font-semibold">18:15</span> — Congregation stories</p>
-                    </div>
-                  </div>
-                </TabsContent>
-
-                {/* Email Newsletters */}
-                <TabsContent value="newsletter" className="mt-0">
-                  <div className="bg-card rounded-2xl p-8 shadow-tactile border border-border/30">
-                    <div className="space-y-4">
-                      <div>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Subject Line</p>
-                        <p className="text-base font-medium text-card-foreground">This week: turning Sunday's grace into Monday's action</p>
-                      </div>
-                      <div className="border-t border-border/40 pt-4">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Preview</p>
-                        <p className="text-sm text-card-foreground leading-relaxed">
-                          Dear Grace Community family — this Sunday, Pastor James reminded us that grace is a verb. Here's how to live it out this week, plus your devotional guide, small group questions, and details on next Saturday's community outreach...
-                        </p>
-                      </div>
-                      <div className="border-t border-border/40 pt-4">
-                        <p className="text-xs text-muted-foreground italic">Estimated read time: 3 minutes &bull; 480 words</p>
-                      </div>
                     </div>
                   </div>
                 </TabsContent>
@@ -716,7 +692,7 @@ const Index = () => {
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-center gap-3">
                     <CheckCircle size={20} className="text-secondary flex-shrink-0" weight="fill" />
-                    <span className="text-sm">All 6 content types</span>
+                    <span className="text-sm">All 5 content types</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle size={20} className="text-secondary flex-shrink-0" weight="fill" />
@@ -765,7 +741,7 @@ const Index = () => {
                 What kind of content does Ivangel create?
               </AccordionTrigger>
               <AccordionContent>
-                Ivangel generates text-based content only: social media posts, bible study guides, daily devotionals, podcast descriptions, email newsletters, and event promotions. No images or video — just well-crafted words ready to copy, edit, and share.
+                Ivangel generates text-based content only: social media posts, bible study guides, daily devotionals, podcast descriptions, and event promotions. No images or video — just well-crafted words ready to copy, edit, and share.
               </AccordionContent>
             </AccordionItem>
 
