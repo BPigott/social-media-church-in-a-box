@@ -18,19 +18,11 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const LANGUAGE_NAMES: Record<string, string> = {
-  en: "English", es: "Spanish", fr: "French", pt: "Portuguese", de: "German",
-  ko: "Korean", zh: "Chinese (Simplified)", "zh-TW": "Chinese (Traditional)",
-  ar: "Arabic", fa: "Persian (Farsi)", pl: "Polish", uk: "Ukrainian",
-  it: "Italian", ru: "Russian", ja: "Japanese",
-};
-
 const SOCIAL_SPECIALISTS: Record<SocialPlatform, (b: any, c: SpecialistContext) => Promise<SpecialistResult>> = {
   facebook: runFacebookSpecialist,
   instagram: runInstagramSpecialist,
   tiktok: runTikTokSpecialist,
   twitter: runTwitterSpecialist,
-  linkedin: runFacebookSpecialist, // unreachable: linkedin is filtered out before dispatch
 };
 const SUPPORTED_SOCIAL: SocialPlatform[] = ["facebook", "instagram", "tiktok", "twitter"];
 

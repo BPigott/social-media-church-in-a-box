@@ -106,132 +106,6 @@ const getSortedLanguages = () => {
   return [...english, ...others];
 };
 
-// Dual Language Display Component
-interface DualLanguageDisplayProps {
-  foreignContent: string;
-  englishContent: string;
-  contentType: string;
-  languageName: string;
-  onRetranslate: (editedEnglish: string, contentType: string) => void;
-  retranslating: boolean;
-}
-
-const DualLanguageDisplay: React.FC<DualLanguageDisplayProps> = ({
-  foreignContent,
-  englishContent,
-  contentType,
-  languageName,
-  onRetranslate,
-  retranslating
-}) => {
-  const [editedEnglish, setEditedEnglish] = useState(englishContent);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isEnglishExpanded, setIsEnglishExpanded] = useState(false);
-
-  return (
-    <div className="space-y-4">
-      {/* Primary: Foreign Language (Full Width) */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label className="text-sm font-semibold">
-            {languageName} Version
-          </Label>
-          <span className="text-xs text-muted-foreground">Read-only</span>
-        </div>
-        <ScrollArea className="border rounded-lg h-[600px]">
-          <div className="prose prose-sm max-w-none p-6">
-            <ReactMarkdown>{foreignContent}</ReactMarkdown>
-          </div>
-        </ScrollArea>
-      </div>
-
-      {/* Secondary: English Reference (Collapsible) */}
-      <Collapsible open={isEnglishExpanded} onOpenChange={setIsEnglishExpanded}>
-        <div className="border rounded-lg">
-          <CollapsibleTrigger className="w-full">
-            <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors">
-              <div className="flex items-center gap-2">
-                <ChevronDown
-                  className={`w-4 h-4 transition-transform ${
-                    isEnglishExpanded ? 'rotate-180' : ''
-                  }`}
-                />
-                <span className="text-sm font-medium">English Reference</span>
-                <span className="text-xs text-muted-foreground">
-                  {isEnglishExpanded ? '(Click to hide)' : '(Click to view)'}
-                </span>
-              </div>
-            </div>
-          </CollapsibleTrigger>
-
-          <CollapsibleContent>
-            <div className="px-4 pb-4 space-y-3">
-              {isEditing ? (
-                <div className="min-h-[300px]">
-                  <MDEditor
-                    value={editedEnglish}
-                    onChange={(val) => setEditedEnglish(val || '')}
-                    height={300}
-                    preview="edit"
-                  />
-                </div>
-              ) : (
-                <ScrollArea className="border rounded-lg h-[500px]">
-                  <div className="prose prose-sm max-w-none p-6 prose-p:mb-4">
-                    <ReactMarkdown>{editedEnglish}</ReactMarkdown>
-                  </div>
-                </ScrollArea>
-              )}
-
-              <div className="flex gap-2 justify-end">
-                {!isEditing ? (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsEditing(true)}
-                  >
-                    Edit
-                  </Button>
-                ) : (
-                  <>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setEditedEnglish(englishContent);
-                        setIsEditing(false);
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        onRetranslate(editedEnglish, contentType);
-                        setIsEditing(false);
-                      }}
-                      disabled={retranslating}
-                    >
-                      {retranslating ? (
-                        <>
-                          <CircleNotch size={12} className="mr-2 animate-spin" />
-                          Translating...
-                        </>
-                      ) : (
-                        'Save & Re-translate'
-                      )}
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
-          </CollapsibleContent>
-        </div>
-      </Collapsible>
-    </div>
-  );
-};
-
 const Dashboard = () => {
   const {
     user,
@@ -382,10 +256,6 @@ const Dashboard = () => {
   const [contentTypes, setContentTypes] = useState<('social_media' | 'bible_study' | 'devotional' | 'podcast_description')[]>(['social_media']);
   const [outputLanguages, setOutputLanguages] = useState<string[]>(['en']);
   const [primaryLanguage, setPrimaryLanguage] = useState('en');
-  const [bibleStudySelected, setBibleStudySelected] = useState(false);
-  const [socialMediaSelected, setSocialMediaSelected] = useState(true);
-  const [devotionalSelected, setDevotionalSelected] = useState(false);
-  const [podcastDescriptionSelected, setPodcastDescriptionSelected] = useState(false);
   const [retranslating, setRetranslating] = useState(false);
 
   // Sermon series state
@@ -751,19 +621,9 @@ const Dashboard = () => {
         ? prev.filter(t => t !== type)
         : [...prev, type];
 
-      // Update individual state flags
-      if (type === 'social_media') {
-        setSocialMediaSelected(newTypes.includes('social_media'));
-        // Auto-select all platforms when social_media is enabled
-        if (newTypes.includes('social_media') && platforms.length === 0) {
-          setPlatforms(['facebook', 'instagram', 'tiktok', 'twitter']);
-        }
-      } else if (type === 'bible_study') {
-        setBibleStudySelected(newTypes.includes('bible_study'));
-      } else if (type === 'devotional') {
-        setDevotionalSelected(newTypes.includes('devotional'));
-      } else if (type === 'podcast_description') {
-        setPodcastDescriptionSelected(newTypes.includes('podcast_description'));
+      // Auto-select all platforms when social_media is toggled on for the first time
+      if (type === 'social_media' && newTypes.includes('social_media') && platforms.length === 0) {
+        setPlatforms(['facebook', 'instagram', 'tiktok', 'twitter']);
       }
 
       return newTypes;
@@ -2911,7 +2771,7 @@ const Dashboard = () => {
                                       onClick={() => handleRetranslate(englishPodcast, 'podcast_description')}
                                       disabled={retranslating}
                                     >
-                                      <RefreshCcw size={14} className={`mr-1 ${retranslating ? 'animate-spin' : ''}`} />
+                                      <ArrowCounterClockwise size={14} className={`mr-1 ${retranslating ? 'animate-spin' : ''}`} />
                                       Re-translate
                                     </Button>
                                   </div>

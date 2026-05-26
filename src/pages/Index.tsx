@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { List, CheckCircle } from "phosphor-react";
-import { Facebook, Instagram, Twitter, Mail, FileText, Clipboard, Music } from "lucide-react";
+import { Facebook, Instagram, Twitter, FileText, Clipboard, Music } from "lucide-react";
 
 function useScrollReveal() {
   const ref = useRef<HTMLDivElement>(null);
@@ -243,7 +243,7 @@ const Index = () => {
             </div>
             <div className="w-px h-8 bg-border/50" />
             <div className="text-center">
-              <p className="text-2xl font-playfair font-bold text-foreground">6</p>
+              <p className="text-2xl font-playfair font-bold text-foreground">5</p>
               <p className="text-xs text-muted-foreground">Content types</p>
             </div>
             <div className="w-px h-8 bg-border/50" />
@@ -620,7 +620,7 @@ const Index = () => {
             {/* Text side — left on desktop */}
             <div>
               <h3 className="text-3xl md:text-4xl font-playfair font-bold mb-6">Every platform, ready to go.</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed">Optimised for Facebook, Instagram, TikTok, X, email, and podcast directories. Export as PDF, DOCX, or copy to clipboard. Social handles auto-inserted. Your content, your way.</p>
+              <p className="text-lg text-muted-foreground leading-relaxed">Optimised for Facebook, Instagram, TikTok, X, and podcast directories. Export as PDF, DOCX, or copy to clipboard. Social handles auto-inserted. Your content, your way.</p>
             </div>
             {/* Visual side — right on desktop */}
             <div
@@ -641,10 +641,6 @@ const Index = () => {
               <div className="bg-card rounded-xl px-5 py-3 flex items-center gap-3 shadow-sm hover:shadow-tactile transition-shadow">
                 <Twitter size={20} />
                 <span className="text-sm font-medium">X</span>
-              </div>
-              <div className="bg-card rounded-xl px-5 py-3 flex items-center gap-3 shadow-sm hover:shadow-tactile transition-shadow">
-                <Mail size={20} className="text-muted-foreground" />
-                <span className="text-sm font-medium">Email</span>
               </div>
               <div className="bg-card rounded-xl px-5 py-3 flex items-center gap-3 shadow-sm hover:shadow-tactile transition-shadow">
                 <FileText size={20} className="text-[#D32F2F]" />

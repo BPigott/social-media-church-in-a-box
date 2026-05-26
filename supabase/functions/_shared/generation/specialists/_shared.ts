@@ -6,7 +6,7 @@
 import type { EditorialBrief, AnthropicUsage } from "../director.ts";
 import { callSpecialist } from "../style-guide-cache.ts";
 
-export type SocialPlatform = "facebook" | "instagram" | "tiktok" | "twitter" | "linkedin";
+export type SocialPlatform = "facebook" | "instagram" | "tiktok" | "twitter";
 
 export interface EventDetails {
   eventName: string;
@@ -21,7 +21,6 @@ export interface SocialHandles {
   instagram?: string;
   tiktok?: string;
   twitter?: string;
-  linkedin?: string;
   youtube?: string;
 }
 
