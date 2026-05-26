@@ -8,8 +8,13 @@
 // across specialists, so it's bolted on top of the per-church style guide
 // inside a single cached prefix. Specialists supply their own (small, uncached)
 // platform rules and user prompt.
+//
+// Specialists may opt into a Gemini failover (passing `failoverEnabled: true`)
+// for the rare case where Anthropic's output content filter trips even after
+// the in-loop retry. Bible-study is the only opt-in today.
 
 import type { AnthropicUsage } from "./director.ts";
+import { callGemini } from "./gemini-client.ts";
 
 const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-haiku-4-5-20251001";
@@ -40,6 +45,15 @@ export function stripDashes(raw: string): string {
 // Back-compat alias used inside buildCachedPrefix below.
 export const sanitiseStyleGuide = stripDashes;
 
+// Predicate for the Gemini failover trigger. Matches errors thrown by
+// callAnthropicSpecialist when Anthropic returns 400 + content filtering.
+// Exported so tests can pin the trigger criteria without mocking fetch.
+export function isContentFilterError(err: unknown): boolean {
+  if (!(err instanceof Error)) return false;
+  return /Anthropic API 400/.test(err.message)
+    && /content filtering/i.test(err.message);
+}
+
 export interface SpecialistCallParams {
   // Per-church style guide. The wrapper composes the full cached prefix as
   // SHARED_VOICE_BLOCK + "\n\n# Church Voice & Style (authoritative)\n" + styleGuide.
@@ -54,6 +68,10 @@ export interface SpecialistCallParams {
 
   maxTokens: number;
   temperature?: number;
+
+  // Opt-in for Gemini failover on Anthropic content-filter exhaustion.
+  // Only bible-study uses this today.
+  failoverEnabled?: boolean;
 
   // For logging only — not sent to Anthropic.
   churchId?: string;
@@ -70,7 +88,7 @@ function buildCachedPrefix(styleGuide: string): string {
   return `${SHARED_VOICE_BLOCK}\n\n# Church Voice & Style (authoritative for tone and vocabulary; writing-style rules above override any conflicting punctuation in the examples)\n${sanitiseStyleGuide(styleGuide)}`;
 }
 
-export async function callSpecialist(
+async function callAnthropicSpecialist(
   params: SpecialistCallParams,
 ): Promise<SpecialistCallResult> {
   const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
@@ -184,4 +202,52 @@ export async function callSpecialist(
   );
 
   return { text, usage, stopReason };
+}
+
+// Gemini-backed failover for the rare cases when Anthropic refuses a specialist
+// call with a content-filter 400 even after the in-loop retry. The same system
+// prompt (cached prefix + task system) and user prompt are sent to Gemini; the
+// output goes through the same dash-strip safety net as Anthropic output.
+async function callGeminiFailover(
+  params: SpecialistCallParams,
+): Promise<SpecialistCallResult> {
+  const system = `${buildCachedPrefix(params.styleGuide)}\n\n${params.taskSystem}`;
+  const result = await callGemini({
+    system,
+    user: params.userPrompt,
+    maxTokens: params.maxTokens,
+    temperature: params.temperature ?? 0.6,
+  });
+
+  const text = stripDashes(result.text);
+
+  const usage: AnthropicUsage = {
+    input_tokens: result.inputTokens,
+    output_tokens: result.outputTokens,
+    cache_read_input_tokens: undefined,
+    cache_creation_input_tokens: undefined,
+  };
+
+  console.log(
+    `[${params.specialistName ?? "specialist"}] FAILOVER ${result.model} ` +
+      `church=${params.churchId ?? "?"} in=${usage.input_tokens} out=${usage.output_tokens}`,
+  );
+
+  return { text, usage, stopReason: "end_turn" };
+}
+
+export async function callSpecialist(
+  params: SpecialistCallParams,
+): Promise<SpecialistCallResult> {
+  try {
+    return await callAnthropicSpecialist(params);
+  } catch (err) {
+    if (params.failoverEnabled && isContentFilterError(err)) {
+      console.warn(
+        `[${params.specialistName ?? "specialist"}] anthropic content-filter sustained after retry, falling back to Gemini`,
+      );
+      return await callGeminiFailover(params);
+    }
+    throw err;
+  }
 }

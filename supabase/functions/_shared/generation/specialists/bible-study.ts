@@ -64,6 +64,10 @@ export async function runBibleStudySpecialist(
     userPrompt: buildSpecialistUserPrompt(brief, ctx),
     maxTokens: 1500,
     temperature: 0.6,
+    // Bible-study is the only specialist that opts into Gemini failover
+    // because it's the only one with a content-filter trip pattern on
+    // theologically heavy sermons. See gemini-client.ts for model choice.
+    failoverEnabled: true,
   });
   return { text: text.trim(), usage };
 }
