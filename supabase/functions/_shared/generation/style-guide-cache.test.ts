@@ -5,7 +5,12 @@
 import {
   assertEquals,
 } from "https://deno.land/std@0.220.0/assert/mod.ts";
-import { isContentFilterError, stripDashes } from "./style-guide-cache.ts";
+import {
+  buildGeminiFailoverUserPrompt,
+  isContentFilterError,
+  stripDashes,
+} from "./style-guide-cache.ts";
+import { assertStringIncludes } from "https://deno.land/std@0.220.0/assert/mod.ts";
 
 Deno.test("stripDashes: replaces em dash surrounded by whitespace with comma", () => {
   assertEquals(stripDashes("something — else"), "something, else");
@@ -91,4 +96,34 @@ Deno.test("isContentFilterError: returns false for non-Error values", () => {
   assertEquals(isContentFilterError(null), false);
   assertEquals(isContentFilterError(undefined), false);
   assertEquals(isContentFilterError({ message: "Anthropic API 400 content filtering" }), false);
+});
+
+// Gemini failover sends a slightly different user prompt to compensate for
+// two observed Gemini behaviours: NIV-text truncation and unconsolidated
+// overlapping references. The addendum is the only difference vs Anthropic's
+// user prompt, so these tests guard against accidental deletion or drift.
+
+Deno.test("buildGeminiFailoverUserPrompt: preserves the original prompt verbatim", () => {
+  const original = "# Context\nChurch: Leicester Vineyard\n\n# Editorial brief\n...";
+  const result = buildGeminiFailoverUserPrompt(original);
+  assertStringIncludes(result, original);
+});
+
+Deno.test("buildGeminiFailoverUserPrompt: appends the NIV-full-text rendering note", () => {
+  const result = buildGeminiFailoverUserPrompt("original");
+  assertStringIncludes(result, "render the FULL NIV text from the brief");
+});
+
+Deno.test("buildGeminiFailoverUserPrompt: appends the overlapping-reference consolidation note", () => {
+  const result = buildGeminiFailoverUserPrompt("original");
+  assertStringIncludes(result, "If two references overlap");
+});
+
+Deno.test("buildGeminiFailoverUserPrompt: addendum comes AFTER the original prompt", () => {
+  const original = "ORIGINAL_PROMPT_MARKER";
+  const result = buildGeminiFailoverUserPrompt(original);
+  const originalIndex = result.indexOf(original);
+  const addendumIndex = result.indexOf("Rendering notes");
+  assertEquals(originalIndex >= 0, true);
+  assertEquals(addendumIndex > originalIndex, true);
 });
