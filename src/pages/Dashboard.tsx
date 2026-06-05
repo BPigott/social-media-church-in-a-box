@@ -1623,71 +1623,55 @@ const Dashboard = () => {
             <CardContent className="space-y-6">
               {/* Content Type Selection */}
               <div className="space-y-3">
-                <Label>What would you like to generate?</Label>
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="social-media" 
-                      checked={contentTypes.includes('social_media')}
-                      onCheckedChange={() => handleContentTypeToggle('social_media')}
-                    />
-                    <Label htmlFor="social-media">Social Media Posts</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="bible-study" 
-                      checked={contentTypes.includes('bible_study')}
-                      onCheckedChange={() => handleContentTypeToggle('bible_study')}
-                    />
-                    <Label htmlFor="bible-study">Bible Study Guide</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="devotional" 
-                      checked={contentTypes.includes('devotional')}
-                      onCheckedChange={() => handleContentTypeToggle('devotional')}
-                    />
-                    <Label htmlFor="devotional">Daily Devotional</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="podcast-description"
-                      checked={contentTypes.includes('podcast_description')}
-                      onCheckedChange={() => handleContentTypeToggle('podcast_description')}
-                    />
-                    <Label htmlFor="podcast-description">Podcast Description</Label>
-                  </div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">What would you like to generate?</p>
+                <div className="flex flex-wrap gap-2">
+                  {([
+                    { key: "social_media", label: "Social posts" },
+                    { key: "bible_study", label: "Bible study" },
+                    { key: "devotional", label: "Devotional" },
+                    { key: "podcast_description", label: "Podcast" },
+                  ] as const).map(({ key, label }) => {
+                    const on = contentTypes.includes(key);
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        aria-pressed={on}
+                        onClick={() => handleContentTypeToggle(key)}
+                        className={`rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
+                          on
+                            ? "border-primary bg-primary font-semibold text-primary-foreground"
+                            : "border-border bg-card text-muted-foreground hover:border-primary/50"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* Generation Mode Toggle */}
               <div className="space-y-2">
-                <Label>What are you creating content from?</Label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setGenerationMode('sermon')}
-                    className={`p-4 rounded-lg border-2 text-left transition-all ${
-                      generationMode === 'sermon'
-                        ? 'border-primary bg-primary/10'
-                        : 'border-muted hover:border-primary/50'
-                    }`}
-                  >
-                    <p className="font-semibold text-sm">From a Sermon</p>
-                    <p className="text-xs text-muted-foreground mt-1">Generate content from a sermon transcript</p>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setGenerationMode('event')}
-                    className={`p-4 rounded-lg border-2 text-left transition-all ${
-                      generationMode === 'event'
-                        ? 'border-primary bg-primary/10'
-                        : 'border-muted hover:border-primary/50'
-                    }`}
-                  >
-                    <p className="font-semibold text-sm">Promote an Event</p>
-                    <p className="text-xs text-muted-foreground mt-1">Create promotional content for a specific event</p>
-                  </button>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">What are you creating from?</p>
+                <div className="flex gap-1 rounded-xl bg-muted p-1">
+                  {([
+                    { key: "sermon", label: "Sermon" },
+                    { key: "event", label: "Future event" },
+                  ] as const).map(({ key, label }) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setGenerationMode(key)}
+                      className={`flex-1 rounded-lg py-2 text-sm transition-colors ${
+                        generationMode === key
+                          ? "bg-card font-semibold text-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -1912,14 +1896,27 @@ const Dashboard = () => {
               {/* Platform Selection - Only show if Social Media is selected */}
               {contentTypes.includes('social_media') && (
                 <div className="space-y-3">
-                  <Label>Select Platforms</Label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {(['facebook', 'instagram', 'tiktok', 'twitter'] as Platform[]).map(platform => <div key={platform} className="flex items-center space-x-2">
-                        <Checkbox id={platform} checked={platforms.includes(platform)} onCheckedChange={() => handlePlatformToggle(platform)} />
-                        <Label htmlFor={platform} className="capitalize cursor-pointer">
-                          {platform === 'twitter' ? 'Twitter/X' : platform}
-                        </Label>
-                      </div>)}
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Social platforms</p>
+                  <div className="flex flex-wrap gap-2">
+                    {(['facebook', 'instagram', 'tiktok', 'twitter'] as Platform[]).map(platform => {
+                      const on = platforms.includes(platform);
+                      const label = platform === 'twitter' ? 'X' : platform.charAt(0).toUpperCase() + platform.slice(1);
+                      return (
+                        <button
+                          key={platform}
+                          type="button"
+                          aria-pressed={on}
+                          onClick={() => handlePlatformToggle(platform)}
+                          className={`rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
+                            on
+                              ? "border-primary bg-primary font-semibold text-primary-foreground"
+                              : "border-border bg-card text-muted-foreground hover:border-primary/50"
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -1927,14 +1924,22 @@ const Dashboard = () => {
               {/* Posts per Platform - Only show if Social Media is selected */}
               {contentTypes.includes('social_media') && (
                 <div className="space-y-2">
-                  <Label>Posts per Platform</Label>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Generate multiple variations to choose from or schedule throughout the week
-                  </p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Posts per platform</p>
                   <div className="flex gap-2">
-                    {[1, 2, 3].map(num => <Button key={num} type="button" variant={postsPerPlatform === num ? "default" : "outline"} size="sm" onClick={() => setPostsPerPlatform(num)} className="flex-1">
+                    {[1, 2, 3].map(num => (
+                      <button
+                        key={num}
+                        type="button"
+                        onClick={() => setPostsPerPlatform(num)}
+                        className={`flex-1 rounded-lg border py-2 text-sm transition-colors ${
+                          postsPerPlatform === num
+                            ? "border-foreground bg-foreground font-semibold text-background"
+                            : "border-border text-muted-foreground hover:border-foreground/40"
+                        }`}
+                      >
                         {num}
-                      </Button>)}
+                      </button>
+                    ))}
                   </div>
                 </div>
               )}
