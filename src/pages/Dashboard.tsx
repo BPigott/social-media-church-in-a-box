@@ -4,7 +4,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useChurch } from "@/hooks/useChurch";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Navigation } from "@/components/Navigation";
+import { AppShell } from "@/components/layout/AppShell";
+import { SectionMarker } from "@/components/ui/section-marker";
 import { TrialBanner } from "@/components/TrialBanner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -1598,16 +1599,19 @@ const Dashboard = () => {
         <p>Loading...</p>
       </div>;
   }
-  return <>
-      <Navigation />
+  return (
+    <AppShell>
       <TrialBanner />
-      <div className="min-h-screen bg-background p-8">
-      <div className="max-w-6xl mx-auto space-y-8">
+      <div className="p-6 md:p-10">
+      <div className="mx-auto max-w-6xl space-y-8">
         <div>
-          <h1 className="text-4xl font-playfair font-bold mb-2">
-            Welcome back, {primaryChurch?.name}!
+          <div className="mb-2 h-[3px] w-10 rounded bg-primary" />
+          <h1 className="font-playfair text-3xl font-bold text-foreground md:text-4xl">
+            Welcome back, <span className="font-bold">{primaryChurch?.name ?? "friend"}</span>
           </h1>
-          <p className="text-muted-foreground">Generate social media content and Bible study guides from your sermon transcripts or events</p>
+          <p className="mt-1 italic text-muted-foreground">
+            Let's turn Sunday's message into a full week of content.
+          </p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
@@ -2886,6 +2890,7 @@ const Dashboard = () => {
         </div>
       </div>
       </div>
-    </>;
+    </AppShell>
+  );
 };
 export default Dashboard;
