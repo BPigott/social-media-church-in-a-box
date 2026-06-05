@@ -1820,6 +1820,16 @@ const Dashboard = () => {
               {!generatedContent ? <div className="text-center py-12 text-muted-foreground">
                   <p>Your generated content will appear here</p>
                 </div> : (() => {
+                  // Pull-quote helper: extracts first meaningful sentence (max 140 chars)
+                  const leadQuote = (text: string): string | null => {
+                    if (!text) return null;
+                    const firstLine = text.replace(/[#*_>`]/g, "").split("\n").map((l: string) => l.trim()).find(Boolean);
+                    if (!firstLine || firstLine.length < 20) return null;
+                    const sentence = firstLine.split(/(?<=[.!?])\s/)[0];
+                    const quote = (sentence.length > 8 ? sentence : firstLine).slice(0, 140);
+                    return quote.length < firstLine.length ? `${quote}…` : quote;
+                  };
+
                   // Helper function to render social media platform content
                   const renderSocialPlatform = (platform: string, platformContent: string | string[]) => {
                     const posts = Array.isArray(platformContent) ? platformContent : [platformContent];
@@ -1834,22 +1844,17 @@ const Dashboard = () => {
                     const multiLanguageVersions = generatedContent.multiLanguageVersions || {};
                     const showMultiLanguage = Object.keys(multiLanguageVersions).length > 0 || hasNonEnglishLanguages;
 
-                    // Platform-specific tips
-                    const platformTips: Record<string, string> = {
-                      facebook: '📘 Facebook works best with 40-80 words and clear paragraph breaks',
-                      instagram: '📸 Instagram: Keep first line under 125 characters (what shows before "...more")',
-                      tiktok: '🎵 TikTok: Keep it short and punchy - under 150 characters',
-                      twitter: '🐦 Twitter/X: Aim for 240-260 characters (leaves room for retweets with comments)'
-                    };
-
                     const englishSource = editedContent[contentKey] || englishPost || displayContent;
                     const canRetranslate = hasNonEnglishLanguages && englishSource && englishSource.trim().length > 0;
 
+                    const quote = leadQuote(displayContent);
                     return (
                       <div className="space-y-3">
-                        <div className="text-xs text-muted-foreground mb-4">
-                          {platformTips[platform]}
-                        </div>
+                        {quote && (
+                          <p className="border-l-2 border-accent pl-3 font-playfair text-base leading-snug text-foreground/80">
+                            "{quote}"
+                          </p>
+                        )}
 
                         {posts.length > 1 && (
                           <div className="flex items-center justify-between text-sm text-muted-foreground">
@@ -2029,7 +2034,7 @@ const Dashboard = () => {
                               </div>
                             ) : (
                               <ScrollArea className="border rounded-lg h-[500px]">
-                                <div className="bg-muted p-4">
+                                <div className="bg-card p-4">
                                   <p className="whitespace-pre-wrap">{displayContent}</p>
                                 </div>
                               </ScrollArea>
@@ -2289,9 +2294,14 @@ const Dashboard = () => {
                         </>
                       ) : (
                         <>
-                          <div className="text-xs text-muted-foreground mb-2">
-                            📖 Bible Study Guide
-                          </div>
+                          {(() => {
+                            const bibleQuote = leadQuote(editedContent['bibleStudyGuide'] || generatedContent.bibleStudyGuide);
+                            return bibleQuote ? (
+                              <p className="border-l-2 border-accent pl-3 font-playfair text-base leading-snug text-foreground/80">
+                                "{bibleQuote}"
+                              </p>
+                            ) : null;
+                          })()}
                           {editingContent['bibleStudyGuide'] ? (
                             <MDEditor
                               value={editedContent['bibleStudyGuide'] || generatedContent.bibleStudyGuide}
@@ -2301,7 +2311,7 @@ const Dashboard = () => {
                             />
                           ) : (
                             <ScrollArea className="border rounded-lg h-[700px]">
-                              <div className="prose prose-sm max-w-none bg-muted p-6 prose-p:mb-4">
+                              <div className="prose prose-sm max-w-none bg-card p-6 prose-p:mb-4">
                                 <ReactMarkdown>{cleanBibleStudyFormatting(generatedContent.bibleStudyGuide)}</ReactMarkdown>
                               </div>
                             </ScrollArea>
@@ -2500,8 +2510,14 @@ const Dashboard = () => {
                           </div>
                         );
                       } else {
+                        const devotionalQuote = leadQuote(editedContent['devotional'] || generatedContent.devotional);
                         return (
                           <>
+                            {devotionalQuote && (
+                              <p className="border-l-2 border-accent pl-3 font-playfair text-base leading-snug text-foreground/80">
+                                "{devotionalQuote}"
+                              </p>
+                            )}
                             {editingContent['devotional'] ? (
                               <div className="min-h-[500px]">
                                 <MDEditor
@@ -2513,7 +2529,7 @@ const Dashboard = () => {
                               </div>
                             ) : (
                               <ScrollArea className="border rounded-lg h-[600px]">
-                                <div className="bg-muted p-4">
+                                <div className="bg-card p-4">
                                   <p className="whitespace-pre-wrap">{generatedContent.devotional}</p>
                                 </div>
                               </ScrollArea>
@@ -2658,8 +2674,14 @@ const Dashboard = () => {
                           </div>
                         );
                       } else {
+                        const podcastQuote = leadQuote(editedContent['podcastDescription'] || generatedContent.podcastDescription);
                         return (
                           <>
+                            {podcastQuote && (
+                              <p className="border-l-2 border-accent pl-3 font-playfair text-base leading-snug text-foreground/80">
+                                "{podcastQuote}"
+                              </p>
+                            )}
                             {editingContent['podcastDescription'] ? (
                               <div className="min-h-[500px]">
                                 <MDEditor
@@ -2671,7 +2693,7 @@ const Dashboard = () => {
                               </div>
                             ) : (
                               <ScrollArea className="border rounded-lg h-[600px]">
-                                <div className="bg-muted p-4">
+                                <div className="bg-card p-4">
                                   <p className="whitespace-pre-wrap">{generatedContent.podcastDescription}</p>
                                 </div>
                               </ScrollArea>
