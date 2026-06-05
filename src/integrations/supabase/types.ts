@@ -7,33 +7,54 @@ export type Json =
   | Json[]
 
 export type Database = {
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "13.0.5"
   }
   public: {
     Tables: {
+      church_events: {
+        Row: {
+          church_id: string
+          created_at: string | null
+          event_date: string | null
+          event_description: string | null
+          event_location: string | null
+          event_name: string
+          id: string
+          signup_link: string | null
+        }
+        Insert: {
+          church_id: string
+          created_at?: string | null
+          event_date?: string | null
+          event_description?: string | null
+          event_location?: string | null
+          event_name: string
+          id?: string
+          signup_link?: string | null
+        }
+        Update: {
+          church_id?: string
+          created_at?: string | null
+          event_date?: string | null
+          event_description?: string | null
+          event_location?: string | null
+          event_name?: string
+          id?: string
+          signup_link?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "church_events_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "churches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       churches: {
         Row: {
           contact_email: string
@@ -85,47 +106,6 @@ export type Database = {
         }
         Relationships: []
       }
-      church_events: {
-        Row: {
-          id: string
-          church_id: string
-          event_name: string
-          event_date: string | null
-          event_location: string | null
-          event_description: string | null
-          signup_link: string | null
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          church_id: string
-          event_name: string
-          event_date?: string | null
-          event_location?: string | null
-          event_description?: string | null
-          signup_link?: string | null
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          church_id?: string
-          event_name?: string
-          event_date?: string | null
-          event_location?: string | null
-          event_description?: string | null
-          signup_link?: string | null
-          created_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "church_events_church_id_fkey"
-            columns: ["church_id"]
-            isOneToOne: false
-            referencedRelation: "churches"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       generated_content: {
         Row: {
           bible_study_guide: string | null
@@ -137,28 +117,26 @@ export type Database = {
           devotional: string
           devotional_english: string | null
           facebook_post: string[] | null
-          facebook_post_english: Json | null
+          facebook_post_english: string[] | null
           generated_at: string
           generation_mode: string | null
           id: string
           instagram_post: string[] | null
-          instagram_post_english: Json | null
+          instagram_post_english: string[] | null
           multi_language_versions: Json | null
           output_language: string | null
           output_languages: string[] | null
           platforms: Json
           podcast_description: string | null
           podcast_description_english: string | null
-          email_newsletter: string | null
-          email_newsletter_english: string | null
           posts_per_platform: number | null
+          series_week_number: number | null
           sermon_series_id: string | null
           sermon_transcript_id: string | null
-          series_week_number: number | null
           tiktok_post: string[] | null
-          tiktok_post_english: Json | null
+          tiktok_post_english: string[] | null
           twitter_post: string[] | null
-          twitter_post_english: Json | null
+          twitter_post_english: string[] | null
         }
         Insert: {
           bible_study_guide?: string | null
@@ -170,28 +148,26 @@ export type Database = {
           devotional: string
           devotional_english?: string | null
           facebook_post?: string[] | null
-          facebook_post_english?: Json | null
+          facebook_post_english?: string[] | null
           generated_at?: string
           generation_mode?: string | null
           id?: string
           instagram_post?: string[] | null
-          instagram_post_english?: Json | null
+          instagram_post_english?: string[] | null
           multi_language_versions?: Json | null
           output_language?: string | null
           output_languages?: string[] | null
           platforms?: Json
           podcast_description?: string | null
           podcast_description_english?: string | null
-          email_newsletter?: string | null
-          email_newsletter_english?: string | null
           posts_per_platform?: number | null
+          series_week_number?: number | null
           sermon_series_id?: string | null
           sermon_transcript_id?: string | null
-          series_week_number?: number | null
           tiktok_post?: string[] | null
-          tiktok_post_english?: Json | null
+          tiktok_post_english?: string[] | null
           twitter_post?: string[] | null
-          twitter_post_english?: Json | null
+          twitter_post_english?: string[] | null
         }
         Update: {
           bible_study_guide?: string | null
@@ -203,28 +179,26 @@ export type Database = {
           devotional?: string
           devotional_english?: string | null
           facebook_post?: string[] | null
-          facebook_post_english?: Json | null
+          facebook_post_english?: string[] | null
           generated_at?: string
           generation_mode?: string | null
           id?: string
           instagram_post?: string[] | null
-          instagram_post_english?: Json | null
+          instagram_post_english?: string[] | null
           multi_language_versions?: Json | null
           output_language?: string | null
           output_languages?: string[] | null
           platforms?: Json
           podcast_description?: string | null
           podcast_description_english?: string | null
-          email_newsletter?: string | null
-          email_newsletter_english?: string | null
           posts_per_platform?: number | null
+          series_week_number?: number | null
           sermon_series_id?: string | null
           sermon_transcript_id?: string | null
-          series_week_number?: number | null
           tiktok_post?: string[] | null
-          tiktok_post_english?: Json | null
+          tiktok_post_english?: string[] | null
           twitter_post?: string[] | null
-          twitter_post_english?: Json | null
+          twitter_post_english?: string[] | null
         }
         Relationships: [
           {
@@ -257,33 +231,84 @@ export type Database = {
           },
         ]
       }
-      sermon_series: {
+      generations: {
         Row: {
-          id: string
           church_id: string
-          name: string
-          description: string | null
-          total_weeks: number | null
-          created_at: string
-          updated_at: string
+          completed_at: string | null
+          content_types: string[]
+          created_at: string | null
+          estimated_cost_usd: number | null
+          generation_mode: string
+          id: string
+          idempotency_key: string
+          input_tokens: number | null
+          output_tokens: number | null
+          platforms: string[] | null
+          result: Json | null
+          status: string | null
+          user_id: string
         }
         Insert: {
-          id?: string
           church_id: string
-          name: string
-          description?: string | null
-          total_weeks?: number | null
-          created_at?: string
-          updated_at?: string
+          completed_at?: string | null
+          content_types: string[]
+          created_at?: string | null
+          estimated_cost_usd?: number | null
+          generation_mode?: string
+          id?: string
+          idempotency_key: string
+          input_tokens?: number | null
+          output_tokens?: number | null
+          platforms?: string[] | null
+          result?: Json | null
+          status?: string | null
+          user_id: string
         }
         Update: {
-          id?: string
           church_id?: string
-          name?: string
+          completed_at?: string | null
+          content_types?: string[]
+          created_at?: string | null
+          estimated_cost_usd?: number | null
+          generation_mode?: string
+          id?: string
+          idempotency_key?: string
+          input_tokens?: number | null
+          output_tokens?: number | null
+          platforms?: string[] | null
+          result?: Json | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      sermon_series: {
+        Row: {
+          church_id: string
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          total_weeks: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          church_id: string
+          created_at?: string | null
           description?: string | null
+          id?: string
+          name: string
           total_weeks?: number | null
-          created_at?: string
-          updated_at?: string
+          updated_at?: string | null
+        }
+        Update: {
+          church_id?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          total_weeks?: number | null
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -376,52 +401,61 @@ export type Database = {
       }
       subscriptions: {
         Row: {
-          id: string
-          user_id: string
-          church_id: string | null
-          ls_subscription_id: string | null
-          ls_customer_id: string | null
-          ls_variant_id: string | null
-          ls_order_id: string | null
-          status: 'trialing' | 'active' | 'cancelled' | 'expired' | 'past_due'
-          trial_ends_at: string
-          current_period_ends_at: string | null
           cancelled_at: string | null
-          exempt: boolean
+          church_id: string | null
           created_at: string
+          current_period_ends_at: string | null
+          exempt: boolean
+          id: string
+          ls_customer_id: string | null
+          ls_order_id: string | null
+          ls_subscription_id: string | null
+          ls_variant_id: string | null
+          paddle_customer_id: string | null
+          paddle_price_id: string | null
+          paddle_subscription_id: string | null
+          status: string
+          trial_ends_at: string
           updated_at: string
+          user_id: string
         }
         Insert: {
-          id?: string
-          user_id: string
-          church_id?: string | null
-          ls_subscription_id?: string | null
-          ls_customer_id?: string | null
-          ls_variant_id?: string | null
-          ls_order_id?: string | null
-          status?: 'trialing' | 'active' | 'cancelled' | 'expired' | 'past_due'
-          trial_ends_at?: string
-          current_period_ends_at?: string | null
           cancelled_at?: string | null
-          exempt?: boolean
+          church_id?: string | null
           created_at?: string
+          current_period_ends_at?: string | null
+          exempt?: boolean
+          id?: string
+          ls_customer_id?: string | null
+          ls_order_id?: string | null
+          ls_subscription_id?: string | null
+          ls_variant_id?: string | null
+          paddle_customer_id?: string | null
+          paddle_price_id?: string | null
+          paddle_subscription_id?: string | null
+          status?: string
+          trial_ends_at?: string
           updated_at?: string
+          user_id: string
         }
         Update: {
-          id?: string
-          user_id?: string
-          church_id?: string | null
-          ls_subscription_id?: string | null
-          ls_customer_id?: string | null
-          ls_variant_id?: string | null
-          ls_order_id?: string | null
-          status?: 'trialing' | 'active' | 'cancelled' | 'expired' | 'past_due'
-          trial_ends_at?: string
-          current_period_ends_at?: string | null
           cancelled_at?: string | null
-          exempt?: boolean
+          church_id?: string | null
           created_at?: string
+          current_period_ends_at?: string | null
+          exempt?: boolean
+          id?: string
+          ls_customer_id?: string | null
+          ls_order_id?: string | null
+          ls_subscription_id?: string | null
+          ls_variant_id?: string | null
+          paddle_customer_id?: string | null
+          paddle_price_id?: string | null
+          paddle_subscription_id?: string | null
+          status?: string
+          trial_ends_at?: string
           updated_at?: string
+          user_id?: string
         }
         Relationships: [
           {
@@ -492,7 +526,6 @@ export type Database = {
     }
     Enums: {
       app_role: "owner" | "admin" | "editor" | "viewer"
-      subscription_status: "trialing" | "active" | "cancelled" | "expired" | "past_due"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -618,14 +651,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       app_role: ["owner", "admin", "editor", "viewer"],
-      subscription_status: ["trialing", "active", "cancelled", "expired", "past_due"],
     },
   },
 } as const
-

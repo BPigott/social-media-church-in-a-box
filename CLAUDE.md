@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **Frontend**: React 18 + TypeScript + Vite, deployed on Vercel
 - **Backend**: Supabase (PostgreSQL + Edge Functions running Deno)
-- **Payments**: Paddle (replacing LemonSqueezy — merchant account not yet approved; both webhook handlers are active in the transition)
+- **Payments**: Paddle (merchant account approval pending; `paddle-webhook` deployed but dormant until `PADDLE_WEBHOOK_SECRET` is set)
 - **Supabase project**: `gxgijxmwipnurubqupbt` (eu-west-2)
 
 ## Commands
@@ -71,8 +71,7 @@ All functions run on Deno. Imports use `https://deno.land/std` and `https://esm.
 | `retranslate-content` | Re-translates edited English content back to the target language. |
 | `scrape-church-website` | Firecrawl-based website scraping for onboarding context. |
 | `create-trial` | Creates a `trialing` subscription row on first sign-in. Called automatically by `useAuth`. |
-| `paddle-webhook` | New; dormant until Paddle merchant account is approved. |
-| `lemonsqueezy-webhook` | Active; handles payments during Paddle transition. |
+| `paddle-webhook` | Dormant until `PADDLE_WEBHOOK_SECRET` is set in Supabase secrets. |
 | `api-health-check` | Health check endpoint. |
 
 Shared utilities in `supabase/functions/_shared/`: `translate.ts` (Google Translate), `content-safety.ts` (input/output validation).
@@ -101,6 +100,6 @@ TypeScript types live in two places:
 
 ## Active Development Context
 
-- `feature/backend-reliability` branch has backend reliability work (subscription enforcement, idempotency, generations ledger, Paddle webhook) not yet merged to `main`. See `HANDOFF.md` for full context.
+- Active branch: `feature/launch-prep` — LemonSqueezy removal, 7-sermon onboarding, transactional email.
 - Stream 3 (onboarding redesign) has not started. Plan at `docs/superpowers/plans/2026-04-04-stream3-onboarding.md`.
-- Before deploying `generate-social-posts` or `paddle-webhook`, apply migrations `20260404_add_generations_table.sql` and `20260404_add_paddle_columns.sql` first.
+- Paddle checkout URLs (`VITE_PADDLE_SINGLE_CHECKOUT_URL`, `VITE_PADDLE_MULTI_CHECKOUT_URL`) are placeholders until merchant account is approved.

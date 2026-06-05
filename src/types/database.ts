@@ -83,13 +83,11 @@ export interface GeneratedContent {
   output_language?: string;
   podcast_description?: string | null;
   podcast_description_english?: string | null;
-  email_newsletter?: string | null;
-  email_newsletter_english?: string | null;
   sermon_series_id?: string | null;
   series_week_number?: number | null;
   church_event_id?: string | null;
   generation_mode?: 'sermon' | 'event';
-  content_types?: ('social_media' | 'bible_study' | 'devotional' | 'podcast_description' | 'email_newsletter')[];
+  content_types?: ('social_media' | 'bible_study' | 'devotional' | 'podcast_description')[];
 }
 
 export interface SermonSeries {

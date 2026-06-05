@@ -106,7 +106,9 @@ ${JSON.stringify(churchData.social_handles || {}, null, 2)}
 ## Key Ministries
 ${JSON.stringify(churchData.key_ministries || [], null, 2)}
 
-## Sermon Content Sample
+## Sermon Content Samples (${sermonTexts.length} sermon${sermonTexts.length === 1 ? '' : 's'})
+Analyse all ${sermonTexts.length} sermons below to identify consistent patterns in voice, vocabulary, themes, and communication style. Weight recurring patterns more heavily than one-off choices.
+
 ${sermonTexts.join('\n\n---SERMON BREAK---\n\n')}
 
 ${websiteContent && websiteContent.content && Array.isArray(websiteContent.content) ? `

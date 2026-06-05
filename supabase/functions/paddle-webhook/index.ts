@@ -107,6 +107,17 @@ serve(async (req) => {
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' });
 
+      if (eventType === 'subscription.past_due') {
+        fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-email`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ type: 'payment_failed', user_id: matchedUser.id }),
+        }).catch((err) => console.error('Failed to send payment_failed email:', err));
+      }
+
       console.log(`Updated subscription for ${customerEmail} → ${newStatus}`);
     }
 

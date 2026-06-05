@@ -31,7 +31,32 @@ export function useAuth() {
 
         // On first sign-in, ensure a trial subscription exists
         if (event === 'SIGNED_IN' && session) {
-          supabase.functions.invoke('create-trial').catch(console.error);
+          (async () => {
+            try {
+              await supabase.functions.invoke('create-trial');
+
+              // Atomic: update only if all conditions are met
+              const { data: claimed, error: claimErr } = await supabase
+                .from('subscriptions')
+                .update({ trial_reminder_sent_at: new Date().toISOString() })
+                .eq('user_id', session.user.id)
+                .eq('status', 'trialing')
+                .is('trial_reminder_sent_at', null)
+                .lte('trial_ends_at', new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString())
+                .not('trial_ends_at', 'is', null)
+                .select('id');
+              if (claimErr) throw claimErr;
+
+              // Only send email if this request won the race (update modified a row)
+              if (claimed && claimed.length > 0) {
+                await supabase.functions.invoke('send-email', {
+                  body: { type: 'trial_expiring', user_ids: [session.user.id] },
+                });
+              }
+            } catch (err) {
+              console.error('Sign-in setup failed:', err);
+            }
+          })();
         }
       }
     );

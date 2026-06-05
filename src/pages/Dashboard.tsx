@@ -4,10 +4,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { useChurch } from "@/hooks/useChurch";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Navigation } from "@/components/Navigation";
+import { AppShell } from "@/components/layout/AppShell";
+import { SectionMarker } from "@/components/ui/section-marker";
 import { TrialBanner } from "@/components/TrialBanner";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -21,6 +22,8 @@ import { jsPDF } from "jspdf";
 import { Document, Packer, Paragraph, TextRun } from "docx";
 import type { Platform, SermonSeries } from "@/types/database";
 import { SeriesSelector } from "@/components/dashboard/SeriesSelector";
+import { LanguagePicker } from "@/components/dashboard/LanguagePicker";
+import { LANGUAGE_NAMES } from "@/lib/languages";
 import mammoth from "mammoth";
 import * as pdfjsLib from "pdfjs-dist";
 import ReactMarkdown from "react-markdown";
@@ -33,166 +36,41 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 // that the user has explicitly cleared via "Start Fresh".
 const DASHBOARD_CLEARED_AT_KEY = 'ivangel:dashboardClearedAt';
 
-// Language names mapping
-const LANGUAGE_NAMES: Record<string, string> = {
-  'en': 'English',
-  'es': 'Spanish',
-  'fr': 'French',
-  'pt': 'Portuguese',
-  'de': 'German',
-  'ko': 'Korean',
-  'zh': 'Chinese (Simplified)',
-  'zh-TW': 'Chinese (Traditional)',
-  'ar': 'Arabic',
-  'fa': 'Persian (Farsi)',
-  'pl': 'Polish',
-  'uk': 'Ukrainian',
-  'it': 'Italian',
-  'ru': 'Russian',
-  'ja': 'Japanese',
-  'ro': 'Romanian',
-  'pa': 'Punjabi',
-  'ur': 'Urdu',
-  'bn': 'Bengali',
-  'gu': 'Gujarati',
-  'cy': 'Welsh',
-  'lt': 'Lithuanian'
+const SOCIAL_PLATFORM_KEYS = ['facebook', 'instagram', 'tiktok', 'twitter'] as const;
+
+// Strip null/non-string entries from social platform arrays so the render path
+// never sees nulls. Defends against historical rows in `generations.result` written
+// by earlier orchestrator versions that produced sparse arrays when some specialist
+// calls failed.
+const compactSocialArrays = (obj: Record<string, unknown>): Record<string, unknown> => {
+  const out = { ...obj };
+  for (const k of SOCIAL_PLATFORM_KEYS) {
+    const v = out[k];
+    if (Array.isArray(v)) {
+      const compact = v.filter((x): x is string => typeof x === 'string' && x.length > 0);
+      if (compact.length === 0) delete out[k];
+      else out[k] = compact.length === 1 ? compact[0] : compact;
+    }
+  }
+  return out;
 };
 
-// Sorted language entries with English first
-const getSortedLanguages = () => {
-  const entries = Object.entries(LANGUAGE_NAMES);
-  const english: [string, string][] = entries.filter(([code]) => code === 'en');
-  const others: [string, string][] = entries
-    .filter(([code]) => code !== 'en')
-    .sort((a, b) => a[1].localeCompare(b[1]));
-  return [...english, ...others];
-};
-
-// Dual Language Display Component
-interface DualLanguageDisplayProps {
-  foreignContent: string;
-  englishContent: string;
-  contentType: string;
-  languageName: string;
-  onRetranslate: (editedEnglish: string, contentType: string) => void;
-  retranslating: boolean;
-}
-
-const DualLanguageDisplay: React.FC<DualLanguageDisplayProps> = ({
-  foreignContent,
-  englishContent,
-  contentType,
-  languageName,
-  onRetranslate,
-  retranslating
-}) => {
-  const [editedEnglish, setEditedEnglish] = useState(englishContent);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isEnglishExpanded, setIsEnglishExpanded] = useState(false);
-
-  return (
-    <div className="space-y-4">
-      {/* Primary: Foreign Language (Full Width) */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label className="text-sm font-semibold">
-            {languageName} Version
-          </Label>
-          <span className="text-xs text-muted-foreground">Read-only</span>
-        </div>
-        <ScrollArea className="border rounded-lg h-[600px]">
-          <div className="prose prose-sm max-w-none p-6">
-            <ReactMarkdown>{foreignContent}</ReactMarkdown>
-          </div>
-        </ScrollArea>
-      </div>
-
-      {/* Secondary: English Reference (Collapsible) */}
-      <Collapsible open={isEnglishExpanded} onOpenChange={setIsEnglishExpanded}>
-        <div className="border rounded-lg">
-          <CollapsibleTrigger className="w-full">
-            <div className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors">
-              <div className="flex items-center gap-2">
-                <ChevronDown
-                  className={`w-4 h-4 transition-transform ${
-                    isEnglishExpanded ? 'rotate-180' : ''
-                  }`}
-                />
-                <span className="text-sm font-medium">English Reference</span>
-                <span className="text-xs text-muted-foreground">
-                  {isEnglishExpanded ? '(Click to hide)' : '(Click to view)'}
-                </span>
-              </div>
-            </div>
-          </CollapsibleTrigger>
-
-          <CollapsibleContent>
-            <div className="px-4 pb-4 space-y-3">
-              {isEditing ? (
-                <div className="min-h-[300px]">
-                  <MDEditor
-                    value={editedEnglish}
-                    onChange={(val) => setEditedEnglish(val || '')}
-                    height={300}
-                    preview="edit"
-                  />
-                </div>
-              ) : (
-                <ScrollArea className="border rounded-lg h-[500px]">
-                  <div className="prose prose-sm max-w-none p-6 prose-p:mb-4">
-                    <ReactMarkdown>{editedEnglish}</ReactMarkdown>
-                  </div>
-                </ScrollArea>
-              )}
-
-              <div className="flex gap-2 justify-end">
-                {!isEditing ? (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsEditing(true)}
-                  >
-                    Edit
-                  </Button>
-                ) : (
-                  <>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setEditedEnglish(englishContent);
-                        setIsEditing(false);
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        onRetranslate(editedEnglish, contentType);
-                        setIsEditing(false);
-                      }}
-                      disabled={retranslating}
-                    >
-                      {retranslating ? (
-                        <>
-                          <CircleNotch size={12} className="mr-2 animate-spin" />
-                          Translating...
-                        </>
-                      ) : (
-                        'Save & Re-translate'
-                      )}
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
-          </CollapsibleContent>
-        </div>
-      </Collapsible>
-    </div>
-  );
+const sanitiseGenerationResult = (result: unknown): unknown => {
+  if (!result || typeof result !== 'object') return result;
+  let out = compactSocialArrays(result as Record<string, unknown>);
+  const english = out.englishVersions;
+  if (english && typeof english === 'object') {
+    out = { ...out, englishVersions: compactSocialArrays(english as Record<string, unknown>) };
+  }
+  const multi = out.multiLanguageVersions;
+  if (multi && typeof multi === 'object') {
+    const cleaned: Record<string, unknown> = {};
+    for (const [lang, v] of Object.entries(multi)) {
+      cleaned[lang] = v && typeof v === 'object' ? compactSocialArrays(v as Record<string, unknown>) : v;
+    }
+    out = { ...out, multiLanguageVersions: cleaned };
+  }
+  return out;
 };
 
 const Dashboard = () => {
@@ -223,106 +101,6 @@ const Dashboard = () => {
       .trim();
   };
 
-  // Helper function to count words in text
-  const countWords = (text: string): number => {
-    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
-  };
-
-  // Helper function to get length indicator
-  const getLengthIndicator = (text: string, platform: string) => {
-    const charCount = text.length;
-    const wordCount = countWords(text);
-    switch (platform) {
-      case 'facebook':
-        if (wordCount >= 40 && wordCount <= 80) {
-          return {
-            status: '✅',
-            color: 'text-green-600',
-            message: `${wordCount} words (Ideal: 40-80)`
-          };
-        } else if (wordCount > 80 && wordCount <= 100) {
-          return {
-            status: '⚠️',
-            color: 'text-yellow-600',
-            message: `${wordCount} words (Recommended: 40-80)`
-          };
-        } else {
-          return {
-            status: '❌',
-            color: 'text-red-600',
-            message: `${wordCount} words (Target: 40-80)`
-          };
-        }
-      case 'instagram':
-        const firstLine = text.split('\n')[0];
-        const firstLineLength = firstLine.length;
-        if (firstLineLength <= 125 && charCount <= 200) {
-          return {
-            status: '✅',
-            color: 'text-green-600',
-            message: `First line: ${firstLineLength} chars (Ideal)`
-          };
-        } else if (firstLineLength <= 125) {
-          return {
-            status: '⚠️',
-            color: 'text-yellow-600',
-            message: `First line: ${firstLineLength} chars (caption longer than ideal)`
-          };
-        } else {
-          return {
-            status: '❌',
-            color: 'text-red-600',
-            message: `First line: ${firstLineLength} chars (Target: <125)`
-          };
-        }
-      case 'tiktok':
-        if (charCount <= 150) {
-          return {
-            status: '✅',
-            color: 'text-green-600',
-            message: `${charCount} chars (Perfect)`
-          };
-        } else if (charCount <= 180) {
-          return {
-            status: '⚠️',
-            color: 'text-yellow-600',
-            message: `${charCount} chars (Target: <150)`
-          };
-        } else {
-          return {
-            status: '❌',
-            color: 'text-red-600',
-            message: `${charCount} chars (Too long)`
-          };
-        }
-      case 'twitter':
-        if (charCount <= 260) {
-          return {
-            status: '✅',
-            color: 'text-green-600',
-            message: `${charCount} chars (Good for retweets)`
-          };
-        } else if (charCount <= 280) {
-          return {
-            status: '⚠️',
-            color: 'text-yellow-600',
-            message: `${charCount} chars (At limit)`
-          };
-        } else {
-          return {
-            status: '❌',
-            color: 'text-red-600',
-            message: `${charCount} chars (Over 280 limit!)`
-          };
-        }
-      default:
-        return {
-          status: '',
-          color: '',
-          message: `${charCount} characters`
-        };
-    }
-  };
   const [transcriptFile, setTranscriptFile] = useState<File | null>(null);
   const [transcriptText, setTranscriptText] = useState("");
   const [speakerName, setSpeakerName] = useState("");
@@ -337,14 +115,9 @@ const Dashboard = () => {
   const [activeSocialPlatform, setActiveSocialPlatform] = useState<'facebook' | 'instagram' | 'tiktok' | 'twitter'>('facebook');
 
   // New state for enhanced features
-  const [contentTypes, setContentTypes] = useState<('social_media' | 'bible_study' | 'devotional' | 'podcast_description' | 'email_newsletter')[]>(['social_media']);
+  const [contentTypes, setContentTypes] = useState<('social_media' | 'bible_study' | 'devotional' | 'podcast_description')[]>(['social_media']);
   const [outputLanguages, setOutputLanguages] = useState<string[]>(['en']);
   const [primaryLanguage, setPrimaryLanguage] = useState('en');
-  const [bibleStudySelected, setBibleStudySelected] = useState(false);
-  const [socialMediaSelected, setSocialMediaSelected] = useState(true);
-  const [devotionalSelected, setDevotionalSelected] = useState(false);
-  const [podcastDescriptionSelected, setPodcastDescriptionSelected] = useState(false);
-  const [emailNewsletterSelected, setEmailNewsletterSelected] = useState(false);
   const [retranslating, setRetranslating] = useState(false);
 
   // Sermon series state
@@ -446,7 +219,7 @@ const Dashboard = () => {
           return;
         }
         if (data?.result) {
-          setGeneratedContent(data.result);
+          setGeneratedContent(sanitiseGenerationResult(data.result));
         }
       } finally {
         restoringRef.current = false;
@@ -505,9 +278,6 @@ const Dashboard = () => {
         if (generatedContent.podcastDescription) {
           newEditingState['podcastDescription'] = true;
         }
-        if (generatedContent.emailNewsletter) {
-          newEditingState['emailNewsletter'] = true;
-        }
 
         setEditingContent(newEditingState);
 
@@ -522,8 +292,6 @@ const Dashboard = () => {
               newEditedContent[key] = generatedContent.devotional || '';
             } else if (key === 'podcastDescription') {
               newEditedContent[key] = generatedContent.podcastDescription || '';
-            } else if (key === 'emailNewsletter') {
-              newEditedContent[key] = generatedContent.emailNewsletter || '';
             } else if (key.includes('-')) {
               const [platform, idxStr] = key.split('-');
               const idx = parseInt(idxStr);
@@ -709,27 +477,15 @@ const Dashboard = () => {
     setPlatforms(prev => prev.includes(platform) ? prev.filter(p => p !== platform) : [...prev, platform]);
   };
 
-  const handleContentTypeToggle = (type: 'social_media' | 'bible_study' | 'devotional' | 'podcast_description' | 'email_newsletter') => {
+  const handleContentTypeToggle = (type: 'social_media' | 'bible_study' | 'devotional' | 'podcast_description') => {
     setContentTypes(prev => {
       const newTypes = prev.includes(type)
         ? prev.filter(t => t !== type)
         : [...prev, type];
 
-      // Update individual state flags
-      if (type === 'social_media') {
-        setSocialMediaSelected(newTypes.includes('social_media'));
-        // Auto-select all platforms when social_media is enabled
-        if (newTypes.includes('social_media') && platforms.length === 0) {
-          setPlatforms(['facebook', 'instagram', 'tiktok', 'twitter']);
-        }
-      } else if (type === 'bible_study') {
-        setBibleStudySelected(newTypes.includes('bible_study'));
-      } else if (type === 'devotional') {
-        setDevotionalSelected(newTypes.includes('devotional'));
-      } else if (type === 'podcast_description') {
-        setPodcastDescriptionSelected(newTypes.includes('podcast_description'));
-      } else if (type === 'email_newsletter') {
-        setEmailNewsletterSelected(newTypes.includes('email_newsletter'));
+      // Auto-select all platforms when social_media is toggled on for the first time
+      if (type === 'social_media' && newTypes.includes('social_media') && platforms.length === 0) {
+        setPlatforms(['facebook', 'instagram', 'tiktok', 'twitter']);
       }
 
       return newTypes;
@@ -763,8 +519,6 @@ const Dashboard = () => {
         updated.devotional = newContent;
       } else if (contentKey === 'podcastDescription') {
         updated.podcastDescription = newContent;
-      } else if (contentKey === 'emailNewsletter') {
-        updated.emailNewsletter = newContent;
       } else if (contentKey === 'bibleStudyGuide') {
         updated.bibleStudyGuide = newContent;
       } else if (contentKey.startsWith('facebook-')) {
@@ -807,8 +561,6 @@ const Dashboard = () => {
           dbUpdateFields = { devotional: newContent };
         } else if (contentKey === 'podcastDescription') {
           dbUpdateFields = { podcast_description: newContent };
-        } else if (contentKey === 'emailNewsletter') {
-          dbUpdateFields = { email_newsletter: newContent };
         } else if (contentKey.startsWith('facebook-')) {
           const idx = parseInt(contentKey.split('-')[1]);
           const currentPosts = Array.isArray(generatedContent.facebook)
@@ -988,16 +740,6 @@ const Dashboard = () => {
               podcast_description_english: englishSource
             };
           }
-        } else if (contentType === 'email_newsletter') {
-          if (primaryLanguage === 'en') {
-            englishSaveFields = {
-              email_newsletter: englishSource
-            };
-          } else {
-            englishSaveFields = {
-              email_newsletter_english: englishSource
-            };
-          }
         } else if (contentType.startsWith('facebook-') ||
                    contentType.startsWith('instagram-') ||
                    contentType.startsWith('tiktok-') ||
@@ -1071,13 +813,6 @@ const Dashboard = () => {
               } else {
                 englishVersions.podcastDescription = englishSource;
               }
-            } else if (contentType === 'email_newsletter') {
-              if (primaryLanguage === 'en') {
-                updated.emailNewsletter = englishSource;
-                delete englishVersions.emailNewsletter;
-              } else {
-                englishVersions.emailNewsletter = englishSource;
-              }
             } else if (contentType.startsWith('facebook-') ||
                        contentType.startsWith('instagram-') ||
                        contentType.startsWith('tiktok-') ||
@@ -1108,8 +843,6 @@ const Dashboard = () => {
               updated['devotional'] = englishSource;
             } else if (contentType === 'podcast_description') {
               updated['podcastDescription'] = englishSource;
-            } else if (contentType === 'email_newsletter') {
-              updated['emailNewsletter'] = englishSource;
             } else if (contentType.startsWith('facebook-') ||
                        contentType.startsWith('instagram-') ||
                        contentType.startsWith('tiktok-') ||
@@ -1254,31 +987,6 @@ const Dashboard = () => {
           // Only include English reference field if primary language is not English
           if (primaryLanguage !== 'en') {
             dbUpdateFields.podcast_description_english = englishSource;
-          }
-        } else if (contentType === 'email_newsletter') {
-          if (primaryLanguage !== 'en') {
-            englishVersions.emailNewsletter = englishSource;
-          } else {
-            delete englishVersions.emailNewsletter;
-          }
-
-          Object.entries(translatedContents).forEach(([lang, translated]) => {
-            const languageContent = { ...(multiLanguageVersions[lang] || {}) };
-            languageContent.emailNewsletter = translated;
-            multiLanguageVersions[lang] = languageContent;
-
-            if (lang === primaryLanguage) {
-              updated.emailNewsletter = translated;
-            }
-          });
-
-          dbUpdateFields = {
-            email_newsletter: updated.emailNewsletter,
-            multi_language_versions: Object.keys(multiLanguageVersions).length > 0 ? multiLanguageVersions : null
-          };
-
-          if (primaryLanguage !== 'en') {
-            dbUpdateFields.email_newsletter_english = englishSource;
           }
         } else if (contentType.startsWith('facebook-') ||
                    contentType.startsWith('instagram-') ||
@@ -1559,8 +1267,6 @@ const Dashboard = () => {
         bible_study_guide_english: data.englishVersions?.bibleStudyGuide || null,
         podcast_description: data.podcastDescription || null,
         podcast_description_english: data.englishVersions?.podcastDescription || null,
-        email_newsletter: data.emailNewsletter || null,
-        email_newsletter_english: data.englishVersions?.emailNewsletter || null,
         sermon_series_id: generationMode === 'sermon' ? selectedSeriesId || null : null,
         series_week_number: generationMode === 'sermon' ? seriesWeekNumber || null : null,
         church_event_id: savedEventId,
@@ -1595,8 +1301,6 @@ const Dashboard = () => {
           series_week_number: generationMode === 'sermon' ? seriesWeekNumber || null : null,
           church_event_id: savedEventId,
           generation_mode: generationMode,
-          email_newsletter: data.emailNewsletter || null,
-          email_newsletter_english: data.englishVersions?.emailNewsletter || null,
           output_language: primaryLanguage,
           content_types: contentTypes,
           output_languages: outputLanguages
@@ -1618,8 +1322,7 @@ const Dashboard = () => {
           contentTypes.includes('social_media') ? 'social media posts' : '',
           contentTypes.includes('bible_study') ? 'Bible study guide' : '',
           contentTypes.includes('devotional') ? 'daily devotional' : '',
-          contentTypes.includes('podcast_description') ? 'podcast description' : '',
-          contentTypes.includes('email_newsletter') ? 'email newsletter' : ''
+          contentTypes.includes('podcast_description') ? 'podcast description' : ''
         ].filter(Boolean).join(', ')} are ready.`
       });
     } catch (error) {
@@ -1662,7 +1365,6 @@ const Dashboard = () => {
     if (generatedContent.bibleStudyGuide) sections.push(`=== BIBLE STUDY GUIDE ===\n${generatedContent.bibleStudyGuide}`);
     if (generatedContent.devotional) sections.push(`=== DAILY DEVOTIONAL ===\n${generatedContent.devotional}`);
     if (generatedContent.podcastDescription) sections.push(`=== PODCAST DESCRIPTION ===\n${generatedContent.podcastDescription}`);
-    if (generatedContent.emailNewsletter) sections.push(`=== EMAIL NEWSLETTER ===\n${generatedContent.emailNewsletter}`);
     return sections;
   };
 
@@ -1758,100 +1460,79 @@ const Dashboard = () => {
         <p>Loading...</p>
       </div>;
   }
-  return <>
-      <Navigation />
+  return (
+    <AppShell>
       <TrialBanner />
-      <div className="min-h-screen bg-background p-8">
-      <div className="max-w-6xl mx-auto space-y-8">
+      <div className="p-6 md:p-10">
+      <div className="mx-auto max-w-6xl space-y-8">
         <div>
-          <h1 className="text-4xl font-playfair font-bold mb-2">
-            Welcome back, {primaryChurch?.name}!
+          <div className="mb-2 h-[3px] w-10 rounded bg-primary" />
+          <h1 className="font-playfair text-3xl font-bold text-foreground md:text-4xl">
+            Welcome back, <span className="font-bold">{primaryChurch?.name ?? "friend"}</span>
           </h1>
-          <p className="text-muted-foreground">Generate social media content and Bible study guides from your sermon transcripts or events</p>
+          <p className="mt-1 italic text-muted-foreground">
+            Let's turn Sunday's message into a full week of content.
+          </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Input Section */}
-          <Card>
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
+          {/* Create content panel */}
+          <Card className="border-t-4 border-t-primary shadow-tactile">
             <CardHeader>
-              <CardTitle className="font-playfair">Content Generation</CardTitle>
+              <SectionMarker numeral="01" title="Create content" tone="primary" />
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Content Type Selection */}
               <div className="space-y-3">
-                <Label>What would you like to generate?</Label>
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="social-media" 
-                      checked={contentTypes.includes('social_media')}
-                      onCheckedChange={() => handleContentTypeToggle('social_media')}
-                    />
-                    <Label htmlFor="social-media">Social Media Posts</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="bible-study" 
-                      checked={contentTypes.includes('bible_study')}
-                      onCheckedChange={() => handleContentTypeToggle('bible_study')}
-                    />
-                    <Label htmlFor="bible-study">Bible Study Guide</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="devotional" 
-                      checked={contentTypes.includes('devotional')}
-                      onCheckedChange={() => handleContentTypeToggle('devotional')}
-                    />
-                    <Label htmlFor="devotional">Daily Devotional</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="podcast-description"
-                      checked={contentTypes.includes('podcast_description')}
-                      onCheckedChange={() => handleContentTypeToggle('podcast_description')}
-                    />
-                    <Label htmlFor="podcast-description">Podcast Description</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="email-newsletter"
-                      checked={contentTypes.includes('email_newsletter')}
-                      onCheckedChange={() => handleContentTypeToggle('email_newsletter')}
-                    />
-                    <Label htmlFor="email-newsletter">Email Newsletter</Label>
-                  </div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">What would you like to generate?</p>
+                <div className="flex flex-wrap gap-2">
+                  {([
+                    { key: "social_media", label: "Social posts" },
+                    { key: "bible_study", label: "Bible study" },
+                    { key: "devotional", label: "Devotional" },
+                    { key: "podcast_description", label: "Podcast" },
+                  ] as const).map(({ key, label }) => {
+                    const on = contentTypes.includes(key);
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        aria-pressed={on}
+                        onClick={() => handleContentTypeToggle(key)}
+                        className={`rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
+                          on
+                            ? "border-primary bg-primary font-semibold text-primary-foreground"
+                            : "border-border bg-card text-muted-foreground hover:border-primary/50"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* Generation Mode Toggle */}
               <div className="space-y-2">
-                <Label>What are you creating content from?</Label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setGenerationMode('sermon')}
-                    className={`p-4 rounded-lg border-2 text-left transition-all ${
-                      generationMode === 'sermon'
-                        ? 'border-primary bg-primary/10'
-                        : 'border-muted hover:border-primary/50'
-                    }`}
-                  >
-                    <p className="font-semibold text-sm">From a Sermon</p>
-                    <p className="text-xs text-muted-foreground mt-1">Generate content from a sermon transcript</p>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setGenerationMode('event')}
-                    className={`p-4 rounded-lg border-2 text-left transition-all ${
-                      generationMode === 'event'
-                        ? 'border-primary bg-primary/10'
-                        : 'border-muted hover:border-primary/50'
-                    }`}
-                  >
-                    <p className="font-semibold text-sm">Promote an Event</p>
-                    <p className="text-xs text-muted-foreground mt-1">Create promotional content for a specific event</p>
-                  </button>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">What are you creating from?</p>
+                <div className="flex gap-1 rounded-xl bg-muted p-1">
+                  {([
+                    { key: "sermon", label: "Sermon" },
+                    { key: "event", label: "Future event" },
+                  ] as const).map(({ key, label }) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setGenerationMode(key)}
+                      className={`flex-1 rounded-lg py-2 text-sm transition-colors ${
+                        generationMode === key
+                          ? "bg-card font-semibold text-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -2027,63 +1708,38 @@ const Dashboard = () => {
 
               {/* Language Selection - Show when ANY content type is selected */}
               {contentTypes.length > 0 && (
-                <div className="space-y-4">
-                  <div>
-                    <Label>Output Languages for All Content (Max 3)</Label>
-                    <p className="text-xs text-muted-foreground mb-3">
-                      Select up to 3 languages. Content will be generated in English (UK) first, then translated.
-                    </p>
-                    
-                    {/* Language Selection Grid */}
-                    <div className="grid grid-cols-3 gap-2 mb-4">
-                      {getSortedLanguages().map(([code, name]) => (
-                        <div key={code} className="flex items-center space-x-2">
-                          <Checkbox 
-                            id={`lang-${code}`}
-                            checked={outputLanguages.includes(code)}
-                            onCheckedChange={() => handleLanguageToggle(code)}
-                            disabled={code === 'en' || (!outputLanguages.includes(code) && outputLanguages.length >= 3)}
-                          />
-                          <Label htmlFor={`lang-${code}`} className="text-sm cursor-pointer">
-                            {name} {code === 'en' && '(Always included)'}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Selected Languages Summary */}
-                    <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
-                      <p className="font-medium mb-1">Selected Languages ({outputLanguages.length}/3):</p>
-                      <div className="flex flex-wrap gap-2">
-                        {outputLanguages.map(code => (
-                          <span 
-                            key={code} 
-                            className={`px-2 py-1 rounded text-xs ${
-                              code === primaryLanguage 
-                                ? 'bg-primary text-primary-foreground' 
-                                : 'bg-muted-foreground/10'
-                            }`}
-                          >
-                            {LANGUAGE_NAMES[code] || code} {code === primaryLanguage && '(Primary)'}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <LanguagePicker
+                  outputLanguages={outputLanguages}
+                  primaryLanguage={primaryLanguage}
+                  onToggle={handleLanguageToggle}
+                  onPrimaryChange={handlePrimaryLanguageChange}
+                />
               )}
 
               {/* Platform Selection - Only show if Social Media is selected */}
               {contentTypes.includes('social_media') && (
                 <div className="space-y-3">
-                  <Label>Select Platforms</Label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {(['facebook', 'instagram', 'tiktok', 'twitter'] as Platform[]).map(platform => <div key={platform} className="flex items-center space-x-2">
-                        <Checkbox id={platform} checked={platforms.includes(platform)} onCheckedChange={() => handlePlatformToggle(platform)} />
-                        <Label htmlFor={platform} className="capitalize cursor-pointer">
-                          {platform === 'twitter' ? 'Twitter/X' : platform}
-                        </Label>
-                      </div>)}
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Social platforms</p>
+                  <div className="flex flex-wrap gap-2">
+                    {(['facebook', 'instagram', 'tiktok', 'twitter'] as Platform[]).map(platform => {
+                      const on = platforms.includes(platform);
+                      const label = platform === 'twitter' ? 'X' : platform.charAt(0).toUpperCase() + platform.slice(1);
+                      return (
+                        <button
+                          key={platform}
+                          type="button"
+                          aria-pressed={on}
+                          onClick={() => handlePlatformToggle(platform)}
+                          className={`rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
+                            on
+                              ? "border-primary bg-primary font-semibold text-primary-foreground"
+                              : "border-border bg-card text-muted-foreground hover:border-primary/50"
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -2091,14 +1747,22 @@ const Dashboard = () => {
               {/* Posts per Platform - Only show if Social Media is selected */}
               {contentTypes.includes('social_media') && (
                 <div className="space-y-2">
-                  <Label>Posts per Platform</Label>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Generate multiple variations to choose from or schedule throughout the week
-                  </p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Posts per platform</p>
                   <div className="flex gap-2">
-                    {[1, 2, 3].map(num => <Button key={num} type="button" variant={postsPerPlatform === num ? "default" : "outline"} size="sm" onClick={() => setPostsPerPlatform(num)} className="flex-1">
+                    {[1, 2, 3].map(num => (
+                      <button
+                        key={num}
+                        type="button"
+                        onClick={() => setPostsPerPlatform(num)}
+                        className={`flex-1 rounded-lg border py-2 text-sm transition-colors ${
+                          postsPerPlatform === num
+                            ? "border-foreground bg-foreground font-semibold text-background"
+                            : "border-border text-muted-foreground hover:border-foreground/40"
+                        }`}
+                      >
                         {num}
-                      </Button>)}
+                      </button>
+                    ))}
                   </div>
                 </div>
               )}
@@ -2112,7 +1776,7 @@ const Dashboard = () => {
                   (contentTypes.includes('social_media') && platforms.length === 0) ||
                   generating
                 }
-                className="w-full"
+                className="w-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_10px_22px_-7px_hsl(var(--primary)/0.55)] hover:opacity-95"
                 size="lg"
               >
                 {generating ? <>
@@ -2123,11 +1787,11 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Output Section */}
-          <Card>
+          {/* Your content panel */}
+          <Card className="border-t-4 border-t-secondary shadow-tactile">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="font-playfair">Generated Content</CardTitle>
+                <SectionMarker numeral="02" title="Your content" tone="secondary" className="mb-0" />
                 {generatedContent && (
                   <div className="flex gap-2">
                     <Button onClick={handleStartFresh} variant="outline" size="sm">
@@ -2153,9 +1817,34 @@ const Dashboard = () => {
               </div>
             </CardHeader>
             <CardContent>
-              {!generatedContent ? <div className="text-center py-12 text-muted-foreground">
-                  <p>Your generated content will appear here</p>
-                </div> : (() => {
+              {!generatedContent ? (
+                generating ? (
+                  <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+                    <CircleNotch size={32} className="animate-spin text-primary" />
+                    <p className="font-playfair text-lg text-foreground">Crafting your content…</p>
+                    <p className="text-sm text-muted-foreground">Writing in your church's voice. This usually takes under a minute.</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-14 text-center">
+                    <div className="-rotate-2 rounded-2xl border border-border bg-card p-6 shadow-tactile">
+                      <p className="font-playfair text-xl text-foreground">Your content will appear here</p>
+                      <p className="mt-2 max-w-xs text-sm text-muted-foreground">
+                        Add a sermon or event on the left, choose what you'd like, then press <span className="font-semibold text-primary">Generate</span>.
+                      </p>
+                    </div>
+                  </div>
+                )
+              ) : (() => {
+                  // Pull-quote helper: extracts first meaningful sentence (max 140 chars)
+                  const leadQuote = (text: string): string | null => {
+                    if (!text) return null;
+                    const firstLine = text.replace(/[#*_>`]/g, "").split("\n").map((l: string) => l.trim()).find(Boolean);
+                    if (!firstLine || firstLine.length < 20) return null;
+                    const sentence = firstLine.split(/(?<=[.!?])\s/)[0];
+                    const quote = (sentence.length > 8 ? sentence : firstLine).slice(0, 140);
+                    return quote.length < firstLine.length ? `${quote}…` : quote;
+                  };
+
                   // Helper function to render social media platform content
                   const renderSocialPlatform = (platform: string, platformContent: string | string[]) => {
                     const posts = Array.isArray(platformContent) ? platformContent : [platformContent];
@@ -2163,31 +1852,24 @@ const Dashboard = () => {
                     const currentPost = posts[activeIdx];
                     const contentKey = `${platform}-${activeIdx}`;
                     const isEditing = editingContent[contentKey];
-                    const displayContent = isEditing ? (editedContent[contentKey] || currentPost) : currentPost;
-                    const lengthInfo = getLengthIndicator(displayContent, platform);
-
+                    const displayContent = (isEditing ? (editedContent[contentKey] || currentPost) : currentPost) ?? '';
                     // Get versions for multi-language display
                     const englishPosts = generatedContent.englishVersions?.[platform];
                     const englishPost = englishPosts ? (Array.isArray(englishPosts) ? englishPosts[activeIdx] : englishPosts) : null;
                     const multiLanguageVersions = generatedContent.multiLanguageVersions || {};
                     const showMultiLanguage = Object.keys(multiLanguageVersions).length > 0 || hasNonEnglishLanguages;
 
-                    // Platform-specific tips
-                    const platformTips: Record<string, string> = {
-                      facebook: '📘 Facebook works best with 40-80 words and clear paragraph breaks',
-                      instagram: '📸 Instagram: Keep first line under 125 characters (what shows before "...more")',
-                      tiktok: '🎵 TikTok: Keep it short and punchy - under 150 characters',
-                      twitter: '🐦 Twitter/X: Aim for 240-260 characters (leaves room for retweets with comments)'
-                    };
-
                     const englishSource = editedContent[contentKey] || englishPost || displayContent;
                     const canRetranslate = hasNonEnglishLanguages && englishSource && englishSource.trim().length > 0;
 
+                    const quote = leadQuote(displayContent);
                     return (
                       <div className="space-y-3">
-                        <div className="text-xs text-muted-foreground mb-4">
-                          {platformTips[platform]}
-                        </div>
+                        {quote && (
+                          <p className="border-l-2 border-accent pl-3 font-playfair text-base leading-snug text-foreground/80">
+                            "{quote}"
+                          </p>
+                        )}
 
                         {posts.length > 1 && (
                           <div className="flex items-center justify-between text-sm text-muted-foreground">
@@ -2367,15 +2049,12 @@ const Dashboard = () => {
                               </div>
                             ) : (
                               <ScrollArea className="border rounded-lg h-[500px]">
-                                <div className="bg-muted p-4">
+                                <div className="bg-card p-4">
                                   <p className="whitespace-pre-wrap">{displayContent}</p>
                                 </div>
                               </ScrollArea>
                             )}
-                            <div className="flex items-center justify-between">
-                              <p className={`text-sm font-medium ${lengthInfo.color}`}>
-                                {lengthInfo.status} {lengthInfo.message} {platform === 'instagram' && `• Total: ${displayContent.length} chars`} {platform !== 'instagram' && platform !== 'tiktok' && platform !== 'twitter' && `• ${displayContent.length} chars`}
-                              </p>
+                            <div className="flex items-center justify-end">
                               <div className="flex gap-2">
                                 {isEditing ? (
                                   <>
@@ -2434,7 +2113,6 @@ const Dashboard = () => {
                           {generatedContent.bibleStudyGuide && <TabsTrigger value="bible-study">📖 Bible Study</TabsTrigger>}
                           {generatedContent.devotional && <TabsTrigger value="devotional">🙏 Devotional</TabsTrigger>}
                           {generatedContent.podcastDescription && <TabsTrigger value="podcast-description">🎙️ Podcast</TabsTrigger>}
-                          {generatedContent.emailNewsletter && <TabsTrigger value="email-newsletter">📧 Newsletter</TabsTrigger>}
                         </TabsList>
                       </div>
 
@@ -2631,9 +2309,14 @@ const Dashboard = () => {
                         </>
                       ) : (
                         <>
-                          <div className="text-xs text-muted-foreground mb-2">
-                            📖 Bible Study Guide
-                          </div>
+                          {(() => {
+                            const bibleQuote = leadQuote(editedContent['bibleStudyGuide'] || generatedContent.bibleStudyGuide);
+                            return bibleQuote ? (
+                              <p className="border-l-2 border-accent pl-3 font-playfair text-base leading-snug text-foreground/80">
+                                "{bibleQuote}"
+                              </p>
+                            ) : null;
+                          })()}
                           {editingContent['bibleStudyGuide'] ? (
                             <MDEditor
                               value={editedContent['bibleStudyGuide'] || generatedContent.bibleStudyGuide}
@@ -2643,7 +2326,7 @@ const Dashboard = () => {
                             />
                           ) : (
                             <ScrollArea className="border rounded-lg h-[700px]">
-                              <div className="prose prose-sm max-w-none bg-muted p-6 prose-p:mb-4">
+                              <div className="prose prose-sm max-w-none bg-card p-6 prose-p:mb-4">
                                 <ReactMarkdown>{cleanBibleStudyFormatting(generatedContent.bibleStudyGuide)}</ReactMarkdown>
                               </div>
                             </ScrollArea>
@@ -2842,8 +2525,14 @@ const Dashboard = () => {
                           </div>
                         );
                       } else {
+                        const devotionalQuote = leadQuote(editedContent['devotional'] || generatedContent.devotional);
                         return (
                           <>
+                            {devotionalQuote && (
+                              <p className="border-l-2 border-accent pl-3 font-playfair text-base leading-snug text-foreground/80">
+                                "{devotionalQuote}"
+                              </p>
+                            )}
                             {editingContent['devotional'] ? (
                               <div className="min-h-[500px]">
                                 <MDEditor
@@ -2855,7 +2544,7 @@ const Dashboard = () => {
                               </div>
                             ) : (
                               <ScrollArea className="border rounded-lg h-[600px]">
-                                <div className="bg-muted p-4">
+                                <div className="bg-card p-4">
                                   <p className="whitespace-pre-wrap">{generatedContent.devotional}</p>
                                 </div>
                               </ScrollArea>
@@ -2940,7 +2629,7 @@ const Dashboard = () => {
                                       onClick={() => handleRetranslate(englishPodcast, 'podcast_description')}
                                       disabled={retranslating}
                                     >
-                                      <RefreshCcw size={14} className={`mr-1 ${retranslating ? 'animate-spin' : ''}`} />
+                                      <ArrowCounterClockwise size={14} className={`mr-1 ${retranslating ? 'animate-spin' : ''}`} />
                                       Re-translate
                                     </Button>
                                   </div>
@@ -3000,8 +2689,14 @@ const Dashboard = () => {
                           </div>
                         );
                       } else {
+                        const podcastQuote = leadQuote(editedContent['podcastDescription'] || generatedContent.podcastDescription);
                         return (
                           <>
+                            {podcastQuote && (
+                              <p className="border-l-2 border-accent pl-3 font-playfair text-base leading-snug text-foreground/80">
+                                "{podcastQuote}"
+                              </p>
+                            )}
                             {editingContent['podcastDescription'] ? (
                               <div className="min-h-[500px]">
                                 <MDEditor
@@ -3013,7 +2708,7 @@ const Dashboard = () => {
                               </div>
                             ) : (
                               <ScrollArea className="border rounded-lg h-[600px]">
-                                <div className="bg-muted p-4">
+                                <div className="bg-card p-4">
                                   <p className="whitespace-pre-wrap">{generatedContent.podcastDescription}</p>
                                 </div>
                               </ScrollArea>
@@ -3047,163 +2742,6 @@ const Dashboard = () => {
                   </TabsContent>
                       )}
 
-                      {/* Email Newsletter Tab */}
-                      {generatedContent.emailNewsletter && (
-                  <TabsContent value="email-newsletter" className="space-y-3">
-                    {(() => {
-                      const englishNewsletter = generatedContent.englishVersions?.emailNewsletter;
-                      const multiLanguageVersions = generatedContent.multiLanguageVersions || {};
-                      const showMultiLanguage = Object.keys(multiLanguageVersions).length > 0 || hasNonEnglishLanguages;
-
-                      if (showMultiLanguage) {
-                        return (
-                          <div className="space-y-4">
-                            {/* Primary Language */}
-                            <div className="space-y-2">
-                              <div className="flex items-center justify-between">
-                                <Label className="text-sm font-semibold">
-                                  {LANGUAGE_NAMES[primaryLanguage] || primaryLanguage} (Primary)
-                                </Label>
-                                <span className="text-xs text-muted-foreground">Main version</span>
-                              </div>
-                              <div className="min-h-[500px]">
-                                <MDEditor
-                                  value={editedContent['emailNewsletter'] || generatedContent.emailNewsletter}
-                                  onChange={(val) => setEditedContent(prev => ({ ...prev, emailNewsletter: val || '' }))}
-                                  height={500}
-                                  preview="edit"
-                                />
-                              </div>
-                              <div className="flex justify-end gap-2">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => copyToClipboard(editedContent['emailNewsletter'] || generatedContent.emailNewsletter, "Email newsletter")}
-                                >
-                                  {copiedItem === "Email newsletter" ? <CheckCircle size={16} className="mr-2" /> : <Copy size={16} className="mr-2" />}
-                                  Copy
-                                </Button>
-                              </div>
-                            </div>
-
-                            {/* English version (if primary is not English) */}
-                            {primaryLanguage !== 'en' && englishNewsletter && (
-                              <div className="space-y-2">
-                                <div className="flex items-center justify-between">
-                                  <Label className="text-sm font-semibold">English (Original)</Label>
-                                  <div className="flex gap-2">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => handleRetranslate(englishNewsletter, 'email_newsletter')}
-                                      disabled={retranslating}
-                                    >
-                                      <RefreshCcw size={14} className={`mr-1 ${retranslating ? 'animate-spin' : ''}`} />
-                                      Re-translate
-                                    </Button>
-                                  </div>
-                                </div>
-                                <ScrollArea className="border rounded-lg h-[300px]">
-                                  <div className="bg-muted/50 p-4">
-                                    <ReactMarkdown>{englishNewsletter}</ReactMarkdown>
-                                  </div>
-                                </ScrollArea>
-                                <div className="flex justify-end">
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => copyToClipboard(englishNewsletter, "English newsletter")}
-                                  >
-                                    {copiedItem === "English newsletter" ? (
-                                      <CheckCircle size={16} className="mr-2" />
-                                    ) : (
-                                      <Copy size={16} className="mr-2" />
-                                    )}
-                                    Copy English
-                                  </Button>
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Other language versions */}
-                            {Object.entries(multiLanguageVersions).map(([langCode, langContent]: [string, any]) => {
-                              if (langCode === primaryLanguage || !langContent.emailNewsletter) return null;
-                              return (
-                                <div key={langCode} className="space-y-2">
-                                  <Label className="text-sm font-semibold">
-                                    {LANGUAGE_NAMES[langCode] || langCode}
-                                  </Label>
-                                  <ScrollArea className="border rounded-lg h-[300px]">
-                                    <div className="bg-muted/50 p-4">
-                                      <ReactMarkdown>{langContent.emailNewsletter}</ReactMarkdown>
-                                    </div>
-                                  </ScrollArea>
-                                  <div className="flex justify-end">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => copyToClipboard(langContent.emailNewsletter, `${LANGUAGE_NAMES[langCode] || langCode} newsletter`)}
-                                    >
-                                      {copiedItem === `${LANGUAGE_NAMES[langCode] || langCode} newsletter` ? (
-                                        <CheckCircle size={16} className="mr-2" />
-                                      ) : (
-                                        <Copy size={16} className="mr-2" />
-                                      )}
-                                      Copy
-                                    </Button>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        );
-                      } else {
-                        return (
-                          <>
-                            {editingContent['emailNewsletter'] ? (
-                              <div className="min-h-[500px]">
-                                <MDEditor
-                                  value={editedContent['emailNewsletter'] || generatedContent.emailNewsletter}
-                                  onChange={(val) => setEditedContent(prev => ({ ...prev, emailNewsletter: val || '' }))}
-                                  height={500}
-                                  preview="edit"
-                                />
-                              </div>
-                            ) : (
-                              <ScrollArea className="border rounded-lg h-[600px]">
-                                <div className="bg-muted p-4">
-                                  <p className="whitespace-pre-wrap">{generatedContent.emailNewsletter}</p>
-                                </div>
-                              </ScrollArea>
-                            )}
-                            <div className="flex gap-2">
-                              {editingContent['emailNewsletter'] ? (
-                                <>
-                                  <Button onClick={() => handleCancelEdit('emailNewsletter')} variant="outline" size="sm" className="flex-1">
-                                    Cancel
-                                  </Button>
-                                  <Button onClick={() => handleSaveEdit('emailNewsletter')} size="sm" className="flex-1">
-                                    Save
-                                  </Button>
-                                </>
-                              ) : (
-                                <>
-                                  <Button onClick={() => handleStartEdit('emailNewsletter', generatedContent.emailNewsletter)} variant="outline" size="sm" className="flex-1">
-                                    Edit
-                                  </Button>
-                                  <Button onClick={() => copyToClipboard(generatedContent.emailNewsletter, "Email newsletter")} variant="outline" size="sm" className="flex-1">
-                                    {copiedItem === "Email newsletter" ? <CheckCircle size={16} className="mr-2" /> : <Copy size={16} className="mr-2" />}
-                                    Copy
-                                  </Button>
-                                </>
-                              )}
-                            </div>
-                          </>
-                        );
-                      }
-                    })()}
-                  </TabsContent>
-                      )}
                     </Tabs>
                   );
                 })()}
@@ -3212,6 +2750,7 @@ const Dashboard = () => {
         </div>
       </div>
       </div>
-    </>;
+    </AppShell>
+  );
 };
 export default Dashboard;

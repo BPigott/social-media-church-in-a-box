@@ -53,3 +53,6 @@ lerna-debug.log*
 # Git worktrees
 .worktrees/
 * 2.*
+
+# Superpowers brainstorming companion
+.superpowers/

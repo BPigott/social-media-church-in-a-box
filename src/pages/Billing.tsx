@@ -1,11 +1,10 @@
 import { useSubscription } from "@/hooks/useSubscription";
-import { Navigation } from "@/components/Navigation";
-import { TrialBanner } from "@/components/TrialBanner";
+import { AppShell } from "@/components/layout/AppShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-const singleCheckoutUrl = import.meta.env.VITE_LS_SINGLE_CHECKOUT_URL || "#";
+const singleCheckoutUrl = import.meta.env.VITE_STRIPE_CHECKOUT_URL || "#";
 
 const STATUS_LABELS: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   trialing: { label: "Free Trial", variant: "secondary" },
@@ -26,12 +25,11 @@ const Billing = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
+      <AppShell>
         <div className="flex items-center justify-center py-20">
           <p>Loading...</p>
         </div>
-      </div>
+      </AppShell>
     );
   }
 
@@ -55,13 +53,15 @@ const Billing = () => {
     : null;
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      <TrialBanner />
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <h1 className="text-2xl font-bold mb-6">Billing</h1>
+    <AppShell>
+      <div className="p-6 md:p-10">
+      <div className="mx-auto max-w-2xl space-y-8">
+        <div>
+          <div className="mb-2 h-[3px] w-10 rounded bg-primary" />
+          <h1 className="font-playfair text-3xl font-bold mb-2">Billing</h1>
+        </div>
 
-        <Card>
+        <Card className="border-t-4 border-t-primary shadow-tactile">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span>Subscription</span>
@@ -101,9 +101,9 @@ const Billing = () => {
                     {nextBillingDate}
                   </p>
                 )}
-                {subscription?.ls_subscription_id && (
+                {subscription?.stripe_subscription_id && (
                   <p className="text-xs text-muted-foreground">
-                    Subscription ID: {subscription.ls_subscription_id}
+                    Subscription ID: {subscription.stripe_subscription_id}
                   </p>
                 )}
               </div>
@@ -130,7 +130,8 @@ const Billing = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+      </div>
+    </AppShell>
   );
 };
 
