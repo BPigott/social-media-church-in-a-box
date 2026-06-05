@@ -80,7 +80,7 @@ const TermsOfService = () => {
                   character limit guidance and formatting recommendations.</li>
                   <li><strong>Bible Study Guides:</strong> Comprehensive study materials with discussion questions, application points, and 
                   downloadable resources for small groups.</li>
-                  <li><strong>Daily Devotionals:</strong> Short, inspirational content suitable for daily social media posts, newsletters, or 
+                  <li><strong>Daily Devotionals:</strong> Short, inspirational content suitable for daily social media posts or
                   spiritual reflection materials.</li>
                   <li><strong>Multi-Language Support:</strong> Content generation and translation services for up to 22 languages.</li>
                   <li><strong>Content Library:</strong> Storage, organisation, search, and management tools for all generated content.</li>
