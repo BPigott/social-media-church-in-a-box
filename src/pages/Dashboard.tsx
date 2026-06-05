@@ -39,9 +39,9 @@ const DASHBOARD_CLEARED_AT_KEY = 'ivangel:dashboardClearedAt';
 const SOCIAL_PLATFORM_KEYS = ['facebook', 'instagram', 'tiktok', 'twitter'] as const;
 
 // Strip null/non-string entries from social platform arrays so the render path
-// (getLengthIndicator, variation switcher, etc.) never sees nulls. Defends
-// against historical rows in `generations.result` written by earlier orchestrator
-// versions that produced sparse arrays when some specialist calls failed.
+// never sees nulls. Defends against historical rows in `generations.result` written
+// by earlier orchestrator versions that produced sparse arrays when some specialist
+// calls failed.
 const compactSocialArrays = (obj: Record<string, unknown>): Record<string, unknown> => {
   const out = { ...obj };
   for (const k of SOCIAL_PLATFORM_KEYS) {
@@ -101,111 +101,6 @@ const Dashboard = () => {
       .trim();
   };
 
-  // Helper function to count words in text
-  const countWords = (text: string): number => {
-    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
-  };
-
-  // Helper function to get length indicator
-  const getLengthIndicator = (text: string, platform: string) => {
-    // Defence in depth: some call paths (e.g., missing platformContent) may pass
-    // undefined/null. Return a neutral indicator rather than crashing.
-    if (!text) {
-      return { status: '', color: 'text-muted-foreground', message: '0 chars' };
-    }
-    const charCount = text.length;
-    const wordCount = countWords(text);
-    switch (platform) {
-      case 'facebook':
-        if (wordCount >= 40 && wordCount <= 80) {
-          return {
-            status: '✅',
-            color: 'text-green-600',
-            message: `${wordCount} words (Ideal: 40-80)`
-          };
-        } else if (wordCount > 80 && wordCount <= 100) {
-          return {
-            status: '⚠️',
-            color: 'text-yellow-600',
-            message: `${wordCount} words (Recommended: 40-80)`
-          };
-        } else {
-          return {
-            status: '❌',
-            color: 'text-red-600',
-            message: `${wordCount} words (Target: 40-80)`
-          };
-        }
-      case 'instagram':
-        const firstLine = text.split('\n')[0];
-        const firstLineLength = firstLine.length;
-        if (firstLineLength <= 125 && charCount <= 200) {
-          return {
-            status: '✅',
-            color: 'text-green-600',
-            message: `First line: ${firstLineLength} chars (Ideal)`
-          };
-        } else if (firstLineLength <= 125) {
-          return {
-            status: '⚠️',
-            color: 'text-yellow-600',
-            message: `First line: ${firstLineLength} chars (caption longer than ideal)`
-          };
-        } else {
-          return {
-            status: '❌',
-            color: 'text-red-600',
-            message: `First line: ${firstLineLength} chars (Target: <125)`
-          };
-        }
-      case 'tiktok':
-        if (charCount <= 150) {
-          return {
-            status: '✅',
-            color: 'text-green-600',
-            message: `${charCount} chars (Perfect)`
-          };
-        } else if (charCount <= 180) {
-          return {
-            status: '⚠️',
-            color: 'text-yellow-600',
-            message: `${charCount} chars (Target: <150)`
-          };
-        } else {
-          return {
-            status: '❌',
-            color: 'text-red-600',
-            message: `${charCount} chars (Too long)`
-          };
-        }
-      case 'twitter':
-        if (charCount <= 260) {
-          return {
-            status: '✅',
-            color: 'text-green-600',
-            message: `${charCount} chars (Good for retweets)`
-          };
-        } else if (charCount <= 280) {
-          return {
-            status: '⚠️',
-            color: 'text-yellow-600',
-            message: `${charCount} chars (At limit)`
-          };
-        } else {
-          return {
-            status: '❌',
-            color: 'text-red-600',
-            message: `${charCount} chars (Over 280 limit!)`
-          };
-        }
-      default:
-        return {
-          status: '',
-          color: '',
-          message: `${charCount} characters`
-        };
-    }
-  };
   const [transcriptFile, setTranscriptFile] = useState<File | null>(null);
   const [transcriptText, setTranscriptText] = useState("");
   const [speakerName, setSpeakerName] = useState("");
@@ -1933,8 +1828,6 @@ const Dashboard = () => {
                     const contentKey = `${platform}-${activeIdx}`;
                     const isEditing = editingContent[contentKey];
                     const displayContent = (isEditing ? (editedContent[contentKey] || currentPost) : currentPost) ?? '';
-                    const lengthInfo = getLengthIndicator(displayContent, platform);
-
                     // Get versions for multi-language display
                     const englishPosts = generatedContent.englishVersions?.[platform];
                     const englishPost = englishPosts ? (Array.isArray(englishPosts) ? englishPosts[activeIdx] : englishPosts) : null;
@@ -2141,10 +2034,7 @@ const Dashboard = () => {
                                 </div>
                               </ScrollArea>
                             )}
-                            <div className="flex items-center justify-between">
-                              <p className={`text-sm font-medium ${lengthInfo.color}`}>
-                                {lengthInfo.status} {lengthInfo.message} {platform === 'instagram' && `• Total: ${displayContent.length} chars`} {platform !== 'instagram' && platform !== 'tiktok' && platform !== 'twitter' && `• ${displayContent.length} chars`}
-                              </p>
+                            <div className="flex items-center justify-end">
                               <div className="flex gap-2">
                                 {isEditing ? (
                                   <>
