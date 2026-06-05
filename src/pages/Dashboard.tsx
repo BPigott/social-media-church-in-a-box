@@ -1776,7 +1776,7 @@ const Dashboard = () => {
                   (contentTypes.includes('social_media') && platforms.length === 0) ||
                   generating
                 }
-                className="w-full"
+                className="w-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-[0_10px_22px_-7px_hsl(var(--primary)/0.55)] hover:opacity-95"
                 size="lg"
               >
                 {generating ? <>
@@ -1817,9 +1817,24 @@ const Dashboard = () => {
               </div>
             </CardHeader>
             <CardContent>
-              {!generatedContent ? <div className="text-center py-12 text-muted-foreground">
-                  <p>Your generated content will appear here</p>
-                </div> : (() => {
+              {!generatedContent ? (
+                generating ? (
+                  <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+                    <CircleNotch size={32} className="animate-spin text-primary" />
+                    <p className="font-playfair text-lg text-foreground">Crafting your content…</p>
+                    <p className="text-sm text-muted-foreground">Writing in your church's voice. This usually takes under a minute.</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-14 text-center">
+                    <div className="-rotate-2 rounded-2xl border border-border bg-card p-6 shadow-tactile">
+                      <p className="font-playfair text-xl text-foreground">Your content will appear here</p>
+                      <p className="mt-2 max-w-xs text-sm text-muted-foreground">
+                        Add a sermon or event on the left, choose what you'd like, then press <span className="font-semibold text-primary">Generate</span>.
+                      </p>
+                    </div>
+                  </div>
+                )
+              ) : (() => {
                   // Pull-quote helper: extracts first meaningful sentence (max 140 chars)
                   const leadQuote = (text: string): string | null => {
                     if (!text) return null;
