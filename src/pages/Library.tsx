@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useChurch } from "@/hooks/useChurch";
 import { supabase } from "@/integrations/supabase/client";
-import { Navigation } from "@/components/Navigation";
-import { TrialBanner } from "@/components/TrialBanner";
+import { AppShell } from "@/components/layout/AppShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -648,13 +647,12 @@ const Library = () => {
   }
 
   return (
-    <>
-      <Navigation />
-      <TrialBanner />
-      <div className="min-h-screen bg-background p-8">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <AppShell>
+      <div className="p-6 md:p-10">
+      <div className="mx-auto max-w-6xl space-y-8">
         <div>
-          <h1 className="text-4xl font-playfair font-bold mb-2">Content Library</h1>
+          <div className="mb-2 h-[3px] w-10 rounded bg-primary" />
+          <h1 className="font-playfair text-3xl font-bold mb-2">Content Library</h1>
           <p className="text-muted-foreground">View and manage your past generated content</p>
         </div>
 
@@ -699,12 +697,12 @@ const Library = () => {
                   open={isExpanded}
                   onOpenChange={(open) => toggleSection(groupKey, open)}
                 >
-                  <Card>
+                  <Card className="border border-border shadow-tactile rounded-xl">
                     <CardHeader>
                       <CollapsibleTrigger className="w-full">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <CaretDown 
+                            <CaretDown
                               size={20}
                               className={`transition-transform ${
                                 isExpanded ? 'rotate-180' : ''
@@ -732,7 +730,7 @@ const Library = () => {
                           });
                           
                           return (
-                            <Card key={item.id} className="border-l-4 border-l-primary">
+                            <Card key={item.id} className="border border-border border-l-4 border-l-primary shadow-tactile rounded-xl">
                               <CardHeader>
                                 <div className="flex items-start justify-between">
                                   <div className="space-y-2">
@@ -974,7 +972,7 @@ const Library = () => {
         )}
       </div>
       </div>
-    </>
+    </AppShell>
   );
 };
 
