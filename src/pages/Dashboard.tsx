@@ -22,6 +22,8 @@ import { jsPDF } from "jspdf";
 import { Document, Packer, Paragraph, TextRun } from "docx";
 import type { Platform, SermonSeries } from "@/types/database";
 import { SeriesSelector } from "@/components/dashboard/SeriesSelector";
+import { LanguagePicker } from "@/components/dashboard/LanguagePicker";
+import { LANGUAGE_NAMES } from "@/lib/languages";
 import mammoth from "mammoth";
 import * as pdfjsLib from "pdfjs-dist";
 import ReactMarkdown from "react-markdown";
@@ -69,42 +71,6 @@ const sanitiseGenerationResult = (result: unknown): unknown => {
     out = { ...out, multiLanguageVersions: cleaned };
   }
   return out;
-};
-
-// Language names mapping
-const LANGUAGE_NAMES: Record<string, string> = {
-  'en': 'English',
-  'es': 'Spanish',
-  'fr': 'French',
-  'pt': 'Portuguese',
-  'de': 'German',
-  'ko': 'Korean',
-  'zh': 'Chinese (Simplified)',
-  'zh-TW': 'Chinese (Traditional)',
-  'ar': 'Arabic',
-  'fa': 'Persian (Farsi)',
-  'pl': 'Polish',
-  'uk': 'Ukrainian',
-  'it': 'Italian',
-  'ru': 'Russian',
-  'ja': 'Japanese',
-  'ro': 'Romanian',
-  'pa': 'Punjabi',
-  'ur': 'Urdu',
-  'bn': 'Bengali',
-  'gu': 'Gujarati',
-  'cy': 'Welsh',
-  'lt': 'Lithuanian'
-};
-
-// Sorted language entries with English first
-const getSortedLanguages = () => {
-  const entries = Object.entries(LANGUAGE_NAMES);
-  const english: [string, string][] = entries.filter(([code]) => code === 'en');
-  const others: [string, string][] = entries
-    .filter(([code]) => code !== 'en')
-    .sort((a, b) => a[1].localeCompare(b[1]));
-  return [...english, ...others];
 };
 
 const Dashboard = () => {
@@ -1847,50 +1813,12 @@ const Dashboard = () => {
 
               {/* Language Selection - Show when ANY content type is selected */}
               {contentTypes.length > 0 && (
-                <div className="space-y-4">
-                  <div>
-                    <Label>Output Languages for All Content (Max 3)</Label>
-                    <p className="text-xs text-muted-foreground mb-3">
-                      Select up to 3 languages. Content will be generated in English (UK) first, then translated.
-                    </p>
-                    
-                    {/* Language Selection Grid */}
-                    <div className="grid grid-cols-3 gap-2 mb-4">
-                      {getSortedLanguages().map(([code, name]) => (
-                        <div key={code} className="flex items-center space-x-2">
-                          <Checkbox 
-                            id={`lang-${code}`}
-                            checked={outputLanguages.includes(code)}
-                            onCheckedChange={() => handleLanguageToggle(code)}
-                            disabled={code === 'en' || (!outputLanguages.includes(code) && outputLanguages.length >= 3)}
-                          />
-                          <Label htmlFor={`lang-${code}`} className="text-sm cursor-pointer">
-                            {name} {code === 'en' && '(Always included)'}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Selected Languages Summary */}
-                    <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
-                      <p className="font-medium mb-1">Selected Languages ({outputLanguages.length}/3):</p>
-                      <div className="flex flex-wrap gap-2">
-                        {outputLanguages.map(code => (
-                          <span 
-                            key={code} 
-                            className={`px-2 py-1 rounded text-xs ${
-                              code === primaryLanguage 
-                                ? 'bg-primary text-primary-foreground' 
-                                : 'bg-muted-foreground/10'
-                            }`}
-                          >
-                            {LANGUAGE_NAMES[code] || code} {code === primaryLanguage && '(Primary)'}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <LanguagePicker
+                  outputLanguages={outputLanguages}
+                  primaryLanguage={primaryLanguage}
+                  onToggle={handleLanguageToggle}
+                  onPrimaryChange={handlePrimaryLanguageChange}
+                />
               )}
 
               {/* Platform Selection - Only show if Social Media is selected */}
