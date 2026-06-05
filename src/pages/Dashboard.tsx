@@ -8,7 +8,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { SectionMarker } from "@/components/ui/section-marker";
 import { TrialBanner } from "@/components/TrialBanner";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -1614,11 +1614,11 @@ const Dashboard = () => {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Input Section */}
-          <Card>
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
+          {/* Create content panel */}
+          <Card className="border-t-4 border-t-primary shadow-tactile">
             <CardHeader>
-              <CardTitle className="font-playfair">Content Generation</CardTitle>
+              <SectionMarker numeral="01" title="Create content" tone="primary" />
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Content Type Selection */}
@@ -1959,11 +1959,11 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Output Section */}
-          <Card>
+          {/* Your content panel */}
+          <Card className="border-t-4 border-t-secondary shadow-tactile">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="font-playfair">Generated Content</CardTitle>
+                <SectionMarker numeral="02" title="Your content" tone="secondary" className="mb-0" />
                 {generatedContent && (
                   <div className="flex gap-2">
                     <Button onClick={handleStartFresh} variant="outline" size="sm">
