@@ -3,8 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useChurch } from "@/hooks/useChurch";
 import { supabase } from "@/integrations/supabase/client";
-import { Navigation } from "@/components/Navigation";
-import { TrialBanner } from "@/components/TrialBanner";
+import { AppShell } from "@/components/layout/AppShell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -270,14 +269,13 @@ const Settings = () => {
   }
 
   return (
-    <>
-      <Navigation />
-      <TrialBanner />
-      <div className="min-h-screen bg-background p-8">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <AppShell>
+      <div className="p-6 md:p-10">
+      <div className="mx-auto max-w-6xl space-y-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-playfair font-bold mb-2">Settings</h1>
+            <div className="mb-2 h-[3px] w-10 rounded bg-primary" />
+            <h1 className="font-playfair text-3xl font-bold mb-2">Settings</h1>
             <p className="text-muted-foreground">Manage your church information and preferences</p>
           </div>
           <Button onClick={handleSignOut} variant="outline">
@@ -294,7 +292,7 @@ const Settings = () => {
           </TabsList>
 
           <TabsContent value="church" className="mt-6">
-            <Card>
+            <Card className="border-t-4 border-t-primary shadow-tactile">
               <CardHeader>
                 <CardTitle className="font-playfair">Church Information</CardTitle>
               </CardHeader>
@@ -313,7 +311,7 @@ const Settings = () => {
           </TabsContent>
 
           <TabsContent value="style" className="mt-6">
-            <Card>
+            <Card className="border-t-4 border-t-secondary shadow-tactile">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="font-playfair">Style Guide</CardTitle>
@@ -369,7 +367,7 @@ const Settings = () => {
         </AlertDialog>
       </div>
       </div>
-    </>
+    </AppShell>
   );
 };
 
