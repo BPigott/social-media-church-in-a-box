@@ -19,9 +19,11 @@ work before go-live, in priority order:
    the old 4-step flow (Church info → Upload sermons → Generating → Review). The voice-first
    5-step flow with the hard sermon gate, website-voice import, and guided first generation is
    unbuilt. Plan: `docs/superpowers/plans/2026-04-04-stream3-onboarding.md`.
-2. **Pricing must agree everywhere.** CLAUDE.md states a single **£25/month** plan; the
-   landing-page copy referenced **£19/£49**. Confirm the launch price and make the landing
-   page, the `VITE_STRIPE_CHECKOUT_URL` payment link, and the Stripe product match.
+2. **Pricing — confirm Stripe matches the app.** Price is **£25/month per church**, single
+   plan, no multi-site tier. The app already shows £25 consistently (landing `Index.tsx`,
+   `Upgrade.tsx`, `TermsOfService.tsx`) — verified 2026-06-09. The £19/£49 figures only ever
+   lived in the old (archived) landing-page plan. Remaining action: confirm the
+   `VITE_STRIPE_CHECKOUT_URL` payment link and the Stripe product/price are also £25.
 3. **Verify production secrets are set:** `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
    `ANTHROPIC_API_KEY`, `FIRECRAWL_API_KEY`, `GOOGLE_SERVICE_ACCOUNT_JSON`, Resend key.
    (`stripe-webhook` correctly runs with `verify_jwt=false`.)
