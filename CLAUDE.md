@@ -100,6 +100,7 @@ TypeScript types live in two places:
 
 ## Active Development Context
 
-- Active branch: `feature/launch-prep` — Stripe billing migration, 7-sermon onboarding, transactional email.
-- Stream 3 (onboarding redesign) has not started. Plan at `docs/superpowers/plans/2026-04-04-stream3-onboarding.md`.
+- Trunk: `main`. The `feature/launch-prep` work (Stripe billing migration, 7-sermon onboarding, transactional email) is merged; the branch has been deleted.
+- **Launch blocker:** Stream 3 (onboarding redesign) has not started. Plan at `docs/superpowers/plans/2026-04-04-stream3-onboarding.md`. Current `src/pages/Onboarding.tsx` is the old 4-step flow.
+- Pre-launch readiness checklist lives at the top of `docs/superpowers/plans/2026-03-16-go-to-market-launch.md`.
 - Checkout uses a single Stripe Payment Link via `VITE_STRIPE_CHECKOUT_URL` (set in `.env.*` and Vercel). Single plan only — no multi-site tier.
