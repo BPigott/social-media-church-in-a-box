@@ -185,7 +185,12 @@ export async function director(input: DirectorInput): Promise<DirectorOutput> {
     },
     body: JSON.stringify({
       model: MODEL,
-      max_tokens: 1500,
+      // The brief is JSON that can inline full NIV text for up to 8 scripture
+      // references plus themes/hooks/CTAs/tone/verbatim. 1500 was too low: dense,
+      // scripture-heavy sermons truncated mid-object, which surfaced downstream as
+      // a cryptic "unbalanced JSON" parse error. 6000 gives ample headroom; output
+      // cost only accrues for tokens actually generated.
+      max_tokens: 6000,
       temperature: 0.5,
       system: [
         {
@@ -204,12 +209,19 @@ export async function director(input: DirectorInput): Promise<DirectorOutput> {
   }
 
   const data = await response.json();
-  if (data.stop_reason === "max_tokens") {
-    console.warn("[director] truncated at max_tokens — brief may be incomplete");
-  }
 
   const rawText: string = data?.content?.[0]?.text ?? "";
   if (!rawText) throw new Error("director: empty response from Anthropic");
+
+  // A max_tokens stop means the JSON brief was cut off mid-object. Fail with a
+  // clear, actionable message rather than letting extractJSONObject report the
+  // confusing "unbalanced JSON object" symptom of the same truncation.
+  if (data.stop_reason === "max_tokens") {
+    console.error("[director] response truncated at max_tokens — brief incomplete");
+    throw new Error(
+      "director: editorial brief hit the token limit and was truncated. The sermon may be unusually long or dense — try trimming the transcript.",
+    );
+  }
 
   let parsed: unknown;
   try {
