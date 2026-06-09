@@ -56,3 +56,11 @@ lerna-debug.log*
 
 # Superpowers brainstorming companion
 .superpowers/
+
+# Local tooling state
+.claude/
+.playwright-mcp/
+
+# One-off review screenshots
+landing-page-screenshot.png
+login-page-screenshot.png

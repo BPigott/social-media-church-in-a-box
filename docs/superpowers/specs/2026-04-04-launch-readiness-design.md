@@ -1,6 +1,12 @@
 # Launch Readiness Design
 **Date:** 2026-04-04  
-**Status:** Approved  
+**Status:** Approved (payment section SUPERSEDED 2026-05-30 — see note below)  
+
+> ⚠️ **SUPERSEDED (2026-05-30):** Section 8 (Paddle Payment Integration) never shipped.
+> Paddle approval stalled and ivangel migrated directly to **Stripe** — the fallback noted
+> in the Context section. The `paddle-webhook` function and `paddle_*` columns described here
+> were replaced by `stripe-webhook` and `stripe_*` columns
+> (`supabase/migrations/20260530221027_replace_paddle_with_stripe.sql`).
 
 ## Context
 

@@ -1,5 +1,13 @@
 # Stream 1: Backend Reliability Implementation Plan
 
+> ⚠️ **SUPERSEDED (2026-05-30):** The payment provider described below (Paddle, itself
+> replacing LemonSqueezy) was never activated. ivangel now uses **Stripe**. The Paddle
+> webhook, `paddle_*` columns, and `VITE_PADDLE_*` variables referenced in this document no
+> longer exist — see the Stripe migration (`supabase/functions/stripe-webhook/`,
+> `supabase/migrations/20260530221027_replace_paddle_with_stripe.sql`). The non-payment parts of
+> this plan (generation ledger, idempotency, content safety) remain accurate. The Paddle
+> code samples are kept as a historical record only.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Harden the generate-social-posts edge function with a generation ledger, idempotency, server-side subscription enforcement, token budget tracking, content safety, and Paddle payment integration — eliminating the tab-switching content loss bug and all identified security gaps.

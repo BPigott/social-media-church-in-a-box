@@ -1,5 +1,47 @@
 # ivangel Go-To-Market Launch Implementation Plan
 
+> ⚠️ **SUPERSEDED (2026-05-30):** The billing provider described below (LemonSqueezy) was
+> later replaced by Paddle, and ivangel now uses **Stripe**. The LemonSqueezy webhook,
+> `ls_*` columns, and `VITE_LS_*` variables referenced in this document no longer exist —
+> see the Stripe migration (`supabase/functions/stripe-webhook/`,
+> `supabase/migrations/20260530221027_replace_paddle_with_stripe.sql`). The non-billing parts of
+> this plan remain accurate. The LemonSqueezy code samples are kept as a historical record only.
+
+---
+
+## 🚀 Pre-Launch Readiness Audit (2026-06-09)
+
+A full repo/production review reconciled git with production (Stripe + comp-code work that
+was live but uncommitted), pruned stale branches, and archived shipped plans. The remaining
+work before go-live, in priority order:
+
+1. **Onboarding redesign (Stream 3) — LAUNCH BLOCKER.** `src/pages/Onboarding.tsx` is still
+   the old 4-step flow (Church info → Upload sermons → Generating → Review). The voice-first
+   5-step flow with the hard sermon gate, website-voice import, and guided first generation is
+   unbuilt. Plan: `docs/superpowers/plans/2026-04-04-stream3-onboarding.md`.
+2. **Pricing must agree everywhere.** CLAUDE.md states a single **£25/month** plan; the
+   landing-page copy referenced **£19/£49**. Confirm the launch price and make the landing
+   page, the `VITE_STRIPE_CHECKOUT_URL` payment link, and the Stripe product match.
+3. **Verify production secrets are set:** `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
+   `ANTHROPIC_API_KEY`, `FIRECRAWL_API_KEY`, `GOOGLE_SERVICE_ACCOUNT_JSON`, Resend key.
+   (`stripe-webhook` correctly runs with `verify_jwt=false`.)
+4. **Confirm Stripe live-mode wiring:** webhook endpoint registered in the Stripe dashboard
+   pointing at the deployed `stripe-webhook` URL with the matching signing secret; the payment
+   link is **live**, not test.
+5. **Finalise legal pages** (Privacy/Terms/Refund) — now name Stripe + In Focus Operations Ltd
+   as merchant of record; confirm launch-ready.
+6. **Redeploy `retranslate-content` and `api-health-check`** from this repo — their deployed
+   `entrypoint_path` still points at an old directory, so live source may not match git.
+7. **End-to-end smoke test:** sign up → trial → generate → checkout → webhook flips to
+   `active` → comp-code redemption grants exemption.
+8. **Residual migration-history debt:** the pre-existing `20260404_add_paddle_columns` version
+   collides with `20260404_add_generations_table` in a fresh `db push`. Harmless to the current
+   prod (schema is correct) but worth a `supabase migration repair` before provisioning any new
+   environment.
+9. **Pre-existing lint debt:** `npm run lint` reports ~71 errors (mostly `any` in edge functions
+   + a `require()` in `tailwind.config.ts`) — not introduced by launch work; clean up post-launch.
+10. *(Optional)* Custom domain / DNS.
+
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Take ivangel from a working personal tool to a market-ready SaaS with LemonSqueezy subscription billing, a compelling landing page, and free trial onboarding — so churches can self-serve without Bob having to sell.
