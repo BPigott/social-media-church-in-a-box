@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **Frontend**: React 18 + TypeScript + Vite, deployed on Vercel
 - **Backend**: Supabase (PostgreSQL + Edge Functions running Deno)
-- **Payments**: Paddle (merchant account approval pending; `paddle-webhook` deployed but dormant until `PADDLE_WEBHOOK_SECRET` is set)
+- **Payments**: Stripe (£25/month subscription via a Stripe Payment Link; `stripe-webhook` Edge Function keeps the `subscriptions` table in sync). In Focus Operations Ltd is the merchant of record.
 - **Supabase project**: `gxgijxmwipnurubqupbt` (eu-west-2)
 
 ## Commands
@@ -71,7 +71,7 @@ All functions run on Deno. Imports use `https://deno.land/std` and `https://esm.
 | `retranslate-content` | Re-translates edited English content back to the target language. |
 | `scrape-church-website` | Firecrawl-based website scraping for onboarding context. |
 | `create-trial` | Creates a `trialing` subscription row on first sign-in. Called automatically by `useAuth`. |
-| `paddle-webhook` | Dormant until `PADDLE_WEBHOOK_SECRET` is set in Supabase secrets. |
+| `stripe-webhook` | Handles Stripe subscription lifecycle + `invoice.payment_failed`. Requires `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` secrets. |
 | `api-health-check` | Health check endpoint. |
 
 Shared utilities in `supabase/functions/_shared/`: `translate.ts` (Google Translate), `content-safety.ts` (input/output validation).
@@ -100,6 +100,6 @@ TypeScript types live in two places:
 
 ## Active Development Context
 
-- Active branch: `feature/launch-prep` — LemonSqueezy removal, 7-sermon onboarding, transactional email.
+- Active branch: `feature/launch-prep` — Stripe billing migration, 7-sermon onboarding, transactional email.
 - Stream 3 (onboarding redesign) has not started. Plan at `docs/superpowers/plans/2026-04-04-stream3-onboarding.md`.
-- Paddle checkout URLs (`VITE_PADDLE_SINGLE_CHECKOUT_URL`, `VITE_PADDLE_MULTI_CHECKOUT_URL`) are placeholders until merchant account is approved.
+- Checkout uses a single Stripe Payment Link via `VITE_STRIPE_CHECKOUT_URL` (set in `.env.*` and Vercel). Single plan only — no multi-site tier.

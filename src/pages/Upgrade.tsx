@@ -2,11 +2,12 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CompCodeRedeem } from "@/components/CompCodeRedeem";
 
-const checkoutUrl = import.meta.env.VITE_PADDLE_SINGLE_CHECKOUT_URL || "#";
+const checkoutUrl = import.meta.env.VITE_STRIPE_CHECKOUT_URL || "#";
 
 const Upgrade = () => {
-  const { isActive, isLoading, subscription } = useSubscription();
+  const { isActive, isLoading, subscription, refetch } = useSubscription();
 
   if (isLoading) {
     return (
@@ -51,6 +52,9 @@ const Upgrade = () => {
           <p className="text-xs text-center text-muted-foreground">
             Need help? Contact us at support@ivangel.co
           </p>
+          <div className="border-t pt-4">
+            <CompCodeRedeem onRedeemed={refetch} />
+          </div>
         </CardContent>
       </Card>
     </div>

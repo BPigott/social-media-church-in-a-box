@@ -106,6 +106,68 @@ export type Database = {
         }
         Relationships: []
       }
+      comp_code_redemptions: {
+        Row: {
+          code_id: string
+          id: string
+          redeemed_at: string
+          user_id: string
+        }
+        Insert: {
+          code_id: string
+          id?: string
+          redeemed_at?: string
+          user_id: string
+        }
+        Update: {
+          code_id?: string
+          id?: string
+          redeemed_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comp_code_redemptions_code_id_fkey"
+            columns: ["code_id"]
+            isOneToOne: false
+            referencedRelation: "comp_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comp_codes: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          max_redemptions: number | null
+          note: string | null
+          redemption_count: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          max_redemptions?: number | null
+          note?: string | null
+          redemption_count?: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          max_redemptions?: number | null
+          note?: string | null
+          redemption_count?: number
+        }
+        Relationships: []
+      }
       generated_content: {
         Row: {
           bible_study_guide: string | null
@@ -407,15 +469,11 @@ export type Database = {
           current_period_ends_at: string | null
           exempt: boolean
           id: string
-          ls_customer_id: string | null
-          ls_order_id: string | null
-          ls_subscription_id: string | null
-          ls_variant_id: string | null
-          paddle_customer_id: string | null
-          paddle_price_id: string | null
-          paddle_subscription_id: string | null
           status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           trial_ends_at: string
+          trial_reminder_sent_at: string | null
           updated_at: string
           user_id: string
         }
@@ -426,15 +484,11 @@ export type Database = {
           current_period_ends_at?: string | null
           exempt?: boolean
           id?: string
-          ls_customer_id?: string | null
-          ls_order_id?: string | null
-          ls_subscription_id?: string | null
-          ls_variant_id?: string | null
-          paddle_customer_id?: string | null
-          paddle_price_id?: string | null
-          paddle_subscription_id?: string | null
           status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           trial_ends_at?: string
+          trial_reminder_sent_at?: string | null
           updated_at?: string
           user_id: string
         }
@@ -445,15 +499,11 @@ export type Database = {
           current_period_ends_at?: string | null
           exempt?: boolean
           id?: string
-          ls_customer_id?: string | null
-          ls_order_id?: string | null
-          ls_subscription_id?: string | null
-          ls_variant_id?: string | null
-          paddle_customer_id?: string | null
-          paddle_price_id?: string | null
-          paddle_subscription_id?: string | null
           status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           trial_ends_at?: string
+          trial_reminder_sent_at?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -518,6 +568,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      redeem_comp_code: {
+        Args: { p_code: string; p_user_id: string }
+        Returns: Json
       }
       user_owns_church: {
         Args: { _church_id: string; _user_id: string }

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 const TRIAL_TOTAL_DAYS = 14;
 
-const checkoutUrl = import.meta.env.VITE_LS_SINGLE_CHECKOUT_URL || "#";
+const checkoutUrl = import.meta.env.VITE_STRIPE_CHECKOUT_URL || "#";
 
 export const TrialBanner = () => {
   const { isTrial, daysLeftInTrial, isExempt, isLoading } = useSubscription();

@@ -28,7 +28,7 @@ const RefundPolicy = () => {
                   In Focus Operations Limited (Company No. 16707659), 156 Russell Drive, Wollaton, Nottingham, England, NG8 2BE.
                 </p>
                 <p className="mb-4">
-                  All payments are processed by Paddle, who acts as the merchant of record for ivangel subscriptions.
+                  All payments are processed by Stripe. In Focus Operations Limited is the merchant of record for ivangel subscriptions.
                 </p>
               </section>
 

@@ -12,6 +12,7 @@ export interface Subscription {
   current_period_ends_at: string | null;
   cancelled_at: string | null;
   exempt: boolean;
+  stripe_subscription_id: string | null;
 }
 
 export function useSubscription() {
@@ -29,7 +30,7 @@ export function useSubscription() {
     setIsLoading(true);
     const { data, error } = await supabase
       .from("subscriptions")
-      .select("id, user_id, status, trial_ends_at, current_period_ends_at, cancelled_at, exempt")
+      .select("id, user_id, status, trial_ends_at, current_period_ends_at, cancelled_at, exempt, stripe_subscription_id")
       .eq("user_id", user.id)
       .single();
 
