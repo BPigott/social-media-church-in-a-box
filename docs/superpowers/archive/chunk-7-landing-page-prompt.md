@@ -4,7 +4,7 @@
 
 I'm working on **ivangel** — a React/TS/Vite SaaS app that generates social media content from church sermon transcripts. The codebase is at `/Users/bobpigott/Documents/ivangel`.
 
-**Tech stack:** React 18 + TypeScript + Vite, shadcn/ui + Tailwind CSS, Supabase (PostgreSQL + Edge Functions in Deno), LemonSqueezy billing, Vercel deployment.
+**Tech stack:** React 18 + TypeScript + Vite, shadcn/ui + Tailwind CSS, Supabase (PostgreSQL + Edge Functions in Deno), Stripe billing, Vercel deployment.
 
 **Supabase project ref:** `gxgijxmwipnurubqupbt`
 
@@ -14,7 +14,7 @@ I'm working on **ivangel** — a React/TS/Vite SaaS app that generates social me
 - Chunk 1: Dependency audit & security hardening
 - Chunk 2: Subscriptions DB schema (subscriptions table with RLS)
 - Chunk 3: 14-day trial auto-creation on signup (owner exempt)
-- Chunk 4: LemonSqueezy webhook handler for subscription lifecycle
+- Chunk 4: Stripe webhook handler for subscription lifecycle (originally LemonSqueezy, then Paddle — now Stripe)
 - Chunk 5: Frontend subscription gating (SubscribedRoute, useSubscription hook)
 - Chunk 6: Trial banner, upgrade prompt, billing page
 
