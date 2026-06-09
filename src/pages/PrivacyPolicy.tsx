@@ -79,7 +79,7 @@ const PrivacyPolicy = () => {
                 <h3 className="text-xl font-semibold mb-3">Contract Performance</h3>
                 <ul className="list-disc pl-6 space-y-2 mb-4">
                   <li>To provide the ivangel Service and generate content from your uploaded materials</li>
-                  <li>To process your subscription and manage billing via Paddle</li>
+                  <li>To process your subscription and manage billing via Stripe</li>
                   <li>To communicate with you about your account and the Service</li>
                   <li>To provide customer support</li>
                 </ul>
@@ -133,10 +133,10 @@ const PrivacyPolicy = () => {
                     </p>
                   </div>
                   <div className="bg-muted p-4 rounded-lg">
-                    <p className="font-semibold mb-1">Paddle (Payments)</p>
+                    <p className="font-semibold mb-1">Stripe (Payments)</p>
                     <p className="text-sm text-muted-foreground">
-                      Paddle processes subscription payments on our behalf. Your email address and subscription details are shared with
-                      Paddle to manage billing and payment processing. Paddle is the merchant of record for all transactions.
+                      Stripe processes subscription payments on our behalf. Your email address and subscription details are shared with
+                      Stripe to manage billing and payment processing. In Focus Operations Limited is the merchant of record for all transactions.
                     </p>
                   </div>
                   <div className="bg-muted p-4 rounded-lg">

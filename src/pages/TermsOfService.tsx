@@ -405,8 +405,8 @@ const TermsOfService = () => {
                   All generated content that is translated is sent to Google for this purpose.</li>
                   <li><strong>Website Scraping Services (Firecrawl):</strong> During onboarding, we crawl your church's public website using Firecrawl
                   to extract tone, style, and content information to build your voice profile. Only publicly accessible pages are scraped.</li>
-                  <li><strong>Payment Processors (Paddle):</strong> Paddle processes subscription payments on our behalf. Your email address and
-                  subscription details are shared with Paddle to manage billing.</li>
+                  <li><strong>Payment Processors (Stripe):</strong> Stripe processes subscription payments on our behalf. Your email address and
+                  subscription details are shared with Stripe to manage billing.</li>
                   <li><strong>Hosting and Infrastructure (Supabase, Vercel):</strong> Your data is stored and processed on Supabase (EU West region)
                   and our frontend is hosted on Vercel.</li>
                   <li><strong>Analytics Providers (Vercel Analytics):</strong> We use Vercel Analytics to understand how the Service is used. See

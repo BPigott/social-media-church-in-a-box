@@ -264,9 +264,9 @@ serve(async (req) => {
       );
     }
 
-    // Fix 5 — use PADDLE_CHECKOUT_URL with absolute fallback
+    // Use the Stripe checkout link, with an absolute fallback to the in-app upgrade page.
     const upgradeUrl =
-      Deno.env.get('PADDLE_CHECKOUT_URL') ?? `${Deno.env.get('APP_URL') ?? 'https://ivangel.co'}/upgrade`;
+      Deno.env.get('STRIPE_CHECKOUT_URL') ?? `${Deno.env.get('APP_URL') ?? 'https://ivangel.co'}/upgrade`;
 
     const results: Array<{ user_id: string; success: boolean; error?: string }> = [];
 
