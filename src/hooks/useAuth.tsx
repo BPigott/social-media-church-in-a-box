@@ -1,11 +1,28 @@
-import { useEffect, useState } from "react";
+/* eslint-disable react-refresh/only-export-components -- provider + hook are
+   intentionally colocated in this auth module; the provider is rarely edited. */
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
+interface AuthContextValue {
+  user: User | null;
+  session: Session | null;
+  loading: boolean;
+  isAuthenticated: boolean;
+}
+
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
 /**
- * Hook to manage authentication state
+ * Provides a single source of truth for authentication state.
+ *
+ * Mounted once near the root (see App.tsx). Sets up one auth-state listener and
+ * one initial session lookup for the whole app, so every consumer reads the same
+ * value at the same time — previously each useAuth() call ran its own listener +
+ * getSession, and those resolving at different moments could disagree (e.g. a
+ * guard seeing "logged in" while the subscription check still saw "no user").
  */
-export function useAuth() {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -71,10 +88,20 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, []);
 
-  return {
-    user,
-    session,
-    loading,
-    isAuthenticated: !!user,
-  };
+  return (
+    <AuthContext.Provider value={{ user, session, loading, isAuthenticated: !!user }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+/**
+ * Hook to read authentication state. Must be used within an {@link AuthProvider}.
+ */
+export function useAuth(): AuthContextValue {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 }
