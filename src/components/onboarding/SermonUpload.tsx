@@ -1,6 +1,5 @@
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, X, FileText, CheckCircle } from "phosphor-react";
@@ -8,6 +7,7 @@ import { Upload, X, FileText, CheckCircle } from "phosphor-react";
 interface SermonUploadProps {
   onFilesSelected: (files: File[]) => void;
   onContinue: () => void;
+  initialFiles?: File[];
   minFiles?: number;
   maxFiles?: number;
 }
@@ -15,11 +15,12 @@ interface SermonUploadProps {
 export const SermonUpload = ({
   onFilesSelected,
   onContinue,
+  initialFiles = [],
   minFiles = 7,
   maxFiles = 20,
 }: SermonUploadProps) => {
   const { toast } = useToast();
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<File[]>(initialFiles);
   const [dragActive, setDragActive] = useState(false);
 
   const validateFile = (file: File): boolean => {
@@ -106,7 +107,7 @@ export const SermonUpload = ({
     if (files.length < minFiles) {
       toast({
         variant: "destructive",
-        title: "Not enough files",
+        title: "Not enough sermons",
         description: `Please upload at least ${minFiles} sermon documents.`,
       });
       return;
@@ -114,43 +115,47 @@ export const SermonUpload = ({
     onContinue();
   };
 
-  const remaining = minFiles - files.length;
+  const remaining = Math.max(minFiles - files.length, 0);
   const progressValue = Math.min((files.length / minFiles) * 100, 100);
   const hasMetMinimum = files.length >= minFiles;
 
   return (
     <div className="space-y-6">
-      <div className="text-center space-y-2">
-        <h3 className="text-2xl font-playfair font-semibold">Upload Sermon Documents</h3>
-        <p className="text-muted-foreground">
-          Upload at least {minFiles} recent sermon transcripts to help us understand your church's voice
+      <div className="space-y-2 text-center">
+        <h3 className="font-playfair text-2xl font-semibold">Upload your sermons</h3>
+        <p className="mx-auto max-w-md text-muted-foreground">
+          Your sermons are the clearest window into your church's voice. Upload at least {minFiles} —
+          the more you add, the better Ivangel knows how you speak.
         </p>
       </div>
 
-      <Card className="bg-primary/5 border-primary/20">
-        <CardContent className="pt-6">
-          <div className="flex gap-3">
-            <div className="flex-shrink-0">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="text-lg">💡</span>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm font-medium">Top Tips for Best Results</p>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• More sermons = better style guide accuracy</li>
-                <li>• Choose sermons from different preaching series to showcase teaching variety</li>
-                <li>• Upload at least 7 sermons from different series and speakers for the best style guide</li>
-              </ul>
-            </div>
+      {/* Prominent progress counter — always visible */}
+      <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-tactile">
+        <div className="flex flex-wrap items-end justify-between gap-y-2">
+          <div className="flex items-baseline gap-1.5 whitespace-nowrap">
+            <span className="font-playfair text-4xl font-bold leading-none text-primary">
+              {files.length}
+            </span>
+            <span className="text-lg font-medium text-muted-foreground">/ {minFiles}</span>
+            <span className="ml-1 text-sm text-muted-foreground">sermons</span>
           </div>
-        </CardContent>
-      </Card>
+          {hasMetMinimum ? (
+            <span className="flex items-center gap-1.5 text-sm font-medium text-green-600">
+              <CheckCircle size={18} weight="fill" />
+              Ready to continue
+            </span>
+          ) : (
+            <span className="text-sm text-muted-foreground">
+              {remaining} more to go
+            </span>
+          )}
+        </div>
+        <Progress value={progressValue} className="mt-3 h-2.5 bg-primary/15" />
+      </div>
 
       <div
         className={`
-          border-2 border-dashed rounded-lg p-12 text-center
-          transition-colors cursor-pointer
+          cursor-pointer rounded-2xl border-2 border-dashed p-10 text-center transition-colors
           ${dragActive ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}
         `}
         onDragEnter={handleDrag}
@@ -159,11 +164,12 @@ export const SermonUpload = ({
         onDrop={handleDrop}
         onClick={() => document.getElementById('file-input')?.click()}
       >
-        <Upload size={48} className="mx-auto mb-4 text-muted-foreground" />
-        <p className="text-lg font-medium mb-2">Drop sermon files here</p>
-        <p className="text-sm text-muted-foreground mb-4">or click to browse</p>
+        <Upload size={44} className="mx-auto mb-4 text-muted-foreground" />
+        <p className="mb-2 text-lg font-medium">Drop sermon files here</p>
+        <p className="mb-4 text-sm text-muted-foreground">or click to browse</p>
         <p className="text-xs text-muted-foreground">
-          Accepted formats: PDF, TXT, DOCX (max 10MB each)
+          Accepted formats: PDF, TXT, DOCX (max 10MB each). Choose sermons from different series and
+          speakers for the richest voice profile.
         </p>
         <input
           id="file-input"
@@ -176,47 +182,31 @@ export const SermonUpload = ({
       </div>
 
       {files.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {hasMetMinimum && (
-                <CheckCircle size={18} className="text-green-500" weight="fill" />
-              )}
-              <p className="text-sm font-medium">
-                {files.length} of {minFiles} sermons uploaded
-              </p>
-            </div>
-            {hasMetMinimum && (
-              <span className="text-xs text-green-600 font-medium">Minimum reached</span>
-            )}
-          </div>
-          <Progress value={progressValue} className="h-2" />
-          <div className="space-y-2">
-            {files.map((file, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between p-3 rounded-lg border bg-card"
-              >
-                <div className="flex items-center gap-3">
-                  <FileText size={20} className="text-primary" />
-                  <div>
-                    <p className="text-sm font-medium">{file.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {(file.size / 1024 / 1024).toFixed(2)} MB
-                    </p>
-                  </div>
+        <div className="space-y-2">
+          {files.map((file, index) => (
+            <div
+              key={index}
+              className="flex items-center justify-between rounded-xl border bg-card p-3"
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                <FileText size={20} className="flex-shrink-0 text-primary" />
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">{file.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {(file.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
                 </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => removeFile(index)}
-                >
-                  <X size={16} />
-                </Button>
               </div>
-            ))}
-          </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => removeFile(index)}
+              >
+                <X size={16} />
+              </Button>
+            </div>
+          ))}
         </div>
       )}
 
@@ -224,10 +214,10 @@ export const SermonUpload = ({
         onClick={handleContinue}
         size="lg"
         className="w-full"
-        disabled={files.length < minFiles}
+        disabled={!hasMetMinimum}
       >
         {hasMetMinimum
-          ? "Continue to Generate Style Guide"
+          ? "Build my voice profile →"
           : `Upload ${remaining} more sermon${remaining === 1 ? '' : 's'} to continue`}
       </Button>
     </div>

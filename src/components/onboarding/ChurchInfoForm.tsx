@@ -30,7 +30,7 @@ interface ChurchInfoFormProps {
 export const ChurchInfoForm = ({ 
   onSubmit, 
   initialData, 
-  buttonText = "Continue to Sermon Upload",
+  buttonText = "Continue",
   showWebsiteRefresh = false,
   isRecrawling = false,
   onWebsiteRefresh,
@@ -41,6 +41,7 @@ export const ChurchInfoForm = ({
     email: initialData?.email || "",
     website_url: initialData?.website_url || "",
     location: initialData?.location || "",
+    denomination: initialData?.denomination || "",
     vision_statement: initialData?.vision_statement || "",
     contact_email: initialData?.contact_email || "",
     service_times: initialData?.service_times || [{ day: "", time: "" }],
@@ -55,6 +56,7 @@ export const ChurchInfoForm = ({
         email: initialData.email || "",
         website_url: initialData.website_url || "",
         location: initialData.location || "",
+        denomination: initialData.denomination || "",
         vision_statement: initialData.vision_statement || "",
         contact_email: initialData.contact_email || "",
         service_times: initialData.service_times && initialData.service_times.length > 0 
@@ -131,6 +133,16 @@ export const ChurchInfoForm = ({
           value={formData.location}
           onChange={(e) => setFormData({ ...formData, location: e.target.value })}
           required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="denomination">Denomination <span className="text-muted-foreground font-normal">(optional)</span></Label>
+        <Input
+          id="denomination"
+          placeholder="e.g. Vineyard, Baptist, Anglican, Non-denominational"
+          value={formData.denomination}
+          onChange={(e) => setFormData({ ...formData, denomination: e.target.value })}
         />
       </div>
 
