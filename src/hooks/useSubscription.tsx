@@ -16,11 +16,20 @@ export interface Subscription {
 }
 
 export function useSubscription() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchSubscription = useCallback(async () => {
+    // Auth hasn't resolved yet — stay in the loading state rather than
+    // reporting "no subscription". Resolving to null here briefly reads as
+    // inactive, which bounces an active user to /upgrade on remount (e.g.
+    // navigating back to the dashboard once useChurch is cached).
+    if (authLoading) {
+      setIsLoading(true);
+      return;
+    }
+
     if (!user) {
       setSubscription(null);
       setIsLoading(false);
@@ -41,7 +50,7 @@ export function useSubscription() {
       setSubscription(data as Subscription);
     }
     setIsLoading(false);
-  }, [user]);
+  }, [user, authLoading]);
 
   useEffect(() => {
     fetchSubscription();
