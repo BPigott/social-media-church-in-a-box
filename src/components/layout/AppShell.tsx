@@ -26,7 +26,7 @@ export function AppShell({ children }: AppShellProps) {
           </button>
           <div className="flex items-center gap-2">
             <div className="h-4 w-4 rounded-full bg-primary" />
-            <span className="font-playfair text-base font-bold">Ivangel</span>
+            <span className="font-playfair text-base font-bold">ivangel</span>
           </div>
         </div>
 
