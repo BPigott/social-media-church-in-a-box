@@ -16,7 +16,7 @@ const TermsOfService = () => {
 
           <div className="prose prose-slate dark:prose-invert max-w-none">
             <h1 className="text-4xl md:text-5xl font-playfair font-bold mb-2">Terms of Service</h1>
-            <p className="text-muted-foreground mb-8">Last updated: May 2026</p>
+            <p className="text-muted-foreground mb-8">Last updated: June 2026</p>
 
             <div className="space-y-8 text-foreground">
               {/* Introduction */}
@@ -106,7 +106,7 @@ const TermsOfService = () => {
                   You may cancel at any time during the trial period through your account settings, and no charge will be made.
                 </p>
                 <p className="mb-4">
-                  If you do not subscribe after your Free Trial, your account access will be restricted. You may contact us at support@ivangel.co
+                  If you do not subscribe after your Free Trial, your account access will be restricted. You may contact us at hello@infocusoperations.co.uk
                   to request deletion of your data at any time.
                 </p>
 
@@ -381,11 +381,12 @@ const TermsOfService = () => {
                   <li>Analysing usage patterns to enhance features and functionality</li>
                   <li>Managing our business operations effectively</li>
                   <li>Detecting and preventing fraud or abuse</li>
+                  <li>Sending you product update emails and feature announcements as an existing subscriber — under the PECR "soft opt-in" rule. Every such email includes a clear unsubscribe link.</li>
                 </ul>
 
                 <h4 className="text-lg font-semibold mb-2 mt-4">Consent</h4>
                 <p className="mb-4">
-                  Where you have given express consent, we may send you newsletters, marketing communications, and updates about new features or services.
+                  Where you have given express consent, we may send you newsletters or other optional communications beyond product updates. You may withdraw consent at any time via the unsubscribe link in any such email.
                 </p>
 
                 <h4 className="text-lg font-semibold mb-2 mt-4">Legal Obligations</h4>
@@ -605,9 +606,12 @@ const TermsOfService = () => {
 
                 <h3 className="text-xl font-semibold mb-3 mt-6">14.3 Alternative Dispute Resolution</h3>
                 <p className="mb-4">
-                  Before initiating legal proceedings, we encourage you to contact us to resolve any disputes amicably. If you are a consumer, you may 
-                  also use the European Commission's Online Dispute Resolution platform at https://ec.europa.eu/consumers/odr/ (or any successor 
-                  platform) to seek resolution.
+                  Before initiating legal proceedings, we encourage you to contact us to resolve any disputes amicably. If you are a consumer, you may
+                  also seek assistance from a UK-approved Alternative Dispute Resolution (ADR) provider. Details of approved ADR schemes are available
+                  from the Chartered Trading Standards Institute at{" "}
+                  <a href="https://www.tradingstandards.uk" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                    tradingstandards.uk
+                  </a>.
                 </p>
               </section>
 
@@ -673,9 +677,9 @@ const TermsOfService = () => {
                   agree to these Terms, you must not use the Service.
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  In Focus Operations Limited Terms of Service Version 1.1<br />
-                  Last updated: May 2026<br />
-                  © 2025 In Focus Operations Limited. All rights reserved.
+                  In Focus Operations Limited Terms of Service Version 1.2<br />
+                  Last updated: June 2026<br />
+                  © 2026 In Focus Operations Limited. All rights reserved.
                 </p>
               </section>
             </div>

@@ -16,7 +16,7 @@ const PrivacyPolicy = () => {
 
           <div className="prose prose-slate dark:prose-invert max-w-none">
             <h1 className="text-4xl md:text-5xl font-playfair font-bold mb-2">Privacy Policy</h1>
-            <p className="text-muted-foreground mb-8">Last updated: May 2026</p>
+            <p className="text-muted-foreground mb-8">Last updated: June 2026</p>
 
             <div className="space-y-8 text-foreground">
 
@@ -90,11 +90,12 @@ const PrivacyPolicy = () => {
                   <li>Analysing usage patterns to enhance features</li>
                   <li>Detecting and preventing fraud or abuse</li>
                   <li>Managing our business operations</li>
+                  <li>Sending you product update emails and feature announcements as an existing subscriber — under the PECR "soft opt-in" rule, we may contact existing customers about similar services without separate consent. Every such email includes a clear unsubscribe link and you may opt out at any time.</li>
                 </ul>
 
                 <h3 className="text-xl font-semibold mb-3 mt-4">Consent</h3>
                 <p className="mb-4">
-                  Where you have given express consent, we may send you newsletters, marketing communications, or updates about new features.
+                  Where you have given express consent, we may send you newsletters or other optional communications beyond product updates. You may withdraw consent at any time by clicking the unsubscribe link in any such email or by contacting us at <a href="mailto:hello@infocusoperations.co.uk" className="text-primary hover:underline">hello@infocusoperations.co.uk</a>.
                 </p>
 
                 <h3 className="text-xl font-semibold mb-3 mt-4">Legal Obligations</h3>
@@ -311,8 +312,8 @@ const PrivacyPolicy = () => {
 
               <section className="pt-8 border-t border-border">
                 <p className="text-sm text-muted-foreground">
-                  In Focus Operations Limited Privacy Policy Version 1.0<br />
-                  Last updated: May 2026<br />
+                  In Focus Operations Limited Privacy Policy Version 1.1<br />
+                  Last updated: June 2026<br />
                   © 2026 In Focus Operations Limited. All rights reserved.
                 </p>
               </section>
