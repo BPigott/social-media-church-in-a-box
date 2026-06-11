@@ -6,7 +6,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { List, CheckCircle } from "phosphor-react";
+import { List, CheckCircle, PlayCircle } from "phosphor-react";
+import { VideoDialog } from "@/components/video/VideoDialog";
+import { TUTORIALS } from "@/config/tutorials";
 import { Facebook, Instagram, Twitter, FileText, Clipboard, Music } from "lucide-react";
 
 function useScrollReveal() {
@@ -43,6 +45,7 @@ const Index = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeLang, setActiveLang] = useState(languageNodes[0]);
   const [mounted, setMounted] = useState(false);
+  const [videoOpen, setVideoOpen] = useState(false);
   useEffect(() => setMounted(true), []);
 
   const problemRef = useScrollReveal();
@@ -81,7 +84,7 @@ const Index = () => {
           {/* Logo */}
           <div className="flex items-center gap-3">
             <div className="w-5 h-5 rounded-full bg-primary" />
-            <span className="font-playfair font-bold text-xl text-foreground">Ivangel</span>
+            <span className="font-playfair font-bold text-xl text-foreground">ivangel</span>
           </div>
 
           {/* Desktop center nav links */}
@@ -189,13 +192,21 @@ const Index = () => {
               Your sermon satisfies Sunday.<br />What about the other six days?
             </h1>
             <p className={`text-xl text-muted-foreground leading-relaxed max-w-xl mb-8 transition-all duration-500 delay-200 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
-              Ivangel transforms your sermon into social posts, study guides, devotionals, and more — in 15+ languages. Text content only, ready to copy and publish.
+              ivangel transforms your sermon into social posts, study guides, devotionals, and more — in 15+ languages. Text content only, ready to copy and publish.
             </p>
             <Button asChild size="lg" className={`text-lg px-8 py-6 transition-all duration-500 delay-300 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
               <Link to={user ? "/dashboard" : "/signup"}>
                 {user ? "Go to Dashboard" : "Start your 14-day free trial"}
               </Link>
             </Button>
+            <button
+              type="button"
+              onClick={() => setVideoOpen(true)}
+              className={`mt-3 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-all duration-500 delay-400 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
+            >
+              <PlayCircle size={18} weight="fill" className="text-primary" />
+              Watch how it works
+            </button>
           </div>
 
           {/* Right side — decorative cards, hidden on mobile */}
@@ -329,7 +340,7 @@ const Index = () => {
             One sermon. Five ways to reach your community.
           </h2>
           <p className="text-lg text-muted-foreground mb-16 max-w-2xl">
-            Choose the content types you need — Ivangel generates them all from a single transcript.
+            Choose the content types you need — ivangel generates them all from a single transcript.
           </p>
 
           <Tabs defaultValue="social" className="w-full">
@@ -531,7 +542,7 @@ const Index = () => {
             {/* Text side — left on desktop */}
             <div>
               <h3 className="text-3xl md:text-4xl font-playfair font-bold mb-6">Your voice, not ours.</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed mb-4">During onboarding, Ivangel crawls your church website and analyses your sermons to learn your tone, vocabulary, theological emphasis, and pastoral style. It builds a voice profile unique to your ministry.</p>
+              <p className="text-lg text-muted-foreground leading-relaxed mb-4">During onboarding, ivangel crawls your church website and analyses your sermons to learn your tone, vocabulary, theological emphasis, and pastoral style. It builds a voice profile unique to your ministry.</p>
               <p className="text-lg text-muted-foreground leading-relaxed">Every output sounds like you wrote it — because it's built on your words. And you can refine your voice profile at any time from your settings.</p>
             </div>
             {/* Visual side — right on desktop */}
@@ -611,7 +622,7 @@ const Index = () => {
             {/* Text side — right on desktop */}
             <div className="order-1 md:order-2">
               <h3 className="text-3xl md:text-4xl font-playfair font-bold mb-6">Series-aware content.</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed">Running a sermon series? Ivangel keeps track. Tag each sermon with its series and week number, and the AI weaves that context into every output — referencing the series theme, maintaining consistent messaging, and framing each week within the bigger story.</p>
+              <p className="text-lg text-muted-foreground leading-relaxed">Running a sermon series? ivangel keeps track. Tag each sermon with its series and week number, and the AI weaves that context into every output — referencing the series theme, maintaining consistent messaging, and framing each week within the bigger story.</p>
             </div>
           </div>
 
@@ -734,10 +745,10 @@ const Index = () => {
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="item-1" className="border-b border-border/40 px-0 bg-transparent">
               <AccordionTrigger className="text-left font-playfair text-xl md:text-2xl hover:no-underline py-6 text-foreground/90">
-                What kind of content does Ivangel create?
+                What kind of content does ivangel create?
               </AccordionTrigger>
               <AccordionContent>
-                Ivangel generates text-based content only: social media posts, bible study guides, daily devotionals, podcast descriptions, and event promotions. No images or video — just well-crafted words ready to copy, edit, and share.
+                ivangel generates text-based content only: social media posts, bible study guides, daily devotionals, podcast descriptions, and event promotions. No images or video — just well-crafted words ready to copy, edit, and share.
               </AccordionContent>
             </AccordionItem>
 
@@ -755,7 +766,7 @@ const Index = () => {
                 Can it match our church's voice and style?
               </AccordionTrigger>
               <AccordionContent>
-                Yes. Provide your church website URL and Ivangel analyses your tone, vocabulary, and theological emphasis. Every output is shaped by your voice, not a generic template.
+                Yes. Provide your church website URL and ivangel analyses your tone, vocabulary, and theological emphasis. Every output is shaped by your voice, not a generic template.
               </AccordionContent>
             </AccordionItem>
 
@@ -773,7 +784,7 @@ const Index = () => {
                 Do I need technical skills to use this?
               </AccordionTrigger>
               <AccordionContent>
-                Not at all. Paste your sermon transcript, choose what you want, and copy the results. If you can use email, you can use Ivangel.
+                Not at all. Paste your sermon transcript, choose what you want, and copy the results. If you can use email, you can use ivangel.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -803,7 +814,7 @@ const Index = () => {
             {/* Left: Logo */}
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded-full bg-primary" />
-              <span className="font-playfair font-bold text-lg">Ivangel</span>
+              <span className="font-playfair font-bold text-lg">ivangel</span>
             </div>
 
             {/* Center: Links */}
@@ -826,6 +837,13 @@ const Index = () => {
         </div>
       </footer>
     </div>
+    {videoOpen && (
+      <VideoDialog
+        tutorial={TUTORIALS[0]}
+        open={videoOpen}
+        onOpenChange={setVideoOpen}
+      />
+    )}
     </>
   );
 };

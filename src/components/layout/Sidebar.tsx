@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { House, FileText, Gear, CreditCard, SignOut, CaretLeft, CaretRight } from "phosphor-react";
+import { House, FileText, Gear, CreditCard, Question, SignOut, CaretLeft, CaretRight } from "phosphor-react";
 import { cn } from "@/lib/utils";
 import { signOut } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
@@ -16,6 +16,7 @@ const NAV_ITEMS = [
   { to: "/library", label: "Library", icon: FileText },
   { to: "/settings", label: "Settings", icon: Gear },
   { to: "/billing", label: "Billing", icon: CreditCard },
+  { to: "/help", label: "Help & Videos", icon: Question },
 ];
 
 interface SidebarProps {
@@ -109,7 +110,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
           <div className="h-4 w-4 shrink-0 rounded-full bg-primary" />
           {!collapsed && (
             <span className="font-playfair text-lg font-bold text-foreground">
-              Ivangel
+              ivangel
             </span>
           )}
           <button
