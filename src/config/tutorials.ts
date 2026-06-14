@@ -22,7 +22,7 @@ const BASE = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/help
 
 // Bump when a poster image is re-uploaded so browsers fetch the new file
 // instead of serving a stale cached one at the same URL.
-const POSTER_V = "3";
+const POSTER_V = "5";
 
 export const TUTORIALS: Tutorial[] = [
   {
@@ -50,7 +50,7 @@ export const TUTORIALS: Tutorial[] = [
     category: 'overview',
     src: `${BASE}/overview.mp4`,
     poster: `${BASE}/overview.jpg?v=${POSTER_V}`,
-    published: false,
+    published: true,
   },
   {
     id: 'edit-translate',
@@ -59,7 +59,7 @@ export const TUTORIALS: Tutorial[] = [
     category: 'how-to',
     src: `${BASE}/edit-translate.mp4`,
     poster: `${BASE}/edit-translate.jpg?v=${POSTER_V}`,
-    published: false,
+    published: true,
   },
   {
     id: 'library',
@@ -68,7 +68,7 @@ export const TUTORIALS: Tutorial[] = [
     category: 'how-to',
     src: `${BASE}/library.mp4`,
     poster: `${BASE}/library.jpg?v=${POSTER_V}`,
-    published: false,
+    published: true,
   },
   {
     id: 'style-guide',
@@ -77,7 +77,7 @@ export const TUTORIALS: Tutorial[] = [
     category: 'how-to',
     src: `${BASE}/style-guide.mp4`,
     poster: `${BASE}/style-guide.jpg?v=${POSTER_V}`,
-    published: false,
+    published: true,
   },
 ];
 

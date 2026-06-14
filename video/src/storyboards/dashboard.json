@@ -12,41 +12,41 @@
       "type": "intro",
       "caption": "Generate your first posts",
       "narration": "Welcome back. Let's turn Sunday's sermon into a full week of content — social posts, studies, devotionals and more — in just a couple of minutes.",
-      "audio": "audio/intro.wav",
-      "durationInFrames": 367
+      "audio": null,
+      "durationInFrames": 323
     },
     {
       "id": "dash-empty",
       "type": "screen",
       "label": "Dashboard · Overview",
       "caption": "Your dashboard at a glance",
-      "narration": "This is your ivangel dashboard. You build your request on the left, and your finished content appears on the right.",
+      "narration": "This is your eye-vanjel dashboard. You build your request on the left, and your finished content appears on the right.",
       "screenshot": "screens/dash-empty.png",
       "clickPoint": null,
-      "audio": "audio/dash-empty.wav",
-      "durationInFrames": 289
+      "audio": null,
+      "durationInFrames": 225
     },
     {
       "id": "dash-scroll",
       "type": "scroll",
       "label": "Create · Every option",
       "caption": "One panel, every option",
-      "narration": "This is where everything begins. First, choose what to create — social posts, a bible study, a devotional, even a podcast description. Tell ivangel whether you're working from a sermon or an upcoming event, upload your transcript, and add who was preaching. Link it to a sermon series for continuity across weeks, and include any announcements or a call to action. Need another language? Add up to three, and ivangel translates your content automatically. Finally, choose your platforms and how many posts you'd like for each.",
+      "narration": "This is where everything begins. First, choose what to create — social posts, a bible study, a devotional, even a podcast description. Tell eye-vanjel whether you're working from a sermon or an upcoming event, upload your transcript, and add who was preaching. Link it to a sermon series for continuity across weeks, and include any announcements or a call to action. Need another language? Add up to three, and eye-vanjel translates your content automatically. Finally, choose your platforms and how many posts you'd like for each.",
       "screenshot": "screens/dash-scroll.png",
       "scrollAspect": 5.161111111111111,
-      "audio": "audio/dash-scroll.wav",
-      "durationInFrames": 1080
+      "audio": null,
+      "durationInFrames": 1118
     },
     {
       "id": "dash-generate",
       "type": "screen",
       "label": "Create · Generating",
       "caption": "Written in your church's voice",
-      "narration": "When you're ready, press Generate. ivangel writes everything in your church's own voice — usually in under a minute.",
+      "narration": "When you're ready, press Generate. eye-vanjel writes everything in your church's own voice — usually in under a minute.",
       "screenshot": "screens/dash-generate.png",
       "clickPoint": null,
-      "audio": "audio/dash-generate.wav",
-      "durationInFrames": 289
+      "audio": null,
+      "durationInFrames": 227
     },
     {
       "id": "dash-results-social",
@@ -56,8 +56,8 @@
       "narration": "And there it is. Your social posts, ready for every platform — switch between Facebook, Instagram, TikTok and X, each one written to fit.",
       "screenshot": "screens/dash-results-social.png",
       "clickPoint": null,
-      "audio": "audio/dash-results-social.wav",
-      "durationInFrames": 372
+      "audio": null,
+      "durationInFrames": 321
     },
     {
       "id": "dash-results-study",
@@ -67,8 +67,8 @@
       "narration": "Your bible study guide is here too, with discussion questions drawn straight from the message.",
       "screenshot": "screens/dash-results-study.png",
       "clickPoint": null,
-      "audio": "audio/dash-results-study.wav",
-      "durationInFrames": 214
+      "audio": null,
+      "durationInFrames": 169
     },
     {
       "id": "dash-results-devotional",
@@ -78,16 +78,17 @@
       "narration": "So is a daily devotional — a gentle, scripture-rooted reflection your community can carry through the week.",
       "screenshot": "screens/dash-results-devotional.png",
       "clickPoint": null,
-      "audio": "audio/dash-results-devotional.wav",
-      "durationInFrames": 267
+      "audio": null,
+      "durationInFrames": 208
     },
     {
       "id": "outro",
       "type": "outro",
       "caption": "Your sermon, working all week",
-      "narration": "Edit anything inline, then copy or download as Word or PDF. That's ivangel — your sermon, working all week.",
-      "audio": "audio/outro.wav",
-      "durationInFrames": 298
+      "narration": "Edit anything inline, then copy or download as Word or PDF. That's eye-vanjel — your sermon, working all week.",
+      "audio": null,
+      "durationInFrames": 269
     }
-  ]
+  ],
+  "audioMaster": "audio/dashboard-master.mp3"
 }

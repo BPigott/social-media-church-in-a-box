@@ -27,41 +27,46 @@ function formatDuration(storyboard: Manifest): string {
 // Stable component reference — defined at module level so Remotion doesn't see a
 // new component class on each RemotionRoot render.
 const VideoFromManifest: React.FC<{ storyboard: Manifest }> = ({ storyboard }) => {
-  const { composition, beats } = storyboard;
+  const { composition, beats, audioMaster } = storyboard;
   return (
-    <Series>
-      {beats.map((beat) => (
-        <Series.Sequence key={beat.id} durationInFrames={beatFrames(beat)}>
-          {beat.audio ? <Audio src={staticFile(beat.audio)} /> : null}
+    <>
+      {/* Continuous mode: one narration track spans the whole video so the voice
+          flows smoothly across slide changes. Falls back to per-beat audio below. */}
+      {audioMaster ? <Audio src={staticFile(audioMaster)} /> : null}
+      <Series>
+        {beats.map((beat) => (
+          <Series.Sequence key={beat.id} durationInFrames={beatFrames(beat)}>
+            {!audioMaster && beat.audio ? <Audio src={staticFile(beat.audio)} /> : null}
 
-          {beat.type === "intro" && <IntroScene tagline={composition.tagline} />}
+            {beat.type === "intro" && <IntroScene tagline={composition.tagline} />}
 
-          {beat.type === "outro" && (
-            <OutroScene cta={composition.cta} handle={composition.handle} />
-          )}
+            {beat.type === "outro" && (
+              <OutroScene cta={composition.cta} handle={composition.handle} />
+            )}
 
-          {beat.type === "screen" && beat.screenshot && (
-            <ScreenshotScene
-              screenshot={beat.screenshot}
-              caption={beat.caption}
-              label={beat.label}
-              clickPoint={beat.clickPoint}
-              durationInFrames={beatFrames(beat)}
-            />
-          )}
+            {beat.type === "screen" && beat.screenshot && (
+              <ScreenshotScene
+                screenshot={beat.screenshot}
+                caption={beat.caption}
+                label={beat.label}
+                clickPoint={beat.clickPoint}
+                durationInFrames={beatFrames(beat)}
+              />
+            )}
 
-          {beat.type === "scroll" && beat.screenshot && (
-            <ScrollScene
-              screenshot={beat.screenshot}
-              caption={beat.caption}
-              label={beat.label}
-              scrollAspect={beat.scrollAspect ?? 1}
-              durationInFrames={beatFrames(beat)}
-            />
-          )}
-        </Series.Sequence>
-      ))}
-    </Series>
+            {beat.type === "scroll" && beat.screenshot && (
+              <ScrollScene
+                screenshot={beat.screenshot}
+                caption={beat.caption}
+                label={beat.label}
+                scrollAspect={beat.scrollAspect ?? 1}
+                durationInFrames={beatFrames(beat)}
+              />
+            )}
+          </Series.Sequence>
+        ))}
+      </Series>
+    </>
   );
 };
 

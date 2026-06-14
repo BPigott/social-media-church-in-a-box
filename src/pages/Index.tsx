@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { List, CheckCircle, PlayCircle } from "phosphor-react";
 import { VideoDialog } from "@/components/video/VideoDialog";
-import { TUTORIALS } from "@/config/tutorials";
+import { TUTORIALS, getTutorial } from "@/config/tutorials";
 import { Facebook, Instagram, Twitter, FileText, Clipboard, Music } from "lucide-react";
 
 function useScrollReveal() {
@@ -839,7 +839,7 @@ const Index = () => {
     </div>
     {videoOpen && (
       <VideoDialog
-        tutorial={TUTORIALS[0]}
+        tutorial={getTutorial('overview') ?? TUTORIALS[0]}
         open={videoOpen}
         onOpenChange={setVideoOpen}
       />

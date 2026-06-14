@@ -95,6 +95,7 @@ export const DEMO_CHURCH = {
   location: "Leicester, UK",
   website_url: "https://www.leicestervineyard.org",
   denomination: "Vineyard",
+  email: "hello@leicestervineyard.org",
   contact_email: "hello@leicestervineyard.org",
   vision_statement:
     "A Bible-based church community seeking to follow the way, understand the truth of who God has made us to be, and live a fruitful life led by the Spirit.",

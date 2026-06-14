@@ -1,5 +1,6 @@
 // Lower-third caption + small step label, synced to the beat's narration.
-// Sits in a tinted band so it stays legible over any screenshot.
+// A clean, contained "tactile" card (matching the app's UI) keeps the caption
+// legible over any screenshot — no full-bleed gradient scrim.
 import React from "react";
 import { interpolate, useCurrentFrame } from "remotion";
 import { palette } from "../theme";
@@ -19,7 +20,7 @@ export const Caption: React.FC<CaptionProps> = ({ text, label }) => {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const inY = interpolate(frame, [4, 16], [18, 0], {
+  const inY = interpolate(frame, [4, 16], [12, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -28,45 +29,54 @@ export const Caption: React.FC<CaptionProps> = ({ text, label }) => {
     <div
       style={{
         position: "absolute",
-        left: 0,
-        right: 0,
-        bottom: 0,
-        padding: "120px 96px 64px",
-        background:
-          "linear-gradient(to top, rgba(58,53,47,0.82) 0%, rgba(58,53,47,0.55) 55%, rgba(58,53,47,0) 100%)",
-        display: "flex",
-        flexDirection: "column",
-        gap: 12,
+        left: 80,
+        bottom: 72,
+        maxWidth: 1180,
         opacity: inOpacity,
         transform: `translateY(${inY}px)`,
       }}
     >
-      {label && (
-        <span
-          style={{
-            fontFamily: inter,
-            fontSize: 24,
-            fontWeight: 600,
-            letterSpacing: "0.14em",
-            textTransform: "uppercase",
-            color: palette.ochre,
-          }}
-        >
-          {label}
-        </span>
-      )}
-      <span
+      <div
         style={{
-          fontFamily: playfairDisplay,
-          fontSize: 56,
-          fontWeight: 700,
-          lineHeight: 1.15,
-          color: palette.white,
-          maxWidth: 1400,
+          display: "flex",
+          flexDirection: "column",
+          gap: 14,
+          background: palette.white,
+          borderRadius: 20,
+          padding: "30px 40px",
+          boxShadow: "0 24px 60px -18px rgba(58,53,47,0.45)",
         }}
       >
-        {text}
-      </span>
+        {/* Brand accent rule (mirrors the app's terracotta tab markers). */}
+        <div
+          style={{ height: 3, width: 44, borderRadius: 2, background: palette.terracotta }}
+        />
+        {label && (
+          <span
+            style={{
+              fontFamily: inter,
+              fontSize: 22,
+              fontWeight: 600,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: palette.terracotta,
+            }}
+          >
+            {label}
+          </span>
+        )}
+        <span
+          style={{
+            fontFamily: playfairDisplay,
+            fontSize: 48,
+            fontWeight: 700,
+            lineHeight: 1.15,
+            color: palette.earth,
+          }}
+        >
+          {text}
+        </span>
+      </div>
     </div>
   );
 };
