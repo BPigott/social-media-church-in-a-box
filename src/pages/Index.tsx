@@ -199,46 +199,37 @@ const Index = () => {
                 {user ? "Go to Dashboard" : "Start your 14-day free trial"}
               </Link>
             </Button>
+            {/* Mobile-only watch link (the hero video thumbnail is hidden on mobile). */}
             <button
               type="button"
               onClick={() => setVideoOpen(true)}
-              className={`mt-3 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-all duration-500 delay-400 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
+              className={`md:hidden mt-3 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-all duration-500 delay-400 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
             >
               <PlayCircle size={18} weight="fill" className="text-primary" />
               Watch how it works
             </button>
           </div>
 
-          {/* Right side — decorative cards, hidden on mobile */}
+          {/* Right side — clickable video thumbnail (opens the 60-second overview), hidden on mobile */}
           <div className={`flex-1 hidden md:block transition-all duration-700 delay-500 ${mounted ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'}`}>
-            <div className="relative w-full h-[400px]">
-              {/* White/card — tilted right */}
-              <div
-                className="absolute top-8 right-8 w-72 p-6 bg-card rounded-2xl rotate-3 z-10 border border-border/40 backdrop-blur-sm shadow-tactile"
-              >
-                <div className="flex items-center justify-between mb-4 border-b border-border/50 pb-3">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Daily Devotional</p>
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                </div>
-                <p className="font-playfair text-lg text-foreground leading-snug mb-3">
-                  "Grace isn't about waiting for people to come to you; it's about going to where they are..."
-                </p>
-                <p className="text-xs font-medium text-muted-foreground italic">Day 1 &bull; 2 min read</p>
-              </div>
-
-              {/* Sage card — tilted left */}
-              <div
-                className="absolute top-32 left-0 w-64 p-6 bg-secondary text-secondary-foreground rounded-2xl -rotate-6 z-20 border border-white/10 shadow-tactile"
-              >
-                <div className="flex items-center justify-between mb-4 border-b border-white/20 pb-3">
-                  <p className="text-[10px] font-bold uppercase tracking-widest opacity-80">Guía de Estudio</p>
-                </div>
-                <p className="text-sm font-medium leading-relaxed mb-3">
-                  1. ¿Cómo podemos practicar esta gracia activa en nuestra comunidad esta semana?
-                </p>
-                <p className="text-[10px] uppercase tracking-wider opacity-60">Pregunta 01</p>
-              </div>
-            </div>
+            <button
+              type="button"
+              onClick={() => setVideoOpen(true)}
+              aria-label="Watch the 60-second ivangel overview"
+              className="group relative block w-full aspect-video rounded-2xl overflow-hidden border border-border/40 shadow-tactile transition-transform duration-300 hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              <img
+                src={getTutorial('overview')?.poster}
+                alt="Watch how ivangel turns a sermon into a week of content"
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              {/* The poster is a branded video card with its own play glyph; just a
+                  gentle hover scrim signals it's clickable. */}
+              <div className="absolute inset-0 bg-foreground/0 transition-colors duration-300 group-hover:bg-foreground/[0.06]" />
+            </button>
+            <p className="mt-3 text-center text-sm text-muted-foreground">
+              See ivangel in action — a 60-second tour
+            </p>
           </div>
         </div>
       </header>
