@@ -1,0 +1,94 @@
+{
+  "composition": {
+    "tagline": "Every piece of content, kept and searchable.",
+    "cta": "Find, open and download anything you've ever made.",
+    "handle": "ivangel · Create. Connect. Community.",
+    "title": "Your content library",
+    "category": "How-to"
+  },
+  "beats": [
+    {
+      "id": "intro",
+      "type": "intro",
+      "caption": "Everything in one place",
+      "narration": "Every piece of content eye-vanjel makes for you is saved automatically. Let's look at your library — where you can find, open and download anything you've ever created.",
+      "audio": null,
+      "durationInFrames": 374
+    },
+    {
+      "id": "lib-list",
+      "type": "screen",
+      "label": "Library · Your history",
+      "caption": "Grouped by date",
+      "narration": "Here's your whole history, grouped by the day it was created. Each day shows how many generations you ran — your most recent work sits right at the top.",
+      "screenshot": "screens/lib-list.png",
+      "clickPoint": null,
+      "audio": null,
+      "durationInFrames": 297
+    },
+    {
+      "id": "lib-search",
+      "type": "screen",
+      "label": "Library · Search",
+      "caption": "Search by keyword",
+      "narration": "Looking for something specific? Search by keyword or theme — say, grace — and eye-vanjel filters straight to the days that mention it.",
+      "screenshot": "screens/lib-search.png",
+      "clickPoint": null,
+      "audio": null,
+      "durationInFrames": 277
+    },
+    {
+      "id": "lib-expand",
+      "type": "screen",
+      "label": "Library · Open a day",
+      "caption": "Open any day",
+      "narration": "Open a day to see what you made — every post, study and devotional from that session, each tagged with the platforms you chose.",
+      "screenshot": "screens/lib-expand.png",
+      "clickPoint": null,
+      "audio": null,
+      "durationInFrames": 249
+    },
+    {
+      "id": "lib-content",
+      "type": "scroll",
+      "label": "Library · Read it back",
+      "caption": "Read any piece in full",
+      "narration": "Open any piece to read it in full — here's the daily devotional from that Sunday, exactly as it was written, ready to copy with a single tap.",
+      "screenshot": "screens/lib-content.png",
+      "scrollAspect": 1.0105263157894737,
+      "audio": null,
+      "durationInFrames": 295
+    },
+    {
+      "id": "lib-variations",
+      "type": "screen",
+      "label": "Library · Variations",
+      "caption": "Flick through variations",
+      "narration": "Where you asked for more than one version of a post, they're all kept — just flick between them and copy whichever fits best.",
+      "screenshot": "screens/lib-variations.png",
+      "clickPoint": null,
+      "audio": null,
+      "durationInFrames": 248
+    },
+    {
+      "id": "lib-download",
+      "type": "screen",
+      "label": "Library · Download",
+      "caption": "Download in any format",
+      "narration": "And you can download a whole session in one go — as a Word document, a PDF, plain text or a web page. Your content, however you need it.",
+      "screenshot": "screens/lib-download.png",
+      "clickPoint": null,
+      "audio": null,
+      "durationInFrames": 300
+    },
+    {
+      "id": "outro",
+      "type": "outro",
+      "caption": "Never lose a word",
+      "narration": "That's your library — every word you've created, safe, searchable and ready whenever you need it.",
+      "audio": null,
+      "durationInFrames": 213
+    }
+  ],
+  "audioMaster": "audio/library-master.mp3"
+}

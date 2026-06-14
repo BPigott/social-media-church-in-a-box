@@ -1,0 +1,83 @@
+{
+  "composition": {
+    "tagline": "One sermon. A whole week of content.",
+    "cta": "Turn Sunday's message into a week of content — in your voice.",
+    "handle": "ivangel · Create. Connect. Community.",
+    "title": "ivangel in 60 seconds",
+    "category": "Overview"
+  },
+  "beats": [
+    {
+      "id": "intro",
+      "type": "intro",
+      "caption": "One sermon, a whole week",
+      "narration": "Sunday's sermon deserves more than one morning. Here's how eye-vanjel gives it a whole week of life — in just sixty seconds.",
+      "audio": null,
+      "durationInFrames": 260
+    },
+    {
+      "id": "ov-hero",
+      "type": "screen",
+      "label": "ivangel",
+      "caption": "Built for church teams",
+      "narration": "You pour your heart into one message a week. eye-vanjel turns it into a week's worth of content — social posts, devotionals and study guides — in more than fifteen languages.",
+      "screenshot": "screens/ov-hero.png",
+      "clickPoint": null,
+      "audio": null,
+      "durationInFrames": 365
+    },
+    {
+      "id": "ov-create",
+      "type": "screen",
+      "label": "Create",
+      "caption": "Paste once, choose what you need",
+      "narration": "Paste in your sermon, pick what you'd like — posts, a devotional, a study guide — and choose your platforms. No prompts, no fuss.",
+      "screenshot": "screens/ov-create.png",
+      "clickPoint": null,
+      "audio": null,
+      "durationInFrames": 270
+    },
+    {
+      "id": "ov-generate",
+      "type": "screen",
+      "label": "Generate",
+      "caption": "Written in your voice",
+      "narration": "One click, and eye-vanjel gets to work — writing in your church's own voice, learned from your style guide.",
+      "screenshot": "screens/ov-generate.png",
+      "clickPoint": null,
+      "audio": null,
+      "durationInFrames": 209
+    },
+    {
+      "id": "ov-social",
+      "type": "screen",
+      "label": "Social posts",
+      "caption": "A full set, every platform",
+      "narration": "In under a minute, you've a full set of posts for every platform — ready to read, tweak and share.",
+      "screenshot": "screens/ov-social.png",
+      "clickPoint": null,
+      "audio": null,
+      "durationInFrames": 204
+    },
+    {
+      "id": "ov-devotional",
+      "type": "screen",
+      "label": "Devotionals & studies",
+      "caption": "Carry the message all week",
+      "narration": "Plus devotionals and study guides that carry your message right through the week — every word sounding like you.",
+      "screenshot": "screens/ov-devotional.png",
+      "clickPoint": null,
+      "audio": null,
+      "durationInFrames": 202
+    },
+    {
+      "id": "outro",
+      "type": "outro",
+      "caption": "Create. Connect. Community.",
+      "narration": "One sermon, a whole week of content. That's eye-vanjel — start your free trial today.",
+      "audio": null,
+      "durationInFrames": 194
+    }
+  ],
+  "audioMaster": "audio/overview-master.mp3"
+}

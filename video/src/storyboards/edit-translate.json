@@ -1,0 +1,83 @@
+{
+  "composition": {
+    "tagline": "Edit, translate and refine — your content, your way.",
+    "cta": "Polish every word, then translate it in a click.",
+    "handle": "ivangel · Create. Connect. Community.",
+    "title": "Edit, translate & refine",
+    "category": "How-to"
+  },
+  "beats": [
+    {
+      "id": "intro",
+      "type": "intro",
+      "caption": "Make it yours",
+      "narration": "eye-vanjel writes a strong first draft — but the best content always carries your touch. Let's refine a post, then share it in another language.",
+      "audio": null,
+      "durationInFrames": 296
+    },
+    {
+      "id": "et-results",
+      "type": "screen",
+      "label": "Results · Your posts",
+      "caption": "Your generated posts",
+      "narration": "Here are your finished social posts. Every one is ready to use as-is — but say you'd like to tweak this Facebook post, and also share it in Spanish.",
+      "screenshot": "screens/et-results.png",
+      "clickPoint": null,
+      "audio": null,
+      "durationInFrames": 297
+    },
+    {
+      "id": "et-add-language",
+      "type": "screen",
+      "label": "Translate · Add a language first",
+      "caption": "Choose your language first",
+      "narration": "If you want a translation, choose your language before you edit. Open the picker, search, and add Spanish. You can add up to two languages alongside English.",
+      "screenshot": "screens/et-add-language.png",
+      "clickPoint": null,
+      "audio": null,
+      "durationInFrames": 336
+    },
+    {
+      "id": "et-edit",
+      "type": "screen",
+      "label": "Edit · Inline",
+      "caption": "Edit it inline",
+      "narration": "Now refine your English post — change a word, add a verse reference, soften a line. Here we've added a warm invitation. Your edited English is the source of truth, so when you're happy, just save.",
+      "screenshot": "screens/et-edit.png",
+      "clickPoint": null,
+      "audio": null,
+      "durationInFrames": 439
+    },
+    {
+      "id": "et-retranslate",
+      "type": "screen",
+      "label": "Translate · From English",
+      "caption": "Translate in a click",
+      "narration": "Then click Re-translate from English, and eye-vanjel carries your polished English across to Spanish — keeping every edit intact.",
+      "screenshot": "screens/et-retranslate.png",
+      "clickPoint": null,
+      "audio": null,
+      "durationInFrames": 267
+    },
+    {
+      "id": "et-translated",
+      "type": "screen",
+      "label": "Translate · In Spanish",
+      "caption": "Ready in every language",
+      "narration": "And there it is — the same message, now in Spanish, ready to copy and share. Choose your languages, edit once in English, and translate everywhere — nothing gets lost along the way.",
+      "screenshot": "screens/et-translated.png",
+      "clickPoint": null,
+      "audio": null,
+      "durationInFrames": 372
+    },
+    {
+      "id": "outro",
+      "type": "outro",
+      "caption": "Your words, every language",
+      "narration": "That's editing and translation in eye-vanjel — your voice, refined and ready for everyone you serve.",
+      "audio": null,
+      "durationInFrames": 235
+    }
+  ],
+  "audioMaster": "audio/edit-translate-master.mp3"
+}

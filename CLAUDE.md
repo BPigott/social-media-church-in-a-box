@@ -100,7 +100,24 @@ TypeScript types live in two places:
 
 ## Active Development Context
 
-- Trunk: `main`. The `feature/launch-prep` work (Stripe billing migration, 7-sermon onboarding, transactional email) is merged; the branch has been deleted.
-- **Launch blocker:** Stream 3 (onboarding redesign) has not started. Plan at `docs/superpowers/plans/2026-04-04-stream3-onboarding.md`. Current `src/pages/Onboarding.tsx` is the old 4-step flow.
-- Pre-launch readiness checklist lives at the top of `docs/superpowers/plans/2026-03-16-go-to-market-launch.md`.
-- Checkout uses a single Stripe Payment Link via `VITE_STRIPE_CHECKOUT_URL` (set in `.env.*` and Vercel). Single plan only — no multi-site tier.
+- Trunk: `main`.
+- **Onboarding (Stream 3) — rebuilt, in review.** `src/pages/Onboarding.tsx` is now a
+  voice-first editorial flow: **01 Your Church** → **02 Website** (scrape with manual-paste /
+  skip fallback) → **03 Sermons** (file upload, hard gate at **7** sermons, prominent
+  "X / 7" counter) → **04 Your Voice** (style-guide generation → editable review) → dashboard.
+  Step components live in `src/components/onboarding/`; shared sermon text extraction
+  (TXT/DOCX/PDF) is in `src/lib/extractText.ts`. The guided "first generation" (the spec's
+  step 5) is **deferred** as a fast-follow — the flow lands on `/dashboard` after the style
+  guide is accepted. Church creation still happens at the *end* of the flow, preserving the
+  orphan-record detection, verification retry loop, and style-guide upsert.
+- Pre-launch readiness checklist lives at the top of
+  `docs/superpowers/plans/2026-03-16-go-to-market-launch.md`. With onboarding built, the
+  remaining blockers are mostly operational: confirm Stripe live-mode wiring + £25 price,
+  production secrets, redeploy `retranslate-content`/`api-health-check`, and a full
+  signup→checkout→webhook smoke test.
+- Auth/subscription stability: `useSubscription` waits for auth to resolve before reporting
+  status (fixes a false "inactive" that bounced trial users to `/upgrade`); a follow-up
+  centralises `useAuth` into a single `AuthProvider` so independent hook instances can't
+  disagree. See `src/hooks/useAuth.tsx` / `src/hooks/useSubscription.tsx`.
+- Checkout uses a single Stripe Payment Link via `VITE_STRIPE_CHECKOUT_URL` (set in `.env.*`
+  and Vercel). Single plan only — no multi-site tier.

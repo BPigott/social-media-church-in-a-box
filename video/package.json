@@ -1,0 +1,72 @@
+{
+  "name": "ivangel-video",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Code-generated onboarding/how-to videos for ivangel (Remotion + Playwright capture + Gemini TTS). Not part of the Vite app build.",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+
+    "capture:onboarding": "tsx scripts/capture/onboarding.ts",
+    "tts:onboarding": "tsx scripts/tts.ts onboarding",
+    "render:onboarding": "remotion render src/index.ts IvangelOnboarding out/onboarding.mp4 --image-format=jpeg",
+    "still:onboarding": "remotion still src/index.ts IvangelOnboarding out/onboarding-poster.png --frame=45",
+    "thumb:onboarding": "remotion still src/index.ts IvangelOnboardingThumbnail out/onboarding.jpg --frame=0",
+    "build:onboarding": "npm run capture:onboarding && npm run tts:onboarding && npm run render:onboarding",
+
+    "capture:dashboard": "tsx scripts/capture/dashboard.ts",
+    "tts:dashboard": "tsx scripts/tts.ts dashboard",
+    "render:dashboard": "remotion render src/index.ts IvangelDashboard out/dashboard.mp4 --image-format=jpeg",
+    "still:dashboard": "remotion still src/index.ts IvangelDashboard out/dashboard-poster.png --frame=45",
+    "thumb:dashboard": "remotion still src/index.ts IvangelDashboardThumbnail out/dashboard.jpg --frame=0",
+    "build:dashboard": "npm run capture:dashboard && npm run tts:dashboard && npm run render:dashboard",
+
+    "capture:edit-translate": "tsx scripts/capture/edit-translate.ts",
+    "tts:edit-translate": "tsx scripts/tts.ts edit-translate",
+    "render:edit-translate": "remotion render src/index.ts IvangelEditTranslate out/edit-translate.mp4 --image-format=jpeg",
+    "thumb:edit-translate": "remotion still src/index.ts IvangelEditTranslateThumbnail out/edit-translate.jpg --frame=0",
+    "build:edit-translate": "npm run capture:edit-translate && npm run tts:edit-translate && npm run render:edit-translate",
+
+    "capture:library": "tsx scripts/capture/library.ts",
+    "tts:library": "tsx scripts/tts.ts library",
+    "render:library": "remotion render src/index.ts IvangelLibrary out/library.mp4 --image-format=jpeg",
+    "thumb:library": "remotion still src/index.ts IvangelLibraryThumbnail out/library.jpg --frame=0",
+    "build:library": "npm run capture:library && npm run tts:library && npm run render:library",
+
+    "capture:style-guide": "tsx scripts/capture/style-guide.ts",
+    "tts:style-guide": "tsx scripts/tts.ts style-guide",
+    "render:style-guide": "remotion render src/index.ts IvangelStyleGuide out/style-guide.mp4 --image-format=jpeg",
+    "thumb:style-guide": "remotion still src/index.ts IvangelStyleGuideThumbnail out/style-guide.jpg --frame=0",
+    "build:style-guide": "npm run capture:style-guide && npm run tts:style-guide && npm run render:style-guide",
+
+    "capture:overview": "tsx scripts/capture/overview.ts",
+    "tts:overview": "tsx scripts/tts.ts overview",
+    "render:overview": "remotion render src/index.ts IvangelOverview out/overview.mp4 --image-format=jpeg",
+    "thumb:overview": "remotion still src/index.ts IvangelOverviewThumbnail out/overview.jpg --frame=0",
+    "build:overview": "npm run capture:overview && npm run tts:overview && npm run render:overview",
+
+    "capture": "npm run capture:onboarding",
+    "tts": "tsx scripts/tts.ts onboarding",
+    "render": "npm run render:onboarding",
+    "render:still": "npm run still:onboarding",
+    "build": "npm run build:onboarding"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.441",
+    "@remotion/google-fonts": "^4.0.441",
+    "@remotion/noise": "^4.0.441",
+    "@remotion/transitions": "^4.0.441",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "remotion": "^4.0.441"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.49.0",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "dotenv": "^16.0.0",
+    "playwright": "^1.60.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}

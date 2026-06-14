@@ -8,7 +8,7 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Ivangel Earthy Editorial Palette */
+    /* ivangel Earthy Editorial Palette */
     --background: 38 28% 94%; /* Sand #f5f2eb */
     --foreground: 30 10% 20%; /* Earth #3a352f */
 

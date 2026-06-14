@@ -1,0 +1,5 @@
+node_modules/
+out/
+# Generated capture/TTS artefacts (regenerate with `npm run capture` / `npm run tts`)
+public/screens/
+public/audio/
