@@ -11,37 +11,37 @@
       "id": "intro",
       "type": "intro",
       "caption": "Welcome to ivangel",
-      "narration": "Welcome to ivangel. Setting up your church takes just four simple steps — and it starts with what makes you, you: your voice.",
-      "audio": "audio/intro.wav",
-      "durationInFrames": 312
+      "narration": "Welcome to eye-vanjel. Setting up your church takes just four simple steps — and it starts with what makes you, you: your voice.",
+      "audio": null,
+      "durationInFrames": 267
     },
     {
       "id": "step1-church",
       "type": "screen",
       "label": "Step 01 · Your church",
       "caption": "Tell us about your church",
-      "narration": "First, tell ivangel about your church — its name, location, and the vision that drives everything you do.",
+      "narration": "First, tell eye-vanjel about your church — its name, location, and the vision that drives everything you do.",
       "screenshot": "screens/step1-church.png",
       "clickPoint": {
         "x": 640,
         "y": 625
       },
-      "audio": "audio/step1-church.wav",
-      "durationInFrames": 269
+      "audio": null,
+      "durationInFrames": 233
     },
     {
       "id": "step2-website",
       "type": "screen",
       "label": "Step 02 · Your voice online",
       "caption": "We learn from your website",
-      "narration": "ivangel reads your website to understand how your church already speaks — your tone, your values, and your story.",
+      "narration": "eye-vanjel reads your website to understand how your church already speaks — your tone, your values, and your story.",
       "screenshot": "screens/step2-website.png",
       "clickPoint": {
         "x": 640,
         "y": 581
       },
-      "audio": "audio/step2-website.wav",
-      "durationInFrames": 305
+      "audio": null,
+      "durationInFrames": 232
     },
     {
       "id": "step3-sermons",
@@ -54,19 +54,19 @@
         "x": 640,
         "y": 625
       },
-      "audio": "audio/step3-sermons.wav",
-      "durationInFrames": 313
+      "audio": null,
+      "durationInFrames": 225
     },
     {
       "id": "step4-generating",
       "type": "screen",
       "label": "Step 04 · Your voice profile",
       "caption": "ivangel learns your voice",
-      "narration": "ivangel brings it all together, crafting a personalised style guide that sounds genuinely like you.",
+      "narration": "eye-vanjel brings it all together, crafting a personalised style guide that sounds genuinely like you.",
       "screenshot": "screens/step4-generating.png",
       "clickPoint": null,
-      "audio": "audio/step4-generating.wav",
-      "durationInFrames": 249
+      "audio": null,
+      "durationInFrames": 200
     },
     {
       "id": "step4-review",
@@ -79,16 +79,17 @@
         "x": 791,
         "y": 625
       },
-      "audio": "audio/step4-review.wav",
-      "durationInFrames": 277
+      "audio": null,
+      "durationInFrames": 217
     },
     {
       "id": "outro",
       "type": "outro",
       "caption": "Welcome to ivangel",
-      "narration": "And that's it — your church is set up and ready to go. Welcome to ivangel.",
-      "audio": "audio/outro.wav",
-      "durationInFrames": 228
+      "narration": "And that's it — your church is set up and ready to go. Welcome to eye-vanjel.",
+      "audio": null,
+      "durationInFrames": 199
     }
-  ]
+  ],
+  "audioMaster": "audio/onboarding-master.mp3"
 }

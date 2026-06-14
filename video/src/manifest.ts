@@ -38,6 +38,13 @@ export interface Beat {
 }
 
 export interface Manifest {
+  /**
+   * Optional single continuous narration track for the whole video (written by
+   * tts.ts in continuous mode). When set, Root.tsx plays this once at the
+   * composition root and ignores per-beat `audio`, so the voice flows smoothly
+   * across slide changes instead of stopping and starting per beat.
+   */
+  audioMaster?: string | null;
   composition: {
     /** Intro tagline. */
     tagline: string;

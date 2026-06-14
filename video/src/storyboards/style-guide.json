@@ -1,0 +1,61 @@
+{
+  "composition": {
+    "tagline": "Your voice, your details — always in your hands.",
+    "cta": "Shape how ivangel sounds and keep your church details current.",
+    "handle": "ivangel · Create. Connect. Community.",
+    "title": "Style guide & settings",
+    "category": "How-to"
+  },
+  "beats": [
+    {
+      "id": "intro",
+      "type": "intro",
+      "caption": "Where ivangel learns your voice",
+      "narration": "Everything eye-vanjel writes sounds like your church — and that comes from your settings. Let's look at where you shape your voice and keep your details up to date.",
+      "audio": null,
+      "durationInFrames": 326
+    },
+    {
+      "id": "sg-church",
+      "type": "screen",
+      "label": "Settings · Church Information",
+      "caption": "Your church details",
+      "narration": "Church Information holds the details that shape every generation — your name, your location, your vision and how people reach you. Keep these current and your content stays accurate.",
+      "screenshot": "screens/sg-church.png",
+      "clickPoint": null,
+      "audio": null,
+      "durationInFrames": 369
+    },
+    {
+      "id": "sg-refresh",
+      "type": "screen",
+      "label": "Settings · Refresh website",
+      "caption": "Re-read your website",
+      "narration": "Changed something on your website? Tap Refresh, and eye-vanjel re-reads your site and folds the latest into your voice profile — no copying and pasting required.",
+      "screenshot": "screens/sg-refresh.png",
+      "clickPoint": null,
+      "audio": null,
+      "durationInFrames": 338
+    },
+    {
+      "id": "sg-style",
+      "type": "screen",
+      "label": "Settings · Style Guide",
+      "caption": "Edit your voice profile",
+      "narration": "This is your style guide — the voice profile eye-vanjel writes from. Read it, tweak a word or a whole section, save, and every new piece picks up the change. You can download a copy anytime.",
+      "screenshot": "screens/sg-style.png",
+      "clickPoint": null,
+      "audio": null,
+      "durationInFrames": 369
+    },
+    {
+      "id": "outro",
+      "type": "outro",
+      "caption": "Sound like you, every time",
+      "narration": "That's settings — keep your details fresh and your voice your own, and eye-vanjel does the rest.",
+      "audio": null,
+      "durationInFrames": 210
+    }
+  ],
+  "audioMaster": "audio/style-guide-master.mp3"
+}
