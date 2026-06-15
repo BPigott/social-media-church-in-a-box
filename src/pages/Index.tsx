@@ -540,7 +540,7 @@ const Index = () => {
 
           {/* Note below map */}
           <p className="text-muted-foreground text-center mt-6 text-sm">
-            Also available in: French, Portuguese, German, Mandarin, Hindi, Swahili, and more.
+            Also available in: Spanish, French, Portuguese, German, Mandarin, Arabic, and more.
           </p>
         </div>
       </section>
@@ -787,7 +787,7 @@ const Index = () => {
                 What languages are supported?
               </AccordionTrigger>
               <AccordionContent>
-                15+ languages including Spanish, Korean, Arabic, French, Portuguese, German, Mandarin, Hindi, Tagalog, Welsh, and more. Generate up to 3 languages simultaneously.
+                20+ languages including Spanish, Korean, Arabic, French, Portuguese, German, Mandarin, Welsh, and more. Generate up to 3 languages simultaneously.
               </AccordionContent>
             </AccordionItem>
 
