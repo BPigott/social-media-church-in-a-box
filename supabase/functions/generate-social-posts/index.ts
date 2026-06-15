@@ -175,7 +175,7 @@ serve(async (req) => {
 
     // === Idempotency ===
     const { data: existing } = await supabase
-      .from("generations").select("status, result").eq("idempotency_key", idempotencyKey).maybeSingle();
+      .from("generations").select("status, result").eq("idempotency_key", idempotencyKey).eq("user_id", user.id).maybeSingle();
     if (existing?.status === "completed") {
       return jsonResponse(200, existing.result);
     }

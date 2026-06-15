@@ -100,10 +100,9 @@ async function testAnthropicAPI(): Promise<HealthCheckResult> {
       service: 'Anthropic API',
       status: 'healthy',
       message: 'API connection successful',
-      details: { 
+      details: {
         model: data.model,
-        usage: data.usage,
-        responsePreview: data.content?.[0]?.text?.substring(0, 100)
+        usage: data.usage
       },
       timestamp: new Date().toISOString()
     };
@@ -144,10 +143,6 @@ async function testGoogleTranslateAPI(): Promise<HealthCheckResult> {
       service: 'Google Translate API',
       status: 'healthy',
       message: 'Credentials configured correctly',
-      details: { 
-        projectId: credentials.project_id,
-        clientEmail: credentials.client_email.substring(0, 20) + '...'
-      },
       timestamp: new Date().toISOString()
     };
   } catch (error) {
@@ -233,6 +228,19 @@ async function testFirecrawlAPI(): Promise<HealthCheckResult> {
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Restrict to the service role. This endpoint probes every upstream
+  // integration and must not be reachable by anonymous callers or by any
+  // holder of the public anon key.
+  const authHeader = req.headers.get('Authorization');
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+  if (!serviceRoleKey || token !== serviceRoleKey) {
+    return new Response(JSON.stringify({ error: 'Forbidden' }), {
+      status: 403,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 
   try {
