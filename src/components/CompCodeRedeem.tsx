@@ -48,7 +48,7 @@ export function CompCodeRedeem({ onRedeemed }: CompCodeRedeemProps) {
     }
 
     if (data?.success) {
-      setSuccess(data.message ?? "Code redeemed — you now have full access.");
+      setSuccess(data.message ?? "Code redeemed. You now have full access.");
       onRedeemed();
     } else {
       setError(data?.message ?? "That code isn't valid.");

@@ -124,8 +124,8 @@ export const SermonUpload = ({
       <div className="space-y-2 text-center">
         <h3 className="font-playfair text-2xl font-semibold">Upload your sermons</h3>
         <p className="mx-auto max-w-md text-muted-foreground">
-          Your sermons are the clearest window into your church's voice. Upload at least {minFiles} —
-          the more you add, the better Ivangel knows how you speak.
+          Your sermons are the clearest window into your church's voice. Upload at least {minFiles}.
+          The more you add, the better ivangel knows how you speak.
         </p>
       </div>
 

@@ -61,9 +61,6 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        "accent-growth": "#2D5016", // Deep forest green for Church Growth section
-        "accent-action": "#D4941A", // Warm amber for Primary CTAs
-        "accent-trust": "#4A5D7A", // Soft navy for Ministry Leaders section
       },
       boxShadow: {
         'tactile': '0 10px 40px -10px var(--shadow-color, rgba(58,53,47,0.1)), 0 2px 10px -2px var(--shadow-color, rgba(58,53,47,0.05))',

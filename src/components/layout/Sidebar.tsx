@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useChurch } from "@/hooks/useChurch";
 import { useSubscription } from "@/hooks/useSubscription";
 import { SidebarNavItem } from "./SidebarNavItem";
+import { Logo } from "@/components/Logo";
 
 const COLLAPSE_KEY = "ivangel:sidebarCollapsed";
 
@@ -107,12 +108,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
             collapsed && "md:justify-center"
           )}
         >
-          <div className="h-4 w-4 shrink-0 rounded-full bg-primary" />
-          {!collapsed && (
-            <span className="font-playfair text-lg font-bold text-foreground">
-              ivangel
-            </span>
-          )}
+          <Logo size={collapsed ? 26 : 22} showWordmark={!collapsed} />
           <button
             type="button"
             onClick={() => setCollapsed((c) => !c)}
@@ -141,7 +137,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
         <div className="mt-auto flex flex-col gap-2">
           {collapsed ? (
             <div
-              title={`${churchName}${subLabel ? ` — ${subLabel}` : ""}`}
+              title={`${churchName}${subLabel ? ` · ${subLabel}` : ""}`}
               className="mx-auto flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-xs font-bold text-secondary-foreground"
             >
               {initials}

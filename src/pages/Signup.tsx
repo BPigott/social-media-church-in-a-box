@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { signUp } from "@/lib/auth";
 import { passwordResetSchema, getPasswordStrength, passwordRequirements } from "@/lib/passwordValidation";
 import { Eye, EyeSlash } from "phosphor-react";
+import { Logo } from "@/components/Logo";
 import type { z } from "zod";
 
 type SignupFormData = z.infer<typeof passwordResetSchema>;
@@ -70,11 +71,7 @@ const Signup = () => {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-md space-y-6">
         <div className="flex justify-center">
-          <img 
-            src="/logo.png" 
-            alt="ivangel" 
-            className="h-32 w-auto"
-          />
+          <Logo orientation="vertical" size={56} showTagline />
         </div>
       <Card className="w-full">
         <CardHeader className="space-y-1">

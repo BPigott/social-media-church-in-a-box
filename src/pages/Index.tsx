@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { List, CheckCircle, PlayCircle } from "phosphor-react";
 import { VideoDialog } from "@/components/video/VideoDialog";
+import { Logo } from "@/components/Logo";
 import { TUTORIALS, getTutorial } from "@/config/tutorials";
 import { Facebook, Instagram, Twitter, FileText, Clipboard, Music } from "lucide-react";
 
@@ -16,6 +17,12 @@ function useScrollReveal() {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    // Respect reduced-motion: show the content immediately, skip the transition.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      el.classList.add("opacity-100", "translate-y-0");
+      el.classList.remove("opacity-0", "translate-y-8");
+      return;
+    }
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -60,14 +67,16 @@ const Index = () => {
   return (
     <>
       <style>{`
-        @keyframes float {
-          0% { transform: translate(-50%, -50%) translateY(0px) rotate(0deg); }
-          50% { transform: translate(-50%, -50%) translateY(-15px) rotate(2deg); }
-          100% { transform: translate(-50%, -50%) translateY(0px) rotate(0deg); }
+        @media (prefers-reduced-motion: no-preference) {
+          @keyframes float {
+            0% { transform: translate(-50%, -50%) translateY(0px) rotate(0deg); }
+            50% { transform: translate(-50%, -50%) translateY(-15px) rotate(2deg); }
+            100% { transform: translate(-50%, -50%) translateY(0px) rotate(0deg); }
+          }
+          .floating-node { animation: float 6s ease-in-out infinite; }
         }
-        .floating-node { animation: float 6s ease-in-out infinite; }
       `}</style>
-      <div className="min-h-screen bg-background relative overflow-hidden font-inter">
+      <div className="min-h-[100dvh] bg-background relative overflow-hidden font-inter">
       {/* Abstract background shapes */}
       <div
         className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full mix-blend-multiply blur-3xl opacity-20 pointer-events-none"
@@ -82,10 +91,7 @@ const Index = () => {
       <nav className={`sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/40 transition-opacity duration-200 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
         <div className="px-6 md:px-12 py-6 flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center gap-3">
-            <div className="w-5 h-5 rounded-full bg-primary" />
-            <span className="font-playfair font-bold text-xl text-foreground">ivangel</span>
-          </div>
+          <Logo size={30} />
 
           {/* Desktop center nav links */}
           <div className="hidden md:flex items-center gap-8">
@@ -117,8 +123,16 @@ const Index = () => {
 
           {/* Right: CTA + mobile hamburger */}
           <div className="flex items-center gap-4">
-            {/* Desktop CTA */}
-            <div className="hidden md:block">
+            {/* Desktop: log in (returning users) + primary CTA */}
+            <div className="hidden md:flex items-center gap-6">
+              {!user && (
+                <Link
+                  to="/login"
+                  className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium"
+                >
+                  Log in
+                </Link>
+              )}
               <Button asChild>
                 <Link to={user ? "/dashboard" : "/signup"}>
                   {user ? "Go to Dashboard" : "Start Free Trial"}
@@ -167,6 +181,15 @@ const Index = () => {
                     >
                       FAQ
                     </a>
+                    {!user && (
+                      <Link
+                        to="/login"
+                        onClick={() => setMobileOpen(false)}
+                        className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium"
+                      >
+                        Log in
+                      </Link>
+                    )}
                     <Button asChild className="mt-2">
                       <Link to={user ? "/dashboard" : "/signup"} onClick={() => setMobileOpen(false)}>
                         {user ? "Go to Dashboard" : "Start Free Trial"}
@@ -192,7 +215,7 @@ const Index = () => {
               Your sermon satisfies Sunday.<br />What about the other six days?
             </h1>
             <p className={`text-xl text-muted-foreground leading-relaxed max-w-xl mb-8 transition-all duration-500 delay-200 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
-              ivangel transforms your sermon into social posts, study guides, devotionals, and more — in 15+ languages. Text content only, ready to copy and publish.
+              Turn one sermon into a week of posts, study guides and devotionals. In your voice, in 15+ languages, ready to copy and post.
             </p>
             <Button asChild size="lg" className={`text-lg px-8 py-6 transition-all duration-500 delay-300 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
               <Link to={user ? "/dashboard" : "/signup"}>
@@ -228,7 +251,7 @@ const Index = () => {
               <div className="absolute inset-0 bg-foreground/0 transition-colors duration-300 group-hover:bg-foreground/[0.06]" />
             </button>
             <p className="mt-3 text-center text-sm text-muted-foreground">
-              See ivangel in action — a 60-second tour
+              See ivangel in action. A 60-second tour.
             </p>
           </div>
         </div>
@@ -280,11 +303,10 @@ const Index = () => {
             {/* Sticky Left Column */}
             <div className="md:col-span-5">
               <div className="sticky top-32">
-                <span className="text-xs font-bold uppercase tracking-widest text-primary mb-4 block">The Methodology</span>
                 <h2 className="text-4xl md:text-5xl font-playfair font-bold leading-tight mb-6">
-                  Your message, <br/>architected for the week.
+                  From Sunday's sermon <br/>to a week of content.
                 </h2>
-                <p className="text-lg text-muted-foreground">We removed the friction between the pulpit and the digital world.</p>
+                <p className="text-lg text-muted-foreground">Three simple steps. No new skills to learn.</p>
               </div>
             </div>
 
@@ -294,27 +316,27 @@ const Index = () => {
               {/* Step 1 */}
               <div className="relative pl-8 md:pl-12 border-l border-border/60">
                 <span className="absolute -left-[18px] top-0 text-sm font-bold bg-background text-primary py-1 px-2 font-playfair italic">I.</span>
-                <h3 className="text-2xl font-playfair font-bold mb-3">The Ingestion</h3>
+                <h3 className="text-2xl font-playfair font-bold mb-3">Add your sermon</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Upload your raw audio, video, or pasted text transcript. The engine instantly analyzes your theological framework, tone, and pacing.
+                  Paste the transcript or upload the file. ivangel reads it and picks up your themes, tone and pacing.
                 </p>
               </div>
 
               {/* Step 2 */}
               <div className="relative pl-8 md:pl-12 border-l border-border/60">
                 <span className="absolute -left-[20px] top-0 text-sm font-bold bg-background text-primary py-1 px-2 font-playfair italic">II.</span>
-                <h3 className="text-2xl font-playfair font-bold mb-3">The Expansion</h3>
+                <h3 className="text-2xl font-playfair font-bold mb-3">Choose what you need</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Select your required outputs. Within moments, the AI generates highly contextual social threads, study guides, and devotionals in up to 22 languages simultaneously.
+                  Pick your content types and the languages you need. ivangel writes the social posts, study guides and devotionals for you, in your church's voice.
                 </p>
               </div>
 
               {/* Step 3 */}
               <div className="relative pl-8 md:pl-12 border-l border-border/60">
                 <span className="absolute -left-[22px] top-0 text-sm font-bold bg-background text-primary py-1 px-2 font-playfair italic">III.</span>
-                <h3 className="text-2xl font-playfair font-bold mb-3">The Deployment</h3>
+                <h3 className="text-2xl font-playfair font-bold mb-3">Copy and post</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Review your perfectly formatted text. Edit on the fly, export to PDF, or copy directly to your clipboard for instant scheduling.
+                  Read it over, tweak anything that needs it, then export to PDF or copy straight to your clipboard. Ready before your coffee's cold.
                 </p>
               </div>
 
@@ -331,7 +353,7 @@ const Index = () => {
             One sermon. Five ways to reach your community.
           </h2>
           <p className="text-lg text-muted-foreground mb-16 max-w-2xl">
-            Choose the content types you need — ivangel generates them all from a single transcript.
+            Choose the content types you need. ivangel generates them all from a single transcript.
           </p>
 
           <Tabs defaultValue="social" className="w-full">
@@ -369,7 +391,7 @@ const Index = () => {
                       </div>
                     </div>
                     <p className="text-card-foreground leading-relaxed mb-4">
-                      "Grace isn't passive — it's the most active force in the universe. This Sunday we explored what it means to carry that into Monday morning."
+                      "Grace isn't passive. It's the most active force in the universe, and this Sunday we explored what it means to carry that into Monday morning."
                     </p>
                     <p className="text-sm text-muted-foreground mb-4">
                       Tap the link in bio to read the full devotional series this week.
@@ -412,7 +434,7 @@ const Index = () => {
                     </div>
                     <h4 className="font-playfair text-xl font-bold mb-3 text-card-foreground">The Weight of a Small Kindness</h4>
                     <p className="text-card-foreground leading-relaxed mb-4">
-                      "Carry each other's burdens, and in this way you will fulfil the law of Christ." — Galatians 6:2
+                      "Carry each other's burdens, and in this way you will fulfil the law of Christ." - Galatians 6:2
                     </p>
                     <p className="text-muted-foreground leading-relaxed text-sm">
                       Today's reflection: grace doesn't always announce itself. Sometimes it arrives as a text message, a meal left on a doorstep, or five quiet minutes of listening.
@@ -432,9 +454,9 @@ const Index = () => {
                       Pastor James unpacks what happens when Sunday's message meets Monday's reality. Drawing from James 2 and personal stories from the congregation, this episode challenges us to move grace from concept to practice.
                     </p>
                     <div className="border-t border-border/40 pt-4 space-y-2">
-                      <p className="text-xs text-muted-foreground"><span className="font-semibold">00:00</span> — Introduction &amp; recap</p>
-                      <p className="text-xs text-muted-foreground"><span className="font-semibold">04:30</span> — The theology of active grace</p>
-                      <p className="text-xs text-muted-foreground"><span className="font-semibold">18:15</span> — Congregation stories</p>
+                      <p className="text-xs text-muted-foreground"><span className="font-semibold">00:00</span> &middot; Introduction &amp; recap</p>
+                      <p className="text-xs text-muted-foreground"><span className="font-semibold">04:30</span> &middot; The theology of active grace</p>
+                      <p className="text-xs text-muted-foreground"><span className="font-semibold">18:15</span> &middot; Congregation stories</p>
                     </div>
                   </div>
                 </TabsContent>
@@ -457,7 +479,7 @@ const Index = () => {
                       ))}
                     </div>
                     <p className="text-sm text-muted-foreground mt-4 leading-relaxed">
-                      Join us for a morning of celebration, worship, and community. Invite your neighbours — everyone is welcome.
+                      Join us for a morning of celebration, worship and community. Invite your neighbours. Everyone is welcome.
                     </p>
                   </div>
                 </TabsContent>
@@ -472,12 +494,11 @@ const Index = () => {
         <div ref={tapestryRef} className="max-w-5xl mx-auto px-6 md:px-12 flex flex-col items-center opacity-0 translate-y-8 transition-all duration-700 ease-out">
           {/* Section header */}
           <div className="text-center max-w-2xl mb-16">
-            <span className="text-xs font-bold uppercase tracking-widest text-primary mb-4 block">Multilingual Outreach</span>
             <h2 className="font-playfair text-4xl md:text-5xl font-bold mb-4">
               One sermon, every language your community speaks.
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Hover over a language to see how your pastoral voice translates across cultures. 15+ languages supported — instantly.
+              Hover over a language to see how your pastoral voice carries across cultures. 15+ languages supported.
             </p>
           </div>
 
@@ -534,7 +555,7 @@ const Index = () => {
             <div>
               <h3 className="text-3xl md:text-4xl font-playfair font-bold mb-6">Your voice, not ours.</h3>
               <p className="text-lg text-muted-foreground leading-relaxed mb-4">During onboarding, ivangel crawls your church website and analyses your sermons to learn your tone, vocabulary, theological emphasis, and pastoral style. It builds a voice profile unique to your ministry.</p>
-              <p className="text-lg text-muted-foreground leading-relaxed">Every output sounds like you wrote it — because it's built on your words. And you can refine your voice profile at any time from your settings.</p>
+              <p className="text-lg text-muted-foreground leading-relaxed">Every output sounds like you wrote it, because it's built on your words. And you can refine your voice profile at any time from your settings.</p>
             </div>
             {/* Visual side — right on desktop */}
             <div
@@ -613,7 +634,7 @@ const Index = () => {
             {/* Text side — right on desktop */}
             <div className="order-1 md:order-2">
               <h3 className="text-3xl md:text-4xl font-playfair font-bold mb-6">Series-aware content.</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed">Running a sermon series? ivangel keeps track. Tag each sermon with its series and week number, and the AI weaves that context into every output — referencing the series theme, maintaining consistent messaging, and framing each week within the bigger story.</p>
+              <p className="text-lg text-muted-foreground leading-relaxed">Running a sermon series? ivangel keeps track. Tag each sermon with its series and week number, and that context flows into every output, referencing the series theme, keeping the messaging consistent, and framing each week within the bigger story.</p>
             </div>
           </div>
 
@@ -739,7 +760,7 @@ const Index = () => {
                 What kind of content does ivangel create?
               </AccordionTrigger>
               <AccordionContent>
-                ivangel generates text-based content only: social media posts, bible study guides, daily devotionals, podcast descriptions, and event promotions. No images or video — just well-crafted words ready to copy, edit, and share.
+                ivangel generates text-based content only: social media posts, bible study guides, daily devotionals, podcast descriptions and event promotions. No images or video, just well-crafted words ready to copy, edit and share.
               </AccordionContent>
             </AccordionItem>
 
@@ -748,7 +769,7 @@ const Index = () => {
                 How does the free trial work?
               </AccordionTrigger>
               <AccordionContent>
-                You get 14 days of full access to every feature — all content types, all languages, style guide matching. No credit card required to start. Cancel anytime.
+                You get 14 days of full access to every feature: all content types, all languages, style guide matching. No credit card required to start. Cancel anytime.
               </AccordionContent>
             </AccordionItem>
 
@@ -790,7 +811,7 @@ const Index = () => {
             Ready to give your team their week back?
           </h2>
           <p className="text-xl text-primary-foreground/80 mb-10 max-w-2xl mx-auto">
-            Keep your voice. Reach every language. Turn one sermon into a full week of content — before Monday morning coffee.
+            Keep your voice. Reach every language. Turn one sermon into a full week of content, before Monday morning coffee.
           </p>
           <Button asChild variant="secondary" size="lg" className="text-lg px-8 py-6">
             <Link to="/signup">Start your 14-day free trial</Link>
@@ -803,10 +824,7 @@ const Index = () => {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             {/* Left: Logo */}
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-primary" />
-              <span className="font-playfair font-bold text-lg">ivangel</span>
-            </div>
+            <Logo size={24} />
 
             {/* Center: Links */}
             <div className="flex flex-wrap justify-center gap-6 text-sm font-medium text-muted-foreground">
