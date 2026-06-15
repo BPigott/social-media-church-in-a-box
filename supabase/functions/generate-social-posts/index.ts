@@ -155,7 +155,7 @@ serve(async (req) => {
       return jsonResponse(400, { error: "Please provide either a sermon transcript (100+ words) or a CTA/event (10+ words)." });
     }
 
-    // === Token budget pre-flight ($6/month, exempt users bypass) ===
+    // === Token budget pre-flight ($10/month, exempt users bypass) ===
     if (!subscription.exempt) {
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
       const { data: usageRows } = await supabase
@@ -164,7 +164,7 @@ serve(async (req) => {
         .eq("user_id", user.id).eq("status", "completed").gte("created_at", thirtyDaysAgo);
       const monthlyCostUsd = (usageRows ?? []).reduce(
         (sum: number, row: { estimated_cost_usd: number | null }) => sum + (row.estimated_cost_usd ?? 0), 0);
-      const MONTHLY_LIMIT_USD = 6.0;
+      const MONTHLY_LIMIT_USD = 10.0;
       if (monthlyCostUsd >= MONTHLY_LIMIT_USD) {
         return jsonResponse(402, {
           error: "Monthly generation limit reached. Your limit resets in 30 days.",
