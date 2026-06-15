@@ -4,6 +4,7 @@ import { House, FileText, Gear as SettingsIcon, CreditCard, SignOut } from "phos
 import { cn } from "@/lib/utils";
 import { signOut } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
+import { Logo } from "@/components/Logo";
 
 export const Navigation = () => {
   const location = useLocation();
@@ -35,11 +36,7 @@ export const Navigation = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link to="/dashboard" className="flex items-center">
-            <img 
-              src="/logo.png" 
-              alt="ivangel" 
-              className="h-20 w-auto"
-            />
+            <Logo size={28} />
           </Link>
           <div className="flex gap-2">
             {navItems.map((item) => {

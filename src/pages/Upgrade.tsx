@@ -46,7 +46,7 @@ const Upgrade = () => {
         <CardContent className="space-y-4">
           <Button size="lg" className="w-full" asChild>
             <a href={checkoutUrl} target="_blank" rel="noopener noreferrer">
-              Church Plan — £25/month
+              Church Plan · £25/month
             </a>
           </Button>
           <p className="text-xs text-center text-muted-foreground">

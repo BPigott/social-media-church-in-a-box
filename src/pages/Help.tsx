@@ -11,15 +11,15 @@ import {
 const FAQ_ITEMS: { q: string; a: string }[] = [
   {
     q: "How long does generating content take?",
-    a: "Usually under a minute. Adding more languages or generating several pieces at once can take a little longer, but it's still quick — make a cup of tea and it'll be ready.",
+    a: "Usually under a minute. Adding more languages or generating several pieces at once can take a little longer, but it's still quick. Make a cup of tea and it'll be ready.",
   },
   {
-    q: "The content doesn't sound like us — how do I fix that?",
+    q: "The content doesn't sound like us. How do I fix that?",
     a: "Open Settings → Style Guide and edit your voice profile directly. If your website has changed, use the Refresh button on the Church Information tab to re-crawl it; ivangel will incorporate the updated tone on your next generation.",
   },
   {
     q: "Can I edit content after it's generated?",
-    a: "Yes. Every piece is editable inline in the results panel. Make your changes, then copy or download — your edits stick.",
+    a: "Yes. Every piece is editable inline in the results panel. Make your changes, then copy or download, and your edits stick.",
   },
   {
     q: "How do I add another language, or fix a translation?",
@@ -31,27 +31,27 @@ const FAQ_ITEMS: { q: string; a: string }[] = [
   },
   {
     q: "What can I upload as a sermon?",
-    a: "TXT, PDF, DOCX or DOC files. If you don't have a transcript, switch to \"Upcoming event\" and write a short description of what's coming up — ivangel can generate from that instead.",
+    a: "TXT, PDF, DOCX or DOC files. If you don't have a transcript, switch to \"Upcoming event\" and write a short description of what's coming up, and ivangel can generate from that instead.",
   },
   {
     q: "How do I update church details or our website?",
     a: "Settings → Church Information. Update your details, then click Refresh to re-crawl your website so your style guide stays current.",
   },
   {
-    q: "A video won't play or looks blank — what should I try?",
+    q: "A video won't play or looks blank. What should I try?",
     a: "Refresh the page first, then check your internet connection. If it still won't load, try another browser. If that fails too, get in touch and we'll take a look.",
   },
   {
     q: "How does billing work and how do I cancel?",
-    a: "ivangel is £25 per month. You can manage your subscription or cancel anytime from the Billing page — no contracts, no cancellation fees.",
+    a: "ivangel is £25 per month. You can manage your subscription or cancel anytime from the Billing page. No contracts, no cancellation fees.",
   },
   {
     q: "Is there a limit on how much I can generate?",
-    a: "No. Generation is unlimited on the plan — produce as much content as your church needs, every week.",
+    a: "No. Generation is unlimited on the plan, so produce as much content as your church needs, every week.",
   },
   {
     q: "Is our content private and secure?",
-    a: "Yes. Each church has its own private library — your sermons, voice profile and generated content are visible only to your church account. We don't share data between churches, and your content is never used to train AI models.",
+    a: "Yes. Each church has its own private library: your sermons, voice profile and generated content are visible only to your church account. We don't share data between churches, and your content is never used to train AI models.",
   },
 ];
 

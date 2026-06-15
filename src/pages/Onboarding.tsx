@@ -333,7 +333,7 @@ const Onboarding = () => {
       <div className="mx-auto max-w-2xl space-y-10">
         {/* Brand header */}
         <div className="space-y-2 text-center">
-          <h1 className="font-playfair text-4xl font-bold">Welcome to Ivangel</h1>
+          <h1 className="font-playfair text-4xl font-bold">Welcome to ivangel</h1>
           <p className="mx-auto max-w-md text-muted-foreground">
             Generic AI writes generic content. Your voice is what makes this yours.
           </p>

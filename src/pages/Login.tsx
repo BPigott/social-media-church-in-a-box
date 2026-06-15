@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { signIn } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { Logo } from "@/components/Logo";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -132,11 +133,7 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-md space-y-6">
         <div className="flex justify-center">
-          <img 
-            src="/logo.png" 
-            alt="ivangel" 
-            className="h-32 w-auto"
-          />
+          <Logo orientation="vertical" size={56} showTagline />
         </div>
       <Card className="w-full">
         <CardHeader className="space-y-1">

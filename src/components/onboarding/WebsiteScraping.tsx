@@ -26,7 +26,7 @@ const SCRAPING_MESSAGES = [
   "Getting a feel for your tone and vibe… ✨",
   "Capturing your vision and values… 🎯",
   "Discovering your ministries and story… 🙏",
-  "Almost there — wrapping up… 🎁",
+  "Almost there, wrapping up… 🎁",
 ];
 
 type State = "loading" | "success" | "manual";
@@ -104,8 +104,8 @@ export const WebsiteScraping = ({ websiteUrl, onComplete, onSkip }: WebsiteScrap
           <h3 className="font-playfair text-2xl font-bold">We've read your website</h3>
           <p className="max-w-md text-muted-foreground">
             We picked up {scraped.pagesScraped || scraped.content.length} page
-            {(scraped.pagesScraped || scraped.content.length) === 1 ? "" : "s"} from your site —
-            here's a peek at what we found.
+            {(scraped.pagesScraped || scraped.content.length) === 1 ? "" : "s"} from your site.
+            Here's a peek at what we found.
           </p>
         </div>
 
@@ -122,7 +122,7 @@ export const WebsiteScraping = ({ websiteUrl, onComplete, onSkip }: WebsiteScrap
         </ul>
 
         <Button onClick={() => onComplete(scraped)} size="lg" className="w-full">
-          Looks right — continue →
+          Looks right, continue →
         </Button>
         <button
           type="button"
@@ -156,9 +156,9 @@ export const WebsiteScraping = ({ websiteUrl, onComplete, onSkip }: WebsiteScrap
         <h3 className="font-playfair text-2xl font-bold">Tell us how your church communicates</h3>
         <p className="mx-auto max-w-md text-muted-foreground">
           {websiteUrl
-            ? "We couldn't read your website automatically — no problem."
+            ? "We couldn't read your website automatically. No problem."
             : "No website? No problem."}{" "}
-          Paste some text that sounds like your church — your About page, values, or a recent blog
+          Paste some text that sounds like your church: your About page, values, or a recent blog
           post all work well.
         </p>
       </div>
@@ -178,7 +178,7 @@ export const WebsiteScraping = ({ websiteUrl, onComplete, onSkip }: WebsiteScrap
         onClick={onSkip}
         className="mx-auto block text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
       >
-        Skip — I'll add this later
+        Skip, I'll add this later
       </button>
     </div>
   );

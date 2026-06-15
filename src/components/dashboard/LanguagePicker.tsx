@@ -160,7 +160,7 @@ export function LanguagePicker({
 
       {atLimit && (
         <p className="rounded-md bg-destructive/10 px-2.5 py-1.5 text-xs text-destructive">
-          Maximum {MAX_LANGUAGES} languages reached — remove one to add another.
+          Maximum {MAX_LANGUAGES} languages reached. Remove one to add another.
         </p>
       )}
       <p className="text-[10px] text-muted-foreground">
