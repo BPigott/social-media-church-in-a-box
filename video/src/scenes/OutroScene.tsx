@@ -56,7 +56,7 @@ export const OutroScene: React.FC<{ cta: string; handle: string }> = ({
           boxShadow: "0 18px 50px -12px rgba(58,53,47,0.3)",
         }}
       >
-        <Logo height={180} />
+        <Logo height={140} />
       </div>
 
       <p

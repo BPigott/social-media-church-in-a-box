@@ -43,7 +43,7 @@ export const IntroScene: React.FC<{ tagline: string }> = ({ tagline }) => {
       }}
     >
       <div style={{ transform: `translateY(${logoY}px)`, opacity: logoProgress }}>
-        <Logo height={260} />
+        <Logo height={200} />
       </div>
 
       <div
