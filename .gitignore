@@ -69,3 +69,4 @@ lerna-debug.log*
 # One-off review screenshots
 landing-page-screenshot.png
 login-page-screenshot.png
+.env.local.dev
