@@ -1,6 +1,10 @@
 # ivangel
 
-An AI-powered content generation platform for churches, creating social media posts, devotionals, and Bible study guides from sermon transcripts.
+**ivangel is a tool for churches.** You upload a sermon transcript and it produces ready-to-post social media content, a daily devotional, and a Bible study guide — all written in your church's own voice. The goal is to save church teams hours each week and help the Sunday message reach people throughout the rest of it.
+
+It's built with React, Supabase, and Anthropic's Claude, with AI generation running through Supabase Edge Functions. The rest of this README covers how it works and how to run it locally.
+
+> **Note for reviewers:** this repository is shared read-only for feedback. It's a snapshot of a live, in-development product — you're very welcome to read the code and open an issue, but it isn't set up as a one-click public deploy (it needs a Supabase project and several API keys of your own).
 
 ## Features
 
