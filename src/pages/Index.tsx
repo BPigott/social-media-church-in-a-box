@@ -57,7 +57,9 @@ const Index = () => {
 
   const problemRef = useScrollReveal();
   const howItWorksRef = useScrollReveal();
+  const differentiatorsRef = useScrollReveal();
   const contentTypesRef = useScrollReveal();
+  const testimonialRef = useScrollReveal();
   const tapestryRef = useScrollReveal();
   const featuresRef = useScrollReveal();
   const pricingRef = useScrollReveal();
@@ -345,6 +347,102 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Differentiators — what makes ivangel more than a transcript wrapper */}
+      <section id="features" className="py-20 md:py-28 relative z-10">
+        <div ref={differentiatorsRef} className="max-w-6xl mx-auto px-6 md:px-12 opacity-0 translate-y-8 transition-all duration-700 ease-out">
+
+          {/* Block 1: Your voice, not ours */}
+          <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+            {/* Text side — left on desktop */}
+            <div>
+              <h3 className="text-3xl md:text-4xl font-playfair font-bold mb-6">Your voice, not ours.</h3>
+              <p className="text-lg text-muted-foreground leading-relaxed mb-4">During onboarding, ivangel crawls your church website and analyses your sermons to learn your tone, vocabulary, theological emphasis, and pastoral style. It builds a voice profile unique to your ministry.</p>
+              <p className="text-lg text-muted-foreground leading-relaxed">Every output sounds like you wrote it, because it's built on your words. And you can refine your voice profile at any time from your settings.</p>
+            </div>
+            {/* Visual side — right on desktop */}
+            <div
+              className="w-full min-h-[320px] rounded-3xl p-8 flex flex-col justify-between -rotate-2 bg-primary shadow-tactile"
+            >
+              <div className="text-primary-foreground/60 text-[10px] font-bold uppercase tracking-widest mb-4">Voice Profile</div>
+              <div className="space-y-3 flex-1">
+                <div className="bg-white/10 rounded-xl px-4 py-3 backdrop-blur-sm">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-primary-foreground text-xs font-semibold">Theological Tone</span>
+                    <span className="text-primary-foreground/80 text-xs">Reformed · Pastoral</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-white/15 rounded-full overflow-hidden">
+                    <div className="w-[88%] h-full bg-primary-foreground/90 rounded-full" />
+                  </div>
+                </div>
+                <div className="bg-white/10 rounded-xl px-4 py-3 backdrop-blur-sm">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-primary-foreground text-xs font-semibold">Warmth &amp; Approachability</span>
+                    <span className="text-primary-foreground/80 text-xs">High</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-white/15 rounded-full overflow-hidden">
+                    <div className="w-[94%] h-full bg-primary-foreground/90 rounded-full" />
+                  </div>
+                </div>
+                <div className="bg-white/10 rounded-xl px-4 py-3 backdrop-blur-sm">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-primary-foreground text-xs font-semibold">Scripture Usage</span>
+                    <span className="text-primary-foreground/80 text-xs">Frequent · NIV</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-white/15 rounded-full overflow-hidden">
+                    <div className="w-[76%] h-full bg-primary-foreground/90 rounded-full" />
+                  </div>
+                </div>
+              </div>
+              <div
+                className="bg-card p-4 rounded-2xl mt-4 shadow-tactile"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold text-sm">Voice Match: 94%</p>
+                    <p className="text-xs text-muted-foreground">Sample church profile</p>
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Editable</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Block 2: Series-aware content */}
+          <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center mt-20">
+            {/* Visual side — left on desktop */}
+            <div
+              className="order-2 md:order-1 w-full h-72 rounded-3xl p-8 flex flex-col justify-center rotate-2 bg-secondary shadow-tactile"
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className="bg-card p-4 rounded-xl w-[45%] shadow-tactile"
+                >
+                  <p className="font-semibold text-xs mb-2">Week 3 <span className="font-normal text-muted-foreground">· Forgiveness</span></p>
+                  <p className="text-[11px] text-muted-foreground leading-snug">"As we explored last week, grace precedes forgiveness..."</p>
+                </div>
+                <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                  <div className="border-t-2 border-dashed border-white/40 w-6" />
+                  <span className="text-[9px] text-white/50 font-bold uppercase tracking-wider">linked</span>
+                  <div className="border-t-2 border-dashed border-white/40 w-6" />
+                </div>
+                <div
+                  className="bg-card p-4 rounded-xl w-[45%] shadow-tactile"
+                >
+                  <p className="font-semibold text-xs mb-2">Week 4 <span className="font-normal text-muted-foreground">· Restoration</span></p>
+                  <p className="text-[11px] text-muted-foreground leading-snug">"Building on last week's theme of forgiveness, we turn to restoration..."</p>
+                </div>
+              </div>
+            </div>
+            {/* Text side — right on desktop */}
+            <div className="order-1 md:order-2">
+              <h3 className="text-3xl md:text-4xl font-playfair font-bold mb-6">Series-aware content.</h3>
+              <p className="text-lg text-muted-foreground leading-relaxed">Running a sermon series? ivangel keeps track. Tag each sermon with its series and week number, and that context flows into every output, referencing the series theme, keeping the messaging consistent, and framing each week within the bigger story.</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
       {/* Content Types — Editorial Index */}
       <section className="py-20 md:py-28 relative z-10">
         <div ref={contentTypesRef} className="max-w-6xl mx-auto px-6 md:px-12 opacity-0 translate-y-8 transition-all duration-700 ease-out">
@@ -352,8 +450,11 @@ const Index = () => {
           <h2 className="text-4xl md:text-5xl font-playfair font-bold mb-4">
             One sermon. Five ways to reach your community.
           </h2>
-          <p className="text-lg text-muted-foreground mb-16 max-w-2xl">
+          <p className="text-lg text-muted-foreground mb-3 max-w-2xl">
             Choose the content types you need. ivangel generates them all from a single transcript.
+          </p>
+          <p className="text-sm text-muted-foreground/80 italic mb-16 max-w-2xl">
+            Real examples generated from a single sermon. Church names shown are illustrative.
           </p>
 
           <Tabs defaultValue="social" className="w-full">
@@ -383,6 +484,7 @@ const Index = () => {
                 {/* Social Media Posts */}
                 <TabsContent value="social" className="mt-0">
                   <div className="bg-card rounded-2xl p-8 shadow-tactile border border-border/30">
+                    <span className="inline-block text-[10px] font-bold uppercase tracking-widest text-primary/80 bg-primary/5 border border-primary/15 rounded-full px-3 py-1 mb-5">Example output</span>
                     <div className="flex items-center gap-3 mb-5">
                       <div className="w-10 h-10 rounded-full bg-accent" />
                       <div>
@@ -407,6 +509,7 @@ const Index = () => {
                 {/* Bible Study Guides */}
                 <TabsContent value="study" className="mt-0">
                   <div className="bg-card rounded-2xl p-8 shadow-tactile border border-border/30">
+                    <span className="inline-block text-[10px] font-bold uppercase tracking-widest text-primary/80 bg-primary/5 border border-primary/15 rounded-full px-3 py-1 mb-5">Example output</span>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-4">Small Group Discussion Guide</p>
                     <div className="space-y-5">
                       <div className="flex gap-4 items-start">
@@ -428,6 +531,7 @@ const Index = () => {
                 {/* Daily Devotionals */}
                 <TabsContent value="devotional" className="mt-0">
                   <div className="bg-card rounded-2xl p-8 shadow-tactile border border-border/30">
+                    <span className="inline-block text-[10px] font-bold uppercase tracking-widest text-primary/80 bg-primary/5 border border-primary/15 rounded-full px-3 py-1 mb-5">Example output</span>
                     <div className="flex items-center justify-between mb-5 border-b border-border/50 pb-4">
                       <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Day 1 &bull; Monday</p>
                       <p className="text-xs text-muted-foreground italic">2 min read</p>
@@ -448,6 +552,7 @@ const Index = () => {
                 {/* Podcast Descriptions */}
                 <TabsContent value="podcast" className="mt-0">
                   <div className="bg-card rounded-2xl p-8 shadow-tactile border border-border/30">
+                    <span className="inline-block text-[10px] font-bold uppercase tracking-widest text-primary/80 bg-primary/5 border border-primary/15 rounded-full px-3 py-1 mb-5">Example output</span>
                     <p className="text-xs text-muted-foreground mb-1">Episode 42 &bull; Season 3</p>
                     <h4 className="font-playfair text-xl font-bold mb-3 text-card-foreground">Active Grace: Beyond the Pew</h4>
                     <p className="text-card-foreground leading-relaxed mb-4">
@@ -464,6 +569,7 @@ const Index = () => {
                 {/* Event Promotions */}
                 <TabsContent value="event" className="mt-0">
                   <div className="bg-card rounded-2xl p-8 shadow-tactile border border-border/30">
+                    <span className="inline-block text-[10px] font-bold uppercase tracking-widest text-primary/80 bg-primary/5 border border-primary/15 rounded-full px-3 py-1 mb-5">Example output</span>
                     <h4 className="font-playfair text-xl font-bold mb-4 text-card-foreground">Easter Sunday Service</h4>
                     <div className="space-y-3 border-t border-border/40 pt-4">
                       {[
@@ -486,6 +592,31 @@ const Index = () => {
               </div>
             </div>
           </Tabs>
+        </div>
+      </section>
+
+      {/* Testimonial — real social proof */}
+      <section className="py-20 md:py-28 relative z-10">
+        <div ref={testimonialRef} className="max-w-3xl mx-auto px-6 md:px-12 text-center opacity-0 translate-y-8 transition-all duration-700 ease-out">
+          <span className="text-xs font-bold uppercase tracking-widest text-primary mb-6 block">From a church using ivangel</span>
+          <div className="relative bg-secondary/15 border border-secondary/30 rounded-3xl p-10 md:p-14 shadow-tactile">
+            <span aria-hidden="true" className="font-playfair text-7xl md:text-8xl leading-none text-secondary/40 select-none">&ldquo;</span>
+            <blockquote className="font-playfair text-2xl md:text-3xl font-medium leading-relaxed text-foreground -mt-6 md:-mt-8">
+              ivangel has saved me hours every single week. The social media content and small group resources that used to swallow my time are now ready in minutes. For a small church, it's been an absolute lifesaver.
+            </blockquote>
+            <div className="flex items-center justify-center gap-4 mt-10">
+              <img
+                src="/leicester-vineyard-mark.png"
+                alt="Leicester Vineyard"
+                className="w-12 h-12 rounded-xl shadow-sm"
+                loading="lazy"
+              />
+              <div className="text-left">
+                <p className="font-semibold text-sm text-foreground">Senior Pastor</p>
+                <p className="text-sm text-muted-foreground">Leicester Vineyard</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -545,101 +676,12 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features — 3 Focused Blocks */}
-      <section id="features" className="py-20 md:py-28 relative z-10">
+      {/* Features — Every platform */}
+      <section className="py-20 md:py-28 relative z-10">
         <div ref={featuresRef} className="max-w-6xl mx-auto px-6 md:px-12 opacity-0 translate-y-8 transition-all duration-700 ease-out">
 
-          {/* Block 1: Your voice, not ours */}
-          <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
-            {/* Text side — left on desktop */}
-            <div>
-              <h3 className="text-3xl md:text-4xl font-playfair font-bold mb-6">Your voice, not ours.</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed mb-4">During onboarding, ivangel crawls your church website and analyses your sermons to learn your tone, vocabulary, theological emphasis, and pastoral style. It builds a voice profile unique to your ministry.</p>
-              <p className="text-lg text-muted-foreground leading-relaxed">Every output sounds like you wrote it, because it's built on your words. And you can refine your voice profile at any time from your settings.</p>
-            </div>
-            {/* Visual side — right on desktop */}
-            <div
-              className="w-full min-h-[320px] rounded-3xl p-8 flex flex-col justify-between -rotate-2 bg-primary shadow-tactile"
-            >
-              <div className="text-primary-foreground/60 text-[10px] font-bold uppercase tracking-widest mb-4">Voice Profile</div>
-              <div className="space-y-3 flex-1">
-                <div className="bg-white/10 rounded-xl px-4 py-3 backdrop-blur-sm">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-primary-foreground text-xs font-semibold">Theological Tone</span>
-                    <span className="text-primary-foreground/80 text-xs">Reformed · Pastoral</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-white/15 rounded-full overflow-hidden">
-                    <div className="w-[88%] h-full bg-primary-foreground/90 rounded-full" />
-                  </div>
-                </div>
-                <div className="bg-white/10 rounded-xl px-4 py-3 backdrop-blur-sm">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-primary-foreground text-xs font-semibold">Warmth &amp; Approachability</span>
-                    <span className="text-primary-foreground/80 text-xs">High</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-white/15 rounded-full overflow-hidden">
-                    <div className="w-[94%] h-full bg-primary-foreground/90 rounded-full" />
-                  </div>
-                </div>
-                <div className="bg-white/10 rounded-xl px-4 py-3 backdrop-blur-sm">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-primary-foreground text-xs font-semibold">Scripture Usage</span>
-                    <span className="text-primary-foreground/80 text-xs">Frequent · NIV</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-white/15 rounded-full overflow-hidden">
-                    <div className="w-[76%] h-full bg-primary-foreground/90 rounded-full" />
-                  </div>
-                </div>
-              </div>
-              <div
-                className="bg-card p-4 rounded-2xl mt-4 shadow-tactile"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold text-sm">Voice Match: 94%</p>
-                    <p className="text-xs text-muted-foreground">Grace Community Church</p>
-                  </div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Editable</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Block 2: Series-aware content */}
-          <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center mt-20">
-            {/* Visual side — left on desktop */}
-            <div
-              className="order-2 md:order-1 w-full h-72 rounded-3xl p-8 flex flex-col justify-center rotate-2 bg-secondary shadow-tactile"
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className="bg-card p-4 rounded-xl w-[45%] shadow-tactile"
-                >
-                  <p className="font-semibold text-xs mb-2">Week 3 <span className="font-normal text-muted-foreground">· Forgiveness</span></p>
-                  <p className="text-[11px] text-muted-foreground leading-snug">"As we explored last week, grace precedes forgiveness..."</p>
-                </div>
-                <div className="flex flex-col items-center gap-1 flex-shrink-0">
-                  <div className="border-t-2 border-dashed border-white/40 w-6" />
-                  <span className="text-[9px] text-white/50 font-bold uppercase tracking-wider">linked</span>
-                  <div className="border-t-2 border-dashed border-white/40 w-6" />
-                </div>
-                <div
-                  className="bg-card p-4 rounded-xl w-[45%] shadow-tactile"
-                >
-                  <p className="font-semibold text-xs mb-2">Week 4 <span className="font-normal text-muted-foreground">· Restoration</span></p>
-                  <p className="text-[11px] text-muted-foreground leading-snug">"Building on last week's theme of forgiveness, we turn to restoration..."</p>
-                </div>
-              </div>
-            </div>
-            {/* Text side — right on desktop */}
-            <div className="order-1 md:order-2">
-              <h3 className="text-3xl md:text-4xl font-playfair font-bold mb-6">Series-aware content.</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed">Running a sermon series? ivangel keeps track. Tag each sermon with its series and week number, and that context flows into every output, referencing the series theme, keeping the messaging consistent, and framing each week within the bigger story.</p>
-            </div>
-          </div>
-
           {/* Block 3: Every platform, ready to go */}
-          <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center mt-20">
+          <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
             {/* Text side — left on desktop */}
             <div>
               <h3 className="text-3xl md:text-4xl font-playfair font-bold mb-6">Every platform, ready to go.</h3>
