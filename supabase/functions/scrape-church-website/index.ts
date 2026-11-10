@@ -62,7 +62,7 @@ serve(async (req) => {
     console.log('Starting website crawl for:', websiteUrl);
     
     // Start the crawl job
-    const crawlResponse = await fetch('https://api.firecrawl.dev/v1/crawl', {
+    const crawlResponse = await fetch('https://api.firecrawl.dev/v2/crawl', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${firecrawlApiKey}`,
@@ -113,7 +113,7 @@ serve(async (req) => {
       await new Promise(resolve => setTimeout(resolve, pollInterval));
       attempts++;
 
-      const statusResponse = await fetch(`https://api.firecrawl.dev/v1/crawl/${jobId}`, {
+      const statusResponse = await fetch(`https://api.firecrawl.dev/v2/crawl/${jobId}`, {
         headers: {
           'Authorization': `Bearer ${firecrawlApiKey}`,
         },

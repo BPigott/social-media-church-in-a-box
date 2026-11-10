@@ -168,7 +168,7 @@ async function testFirecrawlAPI(): Promise<HealthCheckResult> {
     }
 
     // Test API key validity with a simple request
-    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
+    const response = await fetch('https://api.firecrawl.dev/v2/scrape', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
